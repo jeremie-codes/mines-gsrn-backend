@@ -9,9 +9,9 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         $this->call([
-            MerchantSeeder::class,
+            // MerchantSeeder::class,
             UserSeeder::class,
-            ConfigurationSeeder::class,
+            // ConfigurationSeeder::class,
             // AuthSeeder::class, // Uncomment after creating AuthSeeder
             // MessageSeeder::class, // Uncomment after creating MessageSeeder
         ]);

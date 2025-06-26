@@ -13,7 +13,7 @@ class UserSeeder extends Seeder
             [
                 'code' => 'USER_ADMIN01',
                 'username' => 'admin',
-                'email' => 'admin@smsgateway.com',
+                'email' => 'admin@smsapi.com',
                 'password' => 'password123',
                 'phone_number' => '+33123456789',
                 'enabled' => true,
@@ -21,7 +21,7 @@ class UserSeeder extends Seeder
             [
                 'code' => 'USER_MANAGER01',
                 'username' => 'manager',
-                'email' => 'manager@smsgateway.com',
+                'email' => 'manager@smsapi.com',
                 'password' => 'password123',
                 'phone_number' => '+33987654321',
                 'enabled' => true,
@@ -29,7 +29,7 @@ class UserSeeder extends Seeder
             [
                 'code' => 'USER_OPERATOR01',
                 'username' => 'operator',
-                'email' => 'operator@smsgateway.com',
+                'email' => 'operator@smsapi.com',
                 'password' => 'password123',
                 'phone_number' => '+33456789123',
                 'enabled' => false,
