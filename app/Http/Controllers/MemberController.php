@@ -302,7 +302,7 @@ class MemberController extends Controller
     }
 
     public function createUser(Request $request)
-    {
+    { 
 
         try {
             $request->validate([

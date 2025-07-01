@@ -69,6 +69,8 @@ class MemberSeeder extends Seeder
                 'Mwana', 'Muana', 'Bana', 'Tatu', 'Nkashama', 'Ngalula', 'Mpiana'
             ];
 
+            $genders = ['M', 'F'];
+
             $firstName = $faker->randomElement($firstNames);
             $lastName = $faker->randomElement($lastNames);
             $middleName = $faker->boolean(60) ? $faker->randomElement($middleNames) : null;
@@ -92,6 +94,7 @@ class MemberSeeder extends Seeder
                 'lastname' => $lastName,
                 'middlename' => $middleName,
                 'phone' => $faker->randomElement($phoneFormats),
+                'gender' => $faker->randomElement($genders),
                 'site_id' => $site->id,
                 'city_id' => $city->id,
                 'township_id' => $township ? $township->id : null,

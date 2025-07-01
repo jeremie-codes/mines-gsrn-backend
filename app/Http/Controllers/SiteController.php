@@ -35,9 +35,6 @@ class SiteController extends Controller
     public function store(Request $request)
     {
 
-        // return redirect()->route('sites.index')
-        //     ->with('success', 'Site créé avec succès.');
-
         try {
 
             $request->validate([

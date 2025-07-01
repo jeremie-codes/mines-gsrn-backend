@@ -15,6 +15,7 @@ class Member extends Model
         'middlename',
         'membershipNumber',
         'phone',
+        'gender',
         'site_id',
         'city_id',
         'township_id',
@@ -67,19 +68,19 @@ class Member extends Model
     public function getFullAddressAttribute()
     {
         $address = [];
-        
+
         if ($this->township) {
             $address[] = $this->township->name;
         }
-        
+
         if ($this->city) {
             $address[] = $this->city->name;
         }
-        
+
         if ($this->site) {
             $address[] = $this->site->name;
         }
-        
+
         return implode(', ', $address);
     }
 

@@ -14,6 +14,7 @@ return new class extends Migration
             $table->string('lastname')->nullable();
             $table->string('middlename')->nullable();
             $table->string('membershipNumber')->nullable();
+            $table->string('gender')->nullable();
             $table->string('phone')->nullable();
             $table->foreignId('site_id')->nullable()->constrained()->onDelete('set null');
             $table->foreignId('pool_id')->nullable()->constrained()->onDelete('set null');

@@ -10,7 +10,7 @@ class Fonction extends Model
     use HasFactory;
 
     protected $fillable = [
-        'nom'
+        'name'
     ];
 
     public function members()

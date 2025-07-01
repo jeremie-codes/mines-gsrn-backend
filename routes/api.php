@@ -46,6 +46,23 @@ Route::middleware('api')->group(function () {
     Route::get('cities/{id}', [UserController::class, 'getCityById']);
     Route::get('countries', [UserController::class, 'getCountries']);
     Route::get('countries/{id}', [UserController::class, 'getCountryById']);
+
+    Route::get('funcions', [UserController::class, 'getFuncions']);
+    Route::get('funcions/{id}', [UserController::class, 'getFuncionsById']);
+    Route::post('funcions/create', [UserController::class, 'createFuncions']);
+    Route::put('funcions/update', [UserController::class, 'updateFuncions']);
+    Route::delete('funcions/delete/{id}', [UserController::class, 'deleteFuncions']);
+
+    Route::post('townships/create', [UserController::class, 'createTownship']);
+    Route::post('cities/create', [UserController::class, 'createCity']);
+    Route::post('countries/create', [UserController::class, 'createCountry']);
+    Route::put('townships/update', [UserController::class, 'updateTownship']);
+    Route::put('cities/update', [UserController::class, 'updateCity']);
+    Route::put('countries/update', [UserController::class, 'updateCountry']);
+    Route::delete('townships/delete/{id}', [UserController::class, 'deleteTownship']);
+    Route::delete('cities/delete/{id}', [UserController::class, 'deleteCity']);
+    Route::delete('countries/delete/{id}', [UserController::class, 'deleteCountry']);
+
 });
 
 
