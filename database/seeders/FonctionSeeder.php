@@ -10,17 +10,13 @@ class FonctionSeeder extends Seeder
     public function run()
     {
         $fonctions = [
-            'Président',
-            'Vice-Président',
-            'Secrétaire',
-            'Trésorier',
             'Coordonateur',
             'Chef de Pool',
             'Membre'
         ];
 
         foreach ($fonctions as $fonction) {
-            Fonction::create(['nom' => $fonction]);
+            Fonction::create(['name' => $fonction]);
         }
     }
 }
