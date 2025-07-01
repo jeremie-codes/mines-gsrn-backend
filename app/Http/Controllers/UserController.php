@@ -240,7 +240,7 @@ class UserController extends Controller
         }
     }
 
-    public function getCity()
+    public function getCities()
     {
 
         try {
@@ -264,7 +264,7 @@ class UserController extends Controller
     {
 
         try {
-            $city = Township::with('country', 'townships')->findOrFail($id);
+            $city = City::with('country', 'townships')->findOrFail($id);
 
             if (!$city) {
                 return response()->json([
