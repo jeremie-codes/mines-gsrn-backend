@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Member;
 use App\Models\Pool;
 use App\Models\Site;
 use Illuminate\Http\Request;
@@ -18,6 +19,30 @@ class PoolController extends Controller
             return response()->json([
                 'success' => true,
                 'pools' => $pools
+            ], 200);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => "Erreur, " .$th->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getChefs()
+    {
+
+        try {
+
+            $chefs = Member::with('fonction')
+                ->whereHas('fonction', function ($query) {
+                    $query->where('nom', 'Chef de Pool');
+                })
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'pools' => $chefs
             ], 200);
 
         } catch (\Throwable $th) {

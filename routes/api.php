@@ -32,6 +32,7 @@ Route::middleware('api')->group(function () {
 
     // Routes pour les Pools
     Route::resource('pools', PoolController::class);
+    Route::get('chefs/pools', [PoolController::class, 'getChefs'])->name('pools.chefs');
 
     // Route pour récupérer les communes par ville (AJAX)
     Route::get('townships/city/{cityId}', [MemberController::class, 'getTownshipsByCity'])->name('townships.by-city');
