@@ -12,7 +12,7 @@ class SiteController extends Controller
 
         try {
 
-            $sites = Site::with('pools', 'members')->active()->paginate(10);
+            $sites = Site::with('pools')->active()->paginate(10);
 
             return response()->json([
                 'success' => true,
