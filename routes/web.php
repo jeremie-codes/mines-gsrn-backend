@@ -1,15 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\MerchantController;
+use App\Http\Controllers\SiteController;
+use App\Http\Controllers\PoolController;
+use App\Http\Controllers\MemberController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\AuthTokenController;
-use App\Http\Controllers\ConfigurationController;
-use App\Http\Controllers\MessageController;
-use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\ProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,40 +12,27 @@ use App\Http\Controllers\ProfileController;
 |--------------------------------------------------------------------------
 */
 
-Route::middleware('guest')->group(function () {
-    // Authentication Routes
-    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-    Route::post('/login', [LoginController::class, 'login']);
+Route::get('/', function () {
+    return redirect()->route('sites.index');
 });
 
-// Protected Routes
-Route::middleware('auth')->group(function () {
-    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+// Routes pour les Sites
+Route::resource('sites', SiteController::class);
 
-    // Profile Routes
-    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
-    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+// Routes pour les Pools
+Route::resource('pools', PoolController::class);
 
-    // Merchants
-    Route::resource('merchants', MerchantController::class);
+// Routes pour les Membres
+Route::resource('members', MemberController::class);
 
-    // Users
-    Route::resource('users', UserController::class);
+// Routes spéciales pour les membres
+Route::get('members/{member}/assign-role', [MemberController::class, 'showAssignRole'])->name('members.assign-role');
+Route::post('members/{member}/assign-role', [MemberController::class, 'assignRole'])->name('members.assign-role.store');
+Route::get('members/{member}/create-user', [MemberController::class, 'showCreateUser'])->name('members.create-user');
+Route::post('members/{member}/create-user', [MemberController::class, 'createUser'])->name('members.create-user.store');
 
-    // Auths
-    Route::resource('auths', AuthController::class);
+// Route pour récupérer les communes par ville (AJAX)
+Route::get('api/townships/city/{cityId}', [MemberController::class, 'getTownshipsByCity'])->name('townships.by-city');
 
-    // Auth Tokens
-    Route::resource('auth-tokens', AuthTokenController::class);
-    Route::get('/auth-tokens/generate-token', [AuthTokenController::class, 'generateToken'])->name('auth-tokens.generate-token');
-
-    // Configurations
-    Route::resource('configurations', ConfigurationController::class);
-
-    // Messages
-    Route::resource('messages', MessageController::class);
-
-    // Logout
-    Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-});
+// Routes pour les Utilisateurs
+Route::resource('users', UserController::class);

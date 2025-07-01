@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
@@ -12,40 +11,43 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    protected $table = 'tb_users';
-    protected $primaryKey = 'id';
-    public $incrementing = true;
-    protected $keyType = 'int';
-
     protected $fillable = [
-        'code',
+        'member_id',
         'email',
-        'enabled',
+        'username',
         'password',
-        'phone_number',
-        'username'
+        'role_id',
+        'is_active'
     ];
 
     protected $hidden = [
         'password',
+        'remember_token',
     ];
 
     protected $casts = [
-        'enabled' => 'boolean',
-        'created_at' => 'datetime',
-        'modified_at' => 'datetime',
+        'email_verified_at' => 'datetime',
+        // 'password' => 'hidden',
+        'is_active' => 'boolean',
     ];
 
-    const UPDATED_AT = 'modified_at';
-
-    public function setPasswordAttribute($value)
+    public function member()
     {
-        $this->attributes['password'] = Hash::make($value);
+        return $this->belongsTo(Member::class);
     }
 
-    public function scopeEnabled($query)
+    public function role()
     {
-        return $query->where('enabled', true);
+        return $this->belongsTo(Role::class);
     }
 
+    public function hasPermission($permission)
+    {
+        return $this->role->permissions->contains('name', $permission);
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
 }

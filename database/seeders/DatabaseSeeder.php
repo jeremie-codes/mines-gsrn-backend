@@ -9,11 +9,20 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         $this->call([
-            // MerchantSeeder::class,
+            // Seeders de base (rôles, permissions, fonctions)
+            RolePermissionSeeder::class,
+            FonctionSeeder::class,
+            
+            // Seeders géographiques (pays, villes, communes)
+            LocationSeeder::class,
+            
+            // Seeders des entités principales
+            SiteSeeder::class,
+            PoolSeeder::class,
+            
+            // Seeders des membres et utilisateurs
+            MemberSeeder::class,
             UserSeeder::class,
-            // ConfigurationSeeder::class,
-            // AuthSeeder::class, // Uncomment after creating AuthSeeder
-            // MessageSeeder::class, // Uncomment after creating MessageSeeder
         ]);
     }
 }

@@ -3,84 +3,185 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Member;
+use App\Models\Role;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        $query = User::query();
 
-        if ($request->filled('search')) {
-            $query->where('username', 'like', '%' . $request->search . '%')
-                  ->orWhere('email', 'like', '%' . $request->search . '%')
-                  ->orWhere('code', 'like', '%' . $request->search . '%');
+        try {
+            $users = User::with('member', 'role')->paginate(10);
+
+            return response()->json([
+                'success' => true,
+                'users' => $users
+            ], 200);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => "Erreur, " .$th->getMessage()
+            ], 500);
         }
-
-        if ($request->filled('enabled')) {
-            $query->where('enabled', $request->enabled);
-        }
-
-        $users = $query->orderBy('created_at', 'desc')->paginate(15);
-
-        return view('users.index', compact('users'));
     }
 
     public function create()
     {
-        return view('users.create');
+
+        try {
+            $members = Member::doesntHave('user')->get();
+            $roles = Role::active()->get();
+
+            return response()->json([
+                'success' => true,
+                'members' => $members,
+                'roles' => $roles
+            ], 200);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => "Erreur, " .$th->getMessage()
+            ], 500);
+        }
     }
 
     public function store(Request $request)
     {
-        $request->validate([
-            'username' => 'required|string|max:50|unique:tb_users,username',
-            'email' => 'nullable|email|max:50',
-            'password' => 'required|string|min:6|max:100',
-            'phone_number' => 'nullable|string|max:20',
-            'enabled' => 'boolean',
-        ]);
 
-        $data = $request->all();
-        $data['code'] = 'USER_' . strtoupper(Str::random(8));
+        try {
+            $request->validate([
+                'member_id' => 'required|exists:members,id|unique:users,member_id',
+                'email' => 'required|email|unique:users,email',
+                'username' => 'required|string|unique:users,username',
+                'password' => 'required|string|min:8',
+                'role_id' => 'required|exists:roles,id',
+                'is_active' => 'boolean|default:true'
+            ]);
 
-        User::create($data);
+            $user = User::create([
+                'member_id' => $request->member_id,
+                'email' => $request->email,
+                'username' => $request->username,
+                'password' => Hash::make($request->password),
+                'role_id' => $request->role_id,
+                'is_active' => $request->is_active ?? true
+            ]);
 
-        return redirect()->route('users.index')
-            ->with('success', 'Utilisateur créé avec succès.');
-    }
+            return response()->json([
+                'success' => true,
+                'message' => 'Utilisateur créé avec succès.',
+                'user' => $user
+            ], 201);
 
-    public function show(User $user)
-    {
-        return view('users.show', compact('user'));
-    }
-
-    public function edit(User $user)
-    {
-        return view('users.edit', compact('user'));
-    }
-
-    public function update(Request $request, User $user)
-    {
-        $request->validate([
-            'username' => 'required|string|max:50|unique:tb_users,username,' . $user->id,
-            'email' => 'nullable|email|max:50',
-            'phone_number' => 'nullable|string|max:20',
-            'enabled' => 'boolean',
-        ]);
-
-        $data = $request->except('password');
-        
-        if ($request->filled('password')) {
-            $request->validate(['password' => 'string|min:6|max:100']);
-            $data['password'] = $request->password;
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => "Erreur, " .$th->getMessage()
+            ], 500);
         }
+    }
 
-        $user->update($data);
+    public function show(User $id)
+    {
 
-        return redirect()->route('users.index')
-            ->with('success', 'Utilisateur mis à jour avec succès.');
+        try {
+            $user = User::with('member', 'role')->findOrFail($id->id);
+            // $user->load('member', 'role.permissions');
+
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Utilisateur non trouvé.'
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'user' => $user
+            ], 200);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => "Erreur, " .$th->getMessage()
+            ], 500);
+        }
+    }
+
+    public function edit(User $id)
+    {
+
+        try {
+            $user = User::with('member', 'role')->findOrFail($id->id);
+            $roles = Role::active()->get();
+
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Utilisateur non trouvé.'
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'user' => $user,
+                'roles' => $roles
+            ], 200);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => "Erreur, " .$th->getMessage()
+            ], 500);
+        }
+    }
+
+    public function update(Request $request)
+    {
+
+        try {
+           $request->validate([
+                'user_id' => 'required|exists:users,id',
+                'email' => 'required|email|unique:users,email,' . $request->user_id,
+                'username' => 'required|string|unique:users,username,' .  $request->user_id,
+                'password' => 'nullable|string|min:8',
+                'role_id' => 'required|exists:roles,id',
+                'is_active' => 'boolean'
+            ]);
+
+            $user = User::findOrFail($request->user_id);
+
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Utilisateur non trouvé.'
+                ], 404);
+            }
+
+            $data = $request->all();
+
+            if ($request->password) {
+                $data['password'] = Hash::make($request->password);
+            } else {
+                unset($data['password']);
+            }
+
+            $user->update($data);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Utilisateur mis à jour avec succès.',
+                'user' => $user
+            ], 200);
+
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
     }
 
     public function destroy(User $user)
