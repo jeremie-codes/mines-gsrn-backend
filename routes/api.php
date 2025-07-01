@@ -34,10 +34,17 @@ Route::middleware('api')->group(function () {
     Route::resource('pools', PoolController::class);
 
     // Route pour récupérer les communes par ville (AJAX)
-    Route::get('api/townships/city/{cityId}', [MemberController::class, 'getTownshipsByCity'])->name('townships.by-city');
+    Route::get('townships/city/{cityId}', [MemberController::class, 'getTownshipsByCity'])->name('townships.by-city');
 
     // Routes pour les Utilisateurs
     Route::resource('users', UserController::class);
+
+    Route::get('townships', [UserController::class, 'getTownship']);
+    Route::get('townships/{id}', [UserController::class, 'getTownshipById']);
+    Route::get('cities', [UserController::class, 'getCities']);
+    Route::get('cities/{id}', [UserController::class, 'getCityById']);
+    Route::get('countries', [UserController::class, 'getCountries']);
+    Route::get('countries/{id}', [UserController::class, 'getCountryById']);
 });
 
 

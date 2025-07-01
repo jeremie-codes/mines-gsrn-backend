@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\City;
+use App\Models\Country;
 use App\Models\User;
 use App\Models\Member;
 use App\Models\Role;
+use App\Models\Township;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -86,11 +89,11 @@ class UserController extends Controller
         }
     }
 
-    public function show(User $id)
+    public function show($id)
     {
 
         try {
-            $user = User::with('member', 'role')->findOrFail($id->id);
+            $user = User::with('member', 'role')->findOrFail($id);
             // $user->load('member', 'role.permissions');
 
             if (!$user) {
@@ -113,11 +116,11 @@ class UserController extends Controller
         }
     }
 
-    public function edit(User $id)
+    public function edit($id)
     {
 
         try {
-            $user = User::with('member', 'role')->findOrFail($id->id);
+            $user = User::with('member', 'role')->findOrFail($id);
             $roles = Role::active()->get();
 
             if (!$user) {
@@ -190,5 +193,142 @@ class UserController extends Controller
 
         return redirect()->route('users.index')
             ->with('success', 'Utilisateur supprimé avec succès.');
+    }
+
+    public function getTownship()
+    {
+
+        try {
+            $townshps = Township::with('city')->get();
+
+            return response()->json([
+                'success' => true,
+                'townshps' => $townshps
+            ], 200);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => "Erreur, " .$th->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getTownshipById($id)
+    {
+
+        try {
+            $townshp = Township::with('city')->findOrFail($id);
+
+            if (!$townshp) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Commune non trouvée.'
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'townshp' => $townshp
+            ], 200);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => "Erreur, " .$th->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getCity()
+    {
+
+        try {
+            $cities = City::with('country', 'townships')->get();
+
+            return response()->json([
+                'success' => true,
+                'cities' => $cities
+            ], 200);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => "Erreur, " .$th->getMessage()
+            ], 500);
+        }
+    }
+
+
+    public function getCityById($id)
+    {
+
+        try {
+            $city = Township::with('country', 'townships')->findOrFail($id);
+
+            if (!$city) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Ville non trouvée.'
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'city' => $city
+            ], 200);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => "Erreur, " .$th->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getCountries()
+    {
+
+        try {
+            $countries = Country::with('cities')->get();
+
+            return response()->json([
+                'success' => true,
+                'countries' => $countries
+            ], 200);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => "Erreur, " .$th->getMessage()
+            ], 500);
+        }
+    }
+
+
+    public function getCountryById($id)
+    {
+
+        try {
+            $contry = Country::with('cities')->findOrFail($id);
+
+            if (!$contry) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Pays non trouvé.'
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'contry' => $contry
+            ], 200);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => "Erreur, " .$th->getMessage()
+            ], 500);
+        }
     }
 }
