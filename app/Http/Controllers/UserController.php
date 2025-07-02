@@ -18,7 +18,7 @@ class UserController extends Controller
     {
 
         try {
-            $users = User::with('member', 'role')->paginate(10);
+            $users = User::paginate(10);
 
             return response()->json([
                 'success' => true,
@@ -188,12 +188,29 @@ class UserController extends Controller
         }
     }
 
-    public function destroy(User $user)
+    public function destroy($id)
     {
-        $user->delete();
+        try {
+            $user = User::findOrFail($id);
 
-        return redirect()->route('users.index')
-            ->with('success', 'Utilisateur supprimé avec succès.');
+            if (!$user) {
+                return redirect()->route('users.index')
+                    ->with('error', 'Utilisateur non trouvé.');
+            }
+
+            // Optionally, you can delete the associated member if needed
+            $user->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Utilisateur supprimé avec succès.'
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => "Erreur, " .$th->getMessage()
+            ], 500);
+        }
     }
 
     public function getFunction()

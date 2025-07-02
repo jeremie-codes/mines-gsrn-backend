@@ -12,7 +12,7 @@ class SiteController extends Controller
 
         try {
 
-            $sites = Site::with('pools')->active()->paginate(10);
+            $sites = Site::paginate(10);
 
             return response()->json([
                 'success' => true,
@@ -64,11 +64,11 @@ class SiteController extends Controller
         }
     }
 
-    public function show(Site $id)
+    public function show($id)
     {
          try {
 
-            $site = Site::with('pools', 'members')->findOrFail($id->id);
+            $site = Site::with('pools', 'members')->findOrFail($id);
 
             if (!$site) {
                 return response()->json([
@@ -91,11 +91,11 @@ class SiteController extends Controller
         }
     }
 
-    public function edit(Site $id)
+    public function edit($id)
     {
 
         try {
-            $site = Site::findOrFail($id->id);
+            $site = Site::findOrFail($id);
 
             if (!$site) {
                 return response()->json([
@@ -117,23 +117,24 @@ class SiteController extends Controller
         }
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
 
         try {
 
             $request->validate([
+                'site_id' => 'required|exists:sites,id',
                 'name' => 'required|string|max:255',
-                'code' => 'required|string|max:3|unique:sites,code,' . $id,
+                'code' => 'required|string|max:3|unique:sites,code,' . $request->site_id,
                 'location' => 'nullable|string|max:255',
-                'is_active' => 'boolean'
+                'is_active' => 'boolean',
             ]);
 
             // Convertir le code en majuscules
             $data = $request->all();
             $data['code'] = strtoupper($data['code']);
 
-            $site = Site::findOrFail($id);
+            $site = Site::findOrFail($request->site_id);
 
             if (!$site) {
                 return response()->json([
@@ -157,12 +158,12 @@ class SiteController extends Controller
         }
     }
 
-    public function destroy(Site $id)
+    public function destroy($id)
     {
 
         try {
 
-            $site = Site::findOrFail($id->id);
+            $site = Site::findOrFail($id);
 
             if (!$site) {
                 return response()->json([

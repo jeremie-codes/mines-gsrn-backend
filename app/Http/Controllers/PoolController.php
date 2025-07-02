@@ -14,7 +14,7 @@ class PoolController extends Controller
 
         try {
 
-            $pools = Pool::with('site', 'members')->active()->paginate(10);
+            $pools = Pool::paginate(10);
 
             return response()->json([
                 'success' => true,
@@ -58,7 +58,7 @@ class PoolController extends Controller
 
         try {
 
-            $sites = Site::active()->get();
+            $sites = Site::get();
 
             return response()->json([
                 'success' => true,
@@ -100,11 +100,11 @@ class PoolController extends Controller
         }
     }
 
-    public function show(Pool $id)
+    public function show($id)
     {
 
         try {
-            $pool = Pool::with('site', 'members')->findOrFail($id->id);
+            $pool = Pool::with('site', 'members')->findOrFail($id);
 
             if (!$pool) {
                 return response()->json([
@@ -129,8 +129,8 @@ class PoolController extends Controller
     {
         try {
 
-            $sites = Site::active()->get();
-            $pool = Pool::with('site', 'members')->findOrFail($id);
+            $sites = Site::get();
+            $pool = Pool::findOrFail($id);
 
             return response()->json([
                 'success' => true,
@@ -186,7 +186,7 @@ class PoolController extends Controller
     {
 
         try {
-            $pool = Pool::findOrFail($id->id);
+            $pool = Pool::findOrFail($id);
 
             if (!$pool) {
                 return response()->json([

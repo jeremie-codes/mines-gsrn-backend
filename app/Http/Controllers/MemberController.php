@@ -21,7 +21,7 @@ class MemberController extends Controller
     public function index()
     {
         try {
-            $members = Member::with('site', 'city', 'township', 'pool', 'fonction', 'user')->paginate(10);
+            $members = Member::paginate(10);
             return response()->json([
                 'success' => true,
                 'members' => $members
@@ -140,7 +140,7 @@ class MemberController extends Controller
             $fonctions = Fonction::all();
             $cities = City::with('country')->get();
             $townships = Township::with('city')->get();
-            $member = Member::with('site', 'city', 'township', 'pool', 'fonction')->findOrFail($id);
+            $member = Member::findOrFail($id);
 
             if(!$member) {
                 return response()->json([
@@ -188,7 +188,7 @@ class MemberController extends Controller
                 'member_id' => 'required|exists:members,id'
             ]);
 
-            $member = Member::with('site', 'city', 'township', 'pool', 'fonction')->findOrFail($request->member_id);
+            $member = Member::findOrFail($request->member_id);
 
             if(!$member) {
                 return response()->json([
@@ -234,7 +234,7 @@ class MemberController extends Controller
     {
         try {
 
-            $member = Member::with('site', 'city', 'township', 'pool', 'fonction')->findOrFail($id);
+            $member = Member::findOrFail($id);
 
             if(!$member) {
                 return response()->json([
@@ -272,7 +272,7 @@ class MemberController extends Controller
                 'member_id' => 'required|exists:members,id'
             ]);
 
-            $member = Member::with('site', 'city', 'township', 'pool', 'fonction')->findOrFail($request->member_id);
+            $member = Member::findOrFail($request->member_id);
 
             if(!$member) {
                 return response()->json([
@@ -302,7 +302,7 @@ class MemberController extends Controller
     }
 
     public function createUser(Request $request)
-    { 
+    {
 
         try {
             $request->validate([
@@ -313,7 +313,7 @@ class MemberController extends Controller
                 'member_id' => 'required|exists:members,id'
             ]);
 
-            $member = Member::with('site', 'city', 'township', 'pool', 'fonction')->findOrFail($request->member_id);
+            $member = Member::findOrFail($request->member_id);
 
             if(!$member) {
                 return response()->json([
@@ -357,7 +357,7 @@ class MemberController extends Controller
     {
 
         try {
-            $member = Member::with('site', 'city', 'township', 'pool', 'fonction')->findOrFail($id);
+            $member = Member::findOrFail($id);
             $roles = Role::active()->whereIn('name', ['coordonateur', 'chef_de_pool'])->get();
 
             if(!$member) {
@@ -387,7 +387,7 @@ class MemberController extends Controller
 
         try {
 
-            $member = Member::with('site', 'city', 'township', 'pool', 'fonction')->findOrFail($id);
+            $member = Member::findOrFail($id);
 
             if(!$member) {
                 return response()->json([
@@ -626,7 +626,7 @@ class MemberController extends Controller
                 'member_id' => 'required|exists:members,id'
             ]);
 
-            $member = Member::with('site', 'city', 'township', 'pool', 'fonction')->findOrFail($request->member_id);
+            $member = Member::findOrFail($request->member_id);
 
             if(!$member) {
                 return response()->json([
