@@ -32,7 +32,7 @@ class MemberSeeder extends Seeder
         $this->command->info('Création de membres avec données géographiques...');
 
         // Créer 5 membres avec des données réalistes
-        for ($i = 1; $i <= 5; $i++) {
+        for ($i = 1; $i <= 20; $i++) {
             // Sélectionner aléatoirement une ville et une commune
             $city = $cities->random();
             $cityTownships = $townships->where('city_id', $city->id);
