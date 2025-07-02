@@ -10,7 +10,8 @@
         "guzzlehttp/guzzle": "*",
         "laravel/framework": "*",
         "laravel/sanctum": "*",
-        "laravel/tinker": "*"
+        "laravel/tinker": "*",
+        "simplesoftwareio/simple-qrcode": "^4.2"
     },
     "require-dev": {
         "facade/ignition": "*",

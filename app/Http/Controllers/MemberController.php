@@ -13,6 +13,7 @@ use App\Models\Township;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 
@@ -76,7 +77,8 @@ class MemberController extends Controller
                 'fonction_id' => 'nullable|exists:fonctions,id',
                 'face_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
                 'face_base64' => 'nullable|string',
-                'is_active' => 'boolean'
+                'date_adhesion' => 'nullable|date',
+                'is_active' => 'boolean|default:true'
             ]);
 
             $data = $request->all();
@@ -89,8 +91,17 @@ class MemberController extends Controller
 
             $member = Member::create($data);
 
-            // return redirect()->route('members.index')
-            //     ->with('success', 'Membre créé avec succès. Numéro d\'adhésion: ' . $data['membershipNumber']);
+            // Générer QR code à partir de ce que tu souhaites (par ex. membershipNumber)
+            $qrCodeContent = $member->membershipNumber; // ou autre info, ex: $member->phone
+
+            $fileName = 'qrcodes/member_'.$member->id.'_'.time().'.png';
+
+            // Générer et stocker dans 'public' (storage/app/public/qrcodes/)
+            Storage::disk('public')->put($fileName, QrCode::format('png')->size(300)->generate($qrCodeContent));
+
+            // Mettre à jour l'url dans la base
+            $member->qrcode_url = Storage::url($fileName); // génère une url publique
+            $member->save();
 
             return response()->json([
                 'success' => true,
@@ -184,7 +195,8 @@ class MemberController extends Controller
                 'fonction_id' => 'nullable|exists:fonctions,id',
                 'face_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
                 'face_base64' => 'nullable|string',
-                'is_active' => 'boolean',
+                'is_active' => 'boolean|default:true',
+                'date_adhesion' => 'nullable|date',
                 'member_id' => 'required|exists:members,id'
             ]);
 
@@ -215,6 +227,24 @@ class MemberController extends Controller
             }
 
             $member->update($data);
+
+            // Générer QR code à partir de la même donnée que pour store
+            $qrCodeContent = $member->membershipNumber;
+
+            $fileName = 'qrcodes/member_'.$member->id.'_'.time().'.png';
+
+            // Supprimer l'ancien QR code s'il existe
+            if ($member->qrcode_url) {
+                $oldPath = str_replace('/storage/', '', $member->qrcode_url);
+                if (Storage::disk('public')->exists($oldPath)) {
+                    Storage::disk('public')->delete($oldPath);
+                }
+            }
+
+            Storage::disk('public')->put($fileName, QrCode::format('png')->size(300)->generate($qrCodeContent));
+
+            $member->qrcode_url = Storage::url($fileName);
+            $member->save();
 
             return response()->json([
                 'member' => $member,
@@ -574,7 +604,7 @@ class MemberController extends Controller
                 'libelle_pool' => 'nullable|string|max:255',
                 'fonction_id' => 'nullable|exists:fonctions,id',
                 'face_base64' => 'nullable|string',
-                'is_active' => 'boolean'
+                'is_active' => 'boolean|default:true'
             ]);
 
             $data = $request->all();
@@ -622,7 +652,7 @@ class MemberController extends Controller
                 'libelle_pool' => 'nullable|string|max:255',
                 'fonction_id' => 'nullable|exists:fonctions,id',
                 'face_base64' => 'nullable|string',
-                'is_active' => 'boolean',
+                'is_active' => 'boolean|default:true',
                 'member_id' => 'required|exists:members,id'
             ]);
 

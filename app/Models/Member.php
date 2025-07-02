@@ -23,7 +23,9 @@ class Member extends Model
         'libelle_pool',
         'is_active',
         'face_path',
-        'fonction_id'
+        'fonction_id',
+        'qrcode_url',
+        'date_adhesion'
     ];
 
     protected $casts = [
