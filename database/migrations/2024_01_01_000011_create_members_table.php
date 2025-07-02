@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('membershipNumber')->nullable();
             $table->string('gender')->nullable();
             $table->string('phone')->nullable();
+            $table->string('qrcode_url')->nullable();
+            $table->timestamp('date_adhesion')->useCurrent();
             $table->foreignId('site_id')->nullable()->constrained()->onDelete('set null');
             $table->foreignId('pool_id')->nullable()->constrained()->onDelete('set null');
             $table->string('libelle_pool')->nullable();
