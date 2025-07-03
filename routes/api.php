@@ -47,11 +47,11 @@ Route::middleware('api')->group(function () {
     Route::get('countries', [UserController::class, 'getCountries']);
     Route::get('countries/{id}', [UserController::class, 'getCountryById']);
 
-    Route::get('functions', [UserController::class, 'getFuncions']);
-    Route::get('functions/{id}', [UserController::class, 'getFuncionsById']);
-    Route::post('functions/create', [UserController::class, 'createFuncions']);
-    Route::put('functions/update', [UserController::class, 'updateFuncions']);
-    Route::delete('functions/delete/{id}', [UserController::class, 'deleteFuncions']);
+    Route::get('functions', [UserController::class, 'getFunctions']);
+    Route::get('functions/{id}', [UserController::class, 'getFunctionsById']);
+    Route::post('functions/create', [UserController::class, 'createFunctions']);
+    Route::put('functions/update', [UserController::class, 'updateFunctions']);
+    Route::delete('functions/delete/{id}', [UserController::class, 'deleteFunctions']);
 
     Route::post('townships/create', [UserController::class, 'createTownship']);
     Route::post('cities/create', [UserController::class, 'createCity']);
