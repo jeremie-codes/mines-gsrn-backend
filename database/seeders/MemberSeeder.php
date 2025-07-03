@@ -125,7 +125,6 @@ use App\Models\Site;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class MemberSeeder extends Seeder
 {
@@ -212,7 +211,7 @@ class MemberSeeder extends Seeder
 
                     // Générer un QR code
                     $qrcodePath = 'qrcodes/' . $membershipNumber . '.png';
-                    QrCode::format('png')->size(300)->generate($membershipNumber, public_path('storage/' . $qrcodePath));
+                    \QrCode::format('png')->size(300)->generate($membershipNumber, public_path('storage/' . $qrcodePath));
                     $member->update(['qrcode_url' => $qrcodePath]);
                 }
             }
