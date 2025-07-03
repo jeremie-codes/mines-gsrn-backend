@@ -41,6 +41,7 @@ class SiteController extends Controller
                 'name' => 'required|string|max:255',
                 'code' => 'required|string|max:3|unique:sites,code',
                 'location' => 'nullable|string|max:255',
+                'city_id' => 'nullable|exists:cities,id',
                 'is_active' => 'boolean'
             ]);
 
@@ -68,7 +69,7 @@ class SiteController extends Controller
     {
          try {
 
-            $site = Site::with('pools', 'members')->findOrFail($id);
+            $site = Site::with('pools', 'members', 'city')->findOrFail($id);
 
             if (!$site) {
                 return response()->json([
@@ -124,6 +125,7 @@ class SiteController extends Controller
 
             $request->validate([
                 'site_id' => 'required|exists:sites,id',
+                'city_id' => 'nullable|exists:cities,id',
                 'name' => 'required|string|max:255',
                 'code' => 'required|string|max:3|unique:sites,code,' . $request->site_id,
                 'location' => 'nullable|string|max:255',

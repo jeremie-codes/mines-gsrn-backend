@@ -341,7 +341,7 @@ class UserController extends Controller
     {
 
         try {
-            $townshps = Township::with('city')->get();
+            $townshps = Township::all();
 
             return response()->json([
                 'success' => true,
@@ -386,7 +386,7 @@ class UserController extends Controller
     {
 
         try {
-            $cities = City::with('country', 'townships')->get();
+            $cities = City::all();
 
             return response()->json([
                 'success' => true,
@@ -432,7 +432,7 @@ class UserController extends Controller
     {
 
         try {
-            $countries = Country::with('cities')->get();
+            $countries = Country::all();
 
             return response()->json([
                 'success' => true,

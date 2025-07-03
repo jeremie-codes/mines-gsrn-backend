@@ -13,6 +13,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('location')->nullable();
             $table->boolean('is_active')->default(true);
+            $table->foreignId('city_id')->nullable()->constrained()->onDelete('set null');
             $table->timestamps();
         });
     }

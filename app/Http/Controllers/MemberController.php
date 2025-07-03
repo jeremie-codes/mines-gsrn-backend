@@ -73,6 +73,8 @@ class MemberController extends Controller
                 'city_id' => 'nullable|exists:cities,id',
                 'township_id' => 'nullable|exists:townships,id',
                 'pool_id' => 'nullable|exists:pools,id',
+                'chef_id' => 'nullable|exists:members,id',
+                'category' => 'required|string|max:2',
                 'libelle_pool' => 'nullable|string|max:255',
                 'fonction_id' => 'nullable|exists:fonctions,id',
                 'face_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -119,7 +121,7 @@ class MemberController extends Controller
     public function show($id)
     {
         try {
-            $member = Member::with('site', 'city', 'township', 'pool', 'fonction', 'user')->findOrFail($id);
+            $member = Member::with('site', 'city', 'township', 'pool', 'fonction', 'chef', 'user')->findOrFail($id);
 
             if (!$member) {
                 return response()->json([
@@ -191,13 +193,14 @@ class MemberController extends Controller
                 'city_id' => 'nullable|exists:cities,id',
                 'township_id' => 'nullable|exists:townships,id',
                 'pool_id' => 'nullable|exists:pools,id',
+                'chef_id' => 'nullable|exists:members,id',
+                'category' => 'required|string|max:2',
                 'libelle_pool' => 'nullable|string|max:255',
                 'fonction_id' => 'nullable|exists:fonctions,id',
                 'face_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
                 'face_base64' => 'nullable|string',
-                'is_active' => 'boolean|default:true',
                 'date_adhesion' => 'nullable|date',
-                'member_id' => 'required|exists:members,id'
+                'is_active' => 'boolean|default:true'
             ]);
 
             $member = Member::findOrFail($request->member_id);

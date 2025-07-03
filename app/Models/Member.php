@@ -16,6 +16,7 @@ class Member extends Model
         'membershipNumber',
         'phone',
         'gender',
+        'chef_id',
         'site_id',
         'city_id',
         'township_id',
@@ -25,7 +26,8 @@ class Member extends Model
         'face_path',
         'fonction_id',
         'qrcode_url',
-        'date_adhesion'
+        'date_adhesion',
+        'category'
     ];
 
     protected $casts = [
@@ -35,6 +37,11 @@ class Member extends Model
     public function site()
     {
         return $this->belongsTo(Site::class);
+    }
+
+    public function chef()
+    {
+        return $this->belongsTo($this::class, 'chef_id');
     }
 
     public function city()
