@@ -100,11 +100,18 @@ class MemberSeeder extends Seeder
                         'date_adhesion' => now(),
                     ]);
 
+                    $datas = [
+                        'firstname' => $member->firstname,
+                        'lastname' => $member->lastname,
+                        'membershipNumber' => $member->membershipNumber,
+                        'site' => $site->name,
+                        'pool' => $pool->name,
+                    ];
+
                     // Générer un QR code
                     $qrcodePath = 'qrcodes/' . $membershipNumber . '.png';
                     \QrCode::format('png')->size(300)->generate(
-                        $membershipNumber,
-                        // public_path('storage/' . $qrcodePath)
+                        $datas,
                         storage_path('app/public/' . $qrcodePath)
                     );
                     $member->update(['qrcode_url' => 'storage/' . $qrcodePath]);
