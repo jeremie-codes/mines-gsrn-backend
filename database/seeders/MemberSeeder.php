@@ -100,13 +100,9 @@ class MemberSeeder extends Seeder
                         'date_adhesion' => now(),
                     ]);
 
-                    $datas = [
-                        'firstname' => $member->firstname,
-                        'lastname' => $member->lastname,
-                        'membershipNumber' => $member->membershipNumber,
-                        'site' => $site->name,
-                        'pool' => $pool->name,
-                    ];
+                    $datas = json_encode([$member->firstname ." | ". $member->lastname ." | ". $member->membershipNumber]);
+
+
 
                     // Générer un QR code
                     $qrcodePath = 'qrcodes/' . $membershipNumber . '.png';
