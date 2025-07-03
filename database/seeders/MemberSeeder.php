@@ -209,6 +209,12 @@ class MemberSeeder extends Seeder
                         'date_adhesion' => now(),
                     ]);
 
+                    $qrDir = public_path('storage/qrcodes');
+
+                    if (!file_exists($qrDir)) {
+                        mkdir($qrDir, 0755, true);
+                    }
+
                     // Générer un QR code
                     $qrcodePath = 'qrcodes/' . $membershipNumber . '.png';
                     \QrCode::format('png')->size(300)->generate($membershipNumber, public_path('storage/' . $qrcodePath));
