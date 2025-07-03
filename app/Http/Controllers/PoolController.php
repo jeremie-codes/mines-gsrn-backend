@@ -36,7 +36,7 @@ class PoolController extends Controller
 
             $chefs = Member::with('fonction')
                 ->whereHas('fonction', function ($query) {
-                    $query->where('nom', 'Chef de Pool');
+                    $query->where('name', 'Chef de Pool');
                 })
                 ->get();
 
