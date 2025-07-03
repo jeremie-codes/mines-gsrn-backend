@@ -41,12 +41,6 @@ class MemberSeeder extends Seeder
                 return;
             }
 
-            // ✅ Créer le dossier des QR codes s'il n'existe pas
-            $qrDir = public_path('storage/qrcodes');
-            if (!file_exists($qrDir)) {
-                mkdir($qrDir, 0755, true);
-            }
-
             // Définir les pools avec les chefs
             $pools = [
                 'Bambala' => ['Mr Junior', 'Mr Justin'],
@@ -100,17 +94,6 @@ class MemberSeeder extends Seeder
                         'date_adhesion' => now(),
                     ]);
 
-                    $datas = json_encode([$member->firstname ." | ". $member->lastname ." | ". $member->membershipNumber]);
-
-
-
-                    // Générer un QR code
-                    $qrcodePath = 'qrcodes/' . $membershipNumber . '.png';
-                    \QrCode::format('png')->size(300)->generate(
-                        $datas,
-                        storage_path('app/public/' . $qrcodePath)
-                    );
-                    $member->update(['qrcode_url' => 'storage/' . $qrcodePath]);
                 }
             }
 
