@@ -101,13 +101,13 @@ class MemberSeeder extends Seeder
                     ]);
 
                     // Générer un QR code
-                    $qrcodePath = 'storage/qrcodes/' . $membershipNumber . '.png';
+                    $qrcodePath = 'qrcodes/' . $membershipNumber . '.png';
                     \QrCode::format('png')->size(300)->generate(
                         $membershipNumber,
                         // public_path('storage/' . $qrcodePath)
                         storage_path('app/public/' . $qrcodePath)
                     );
-                    $member->update(['qrcode_url' => $qrcodePath]);
+                    $member->update(['qrcode_url' => 'storage/' . $qrcodePath]);
                 }
             }
 
