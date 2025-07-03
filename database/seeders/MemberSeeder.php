@@ -123,7 +123,7 @@ use App\Models\Member;
 use App\Models\Fonction;
 use Illuminate\Support\Str;
 
-class DaipinSeeder extends Seeder
+class MemberSeeder extends Seeder
 {
     public function run()
     {
