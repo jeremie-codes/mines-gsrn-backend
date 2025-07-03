@@ -11,3 +11,5 @@ use App\Http\Controllers\UserController;
 | Web Routes
 |--------------------------------------------------------------------------
 */
+
+Route::resource('members', MemberController::class);

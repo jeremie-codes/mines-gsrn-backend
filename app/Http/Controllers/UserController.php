@@ -64,7 +64,7 @@ class UserController extends Controller
                 'username' => 'required|string|unique:users,username',
                 'password' => 'required|string|min:8',
                 'role_id' => 'required|exists:roles,id',
-                'is_active' => 'boolean|default:true'
+                'is_active' => 'nullable|boolean'
             ]);
 
             $user = User::create([
@@ -155,7 +155,7 @@ class UserController extends Controller
                 'username' => 'required|string|unique:users,username,' .  $request->user_id,
                 'password' => 'nullable|string|min:8',
                 'role_id' => 'required|exists:roles,id',
-                'is_active' => 'boolean'
+                'is_active' => 'nullable|boolean'
             ]);
 
             $user = User::findOrFail($request->user_id);
@@ -481,7 +481,7 @@ class UserController extends Controller
             $request->validate([
                 'name' => 'required|string|unique:countries,name',
                 'code' => 'required|string|unique:countries,code',
-                'is_active' => 'boolean|default:true'
+                'is_active' => 'nullable|boolean'
             ]);
 
             $country = Country::create([
@@ -511,7 +511,7 @@ class UserController extends Controller
             $request->validate([
                 'name' => 'required|string|unique:cities,name',
                 'country_id' => 'required|exists:countries,id',
-                'is_active' => 'boolean|default:true'
+                'is_active' => 'nullable|boolean'
             ]);
 
             $city = City::create([
@@ -541,7 +541,7 @@ class UserController extends Controller
             $request->validate([
                 'name' => 'required|string|unique:townships,name',
                 'city_id' => 'required|exists:cities,id',
-                'is_active' => 'boolean|default:true'
+                'is_active' => 'nullable|boolean'
             ]);
 
             $township = Township::create([
@@ -572,7 +572,7 @@ class UserController extends Controller
                 'country_id' => 'required|exists:countries,id',
                 'name' => 'required|string|unique:countries,name,' . $request->country_id,
                 'code' => 'required|string|unique:countries,code,' . $request->country_id,
-                'is_active' => 'boolean'
+                'is_active' => 'nullable|boolean'
             ]);
 
             $country = Country::findOrFail($request->country_id);
@@ -609,7 +609,7 @@ class UserController extends Controller
                 'city_id' => 'required|exists:cities,id',
                 'name' => 'required|string|unique:cities,name,' . $request->city_id,
                 'country_id' => 'required|exists:countries,id',
-                'is_active' => 'boolean'
+                'is_active' => 'nullable|boolean'
             ]);
 
             $city = City::findOrFail($request->city_id);
@@ -646,7 +646,7 @@ class UserController extends Controller
                 'township_id' => 'required|exists:townships,id',
                 'name' => 'required|string|unique:townships,name,' . $request->township_id,
                 'city_id' => 'required|exists:cities,id',
-                'is_active' => 'boolean'
+                'is_active' => 'nullable|boolean'
             ]);
 
             $township = Township::findOrFail($request->township_id);

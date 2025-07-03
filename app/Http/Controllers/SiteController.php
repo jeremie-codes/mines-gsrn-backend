@@ -42,7 +42,7 @@ class SiteController extends Controller
                 'code' => 'required|string|max:3|unique:sites,code',
                 'location' => 'nullable|string|max:255',
                 'city_id' => 'nullable|exists:cities,id',
-                'is_active' => 'boolean'
+                'is_active' => 'nullable|boolean'
             ]);
 
             // Convertir le code en majuscules
@@ -129,7 +129,7 @@ class SiteController extends Controller
                 'name' => 'required|string|max:255',
                 'code' => 'required|string|max:3|unique:sites,code,' . $request->site_id,
                 'location' => 'nullable|string|max:255',
-                'is_active' => 'boolean',
+                'is_active' => 'nullable|boolean',
             ]);
 
             // Convertir le code en majuscules

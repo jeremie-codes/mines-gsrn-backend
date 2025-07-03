@@ -81,7 +81,7 @@ class PoolController extends Controller
                 'site_id' => 'required|exists:sites,id',
                 'name' => 'required|string|max:255',
                 'description' => 'nullable|string',
-                'is_active' => 'boolean|default:true'
+                'is_active' => 'nullable|boolean'
             ]);
 
             $pool = Pool::create($request->all());
@@ -154,7 +154,7 @@ class PoolController extends Controller
                 'site_id' => 'required|exists:sites,id',
                 'name' => 'required|string|max:255',
                 'description' => 'nullable|string',
-                'is_active' => 'boolean|default:true'
+                'is_active' => 'nullable|boolean'
             ]);
 
             $pool = Pool::findOrFail($request->pool_id);
