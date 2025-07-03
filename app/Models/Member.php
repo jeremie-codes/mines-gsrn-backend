@@ -16,6 +16,7 @@ class Member extends Model
         'membershipNumber',
         'phone',
         'gender',
+        'street',
         'chef_id',
         'site_id',
         'city_id',

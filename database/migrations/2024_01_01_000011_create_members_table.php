@@ -15,6 +15,7 @@ return new class extends Migration
             $table->string('middlename')->nullable();
             $table->string('membershipNumber')->nullable();
             $table->string('gender')->nullable();
+            $table->string('street')->nullable();
             $table->string('category')->nullable();
             $table->string('phone')->nullable();
             $table->string('qrcode_url')->nullable();
