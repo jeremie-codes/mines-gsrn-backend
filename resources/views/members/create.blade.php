@@ -143,20 +143,40 @@
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="fonction_id" class="form-label">Fonction</label>
-                        <select class="form-select @error('fonction_id') is-invalid @enderror"
-                                id="fonction_id" name="fonction_id">
-                            <option value="">Sélectionner une fonction</option>
-                            @foreach($fonctions as $fonction)
-                                <option value="{{ $fonction->id }}" {{ old('fonction_id') == $fonction->id ? 'selected' : '' }}>
-                                    {{ $fonction->nom }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('fonction_id')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="fonction_id" class="form-label">Fonction</label>
+                                <select class="form-select @error('fonction_id') is-invalid @enderror"
+                                        id="fonction_id" name="fonction_id">
+                                    <option value="">Sélectionner une fonction</option>
+                                    @foreach($fonctions as $fonction)
+                                        <option value="{{ $fonction->id }}" {{ old('fonction_id') == $fonction->id ? 'selected' : '' }}>
+                                            {{ $fonction->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('fonction_id')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="category" class="form-label">Catégorie</label>
+                                <select class="form-select @error('category') is-invalid @enderror"
+                                        id="category" name="category">
+                                    <option value="">Sélectionner une fonction</option>
+                                    @foreach(['A', 'B', 'C', 'D'] as $fonction)
+                                        <option>
+                                            {{ $fonction }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('category')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
                     </div>
 
                     <div class="mb-3">
