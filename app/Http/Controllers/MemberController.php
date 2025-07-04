@@ -21,7 +21,7 @@ class MemberController extends Controller
     public function index()
     {
         try {
-            $members = Member::paginate(10);
+            $members = Member::orderBy('created_at', 'desc')->paginate(10);
             return response()->json([
                 'success' => true,
                 'members' => $members
