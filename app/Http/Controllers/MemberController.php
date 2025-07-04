@@ -106,34 +106,32 @@ class MemberController extends Controller
         }
     }
 
-public function show($id)
-{
-    try {
-        $member = Member::with('site', 'city', 'township', 'pool', 'fonction', 'chef', 'user')->findOrFail($id);
+    public function show($id)
+    {
+        try {
+            $member = Member::with('site', 'city', 'township', 'pool', 'fonction', 'chef', 'user')->findOrFail($id);
 
-        // Vérifie si le membre a une image (face_path)
-        if ($member->face_path && file_exists(public_path($member->face_path))) {
-            $imagePath = public_path($member->face_path);
-            $imageData = base64_encode(file_get_contents($imagePath));
-            $mimeType = mime_content_type($imagePath);
-            $base64Image = "data:$mimeType;base64,$imageData";
-        } else {
             $base64Image = null;
+
+            if ($member->face_path && Storage::disk('public')->exists($member->face_path)) {
+                $fileContent = Storage::disk('public')->get($member->face_path);
+                $mimeType = Storage::disk('public')->mimeType($member->face_path);
+                $base64Image = 'data:' . $mimeType . ';base64,' . base64_encode($fileContent);
+            }
+
+            return response()->json([
+                'success' => true,
+                'member' => $member,
+                'face_base64' => $base64Image,
+            ], 200);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => "Erreur, " . $th->getMessage()
+            ], 500);
         }
-
-        return response()->json([
-            'success' => true,
-            'member' => $member,
-            'face_base64' => $base64Image,
-        ], 200);
-
-    } catch (\Throwable $th) {
-        return response()->json([
-            'success' => false,
-            'message' => "Erreur, " . $th->getMessage()
-        ], 500);
     }
-}
 
 
     public function edit($id)
