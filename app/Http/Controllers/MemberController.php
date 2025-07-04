@@ -122,7 +122,8 @@ class MemberController extends Controller
             return response()->json([
                 'success' => true,
                 'member' => $member,
-                'face_base64' => $base64Image,
+                'face_base64' => null,
+                // 'face_base64' => $base64Image,
             ], 200);
 
         } catch (\Throwable $th) {
