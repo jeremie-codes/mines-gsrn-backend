@@ -146,7 +146,7 @@ class PoolController extends Controller
         }
     }
 
-    public function update(Request $request)
+    public function update(Request $request, $id)
     {
         try {
             $request->validate([
@@ -157,7 +157,7 @@ class PoolController extends Controller
                 'is_active' => 'nullable|boolean'
             ]);
 
-            $pool = Pool::findOrFail($request->pool_id);
+            $pool = Pool::findOrFail($id);
 
             if (!$pool) {
                 return response()->json([
@@ -170,7 +170,6 @@ class PoolController extends Controller
 
             return response()->json([
                 'success' => true,
-                'pool' => $pool,
                 'message' => 'Pool mis à jour avec succès.'
             ], 200);
 

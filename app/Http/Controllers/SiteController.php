@@ -118,7 +118,7 @@ class SiteController extends Controller
         }
     }
 
-    public function update(Request $request)
+    public function update(Request $request, $id)
     {
 
         try {
@@ -127,7 +127,7 @@ class SiteController extends Controller
                 'site_id' => 'required|exists:sites,id',
                 'city_id' => 'nullable|exists:cities,id',
                 'name' => 'required|string|max:255',
-                'code' => 'required|string|max:3|unique:sites,code,' . $request->site_id,
+                'code' => 'required|string|max:3|unique:sites,code,' . $id,
                 'location' => 'nullable|string|max:255',
                 'is_active' => 'nullable|boolean',
             ]);
@@ -136,7 +136,7 @@ class SiteController extends Controller
             $data = $request->all();
             $data['code'] = strtoupper($data['code']);
 
-            $site = Site::findOrFail($request->site_id);
+            $site = Site::findOrFail($request->id);
 
             if (!$site) {
                 return response()->json([
@@ -149,7 +149,6 @@ class SiteController extends Controller
 
             return response()->json([
                 'success' => true,
-                'site' => $site,
                 'message' => 'Site mise à jour avec succès.'
             ], 201);
         } catch (\Throwable $th) {
