@@ -259,7 +259,6 @@ class MemberController extends Controller
             $member->delete();
 
             return response()->json([
-                'member' => $member,
                 'success' => true,
                 'message' => 'Membre supprimé avec succès',
             ], 201);
