@@ -238,7 +238,7 @@ class MemberController extends Controller
         }
     }
 
-    public function destroy(Member $id)
+    public function destroy($id)
     {
         try {
 
