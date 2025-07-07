@@ -12,4 +12,4 @@ use App\Http\Controllers\UserController;
 |--------------------------------------------------------------------------
 */
 
-Route::resource('members', MemberController::class);
+// Route::resource('members', MemberController::class);

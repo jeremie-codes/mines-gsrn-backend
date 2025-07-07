@@ -17,6 +17,9 @@ use Illuminate\Support\Facades\Response;
 Route::middleware('api')->group(function () {
 
     Route::get('/profile-image/{filename}', function ($filename) {
+
+        // $filename = preg_replace('#^profiles/#', '', $filename);
+
         $path = public_path('storage/' . $filename);
 
         if (!file_exists($path)) {
@@ -29,7 +32,7 @@ Route::middleware('api')->group(function () {
         return response($file, 200)
             ->header('Content-Type', $type)
             ->header('Access-Control-Allow-Origin', '*');
-    });
+    })->where('filename', '.+');
 
     // Routes API pour les membres (application mobile)
     Route::get('members', [MemberController::class, 'index']);
