@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MemberController;
+use App\Http\Controllers\PdfController;
 use App\Http\Controllers\SiteController;
 use App\Http\Controllers\PoolController;
 use App\Http\Controllers\UserController;
@@ -31,14 +32,20 @@ Route::middleware('api')->group(function () {
 
         return response($file, 200)
             ->header('Content-Type', $type)
+            ->header('Access-Control-Allow-Origin', '*')
             ->header('Access-Control-Allow-Origin', '*');
     })->where('filename', '.+');
+
+    Route::get('/carte/preview/{id}', [PdfController::class, 'previewCarte'])->name('carte.preview');
+    Route::post('/carte/generate-pdf', [PdfController::class, 'generateFromPreview'])->name('carte.pdf.generate');
+
 
     // Routes API pour les membres (application mobile)
     Route::get('members', [MemberController::class, 'index']);
     Route::get('members/{member}', [MemberController::class, 'show']);
     Route::post('members/create', [MemberController::class, 'apiStore']);
     Route::put('members/{member}', [MemberController::class, 'apiUpdate']);
+    Route::delete('members/{id}', [MemberController::class, 'destroy']);
 
     // Route::resource('members', MemberController::class);
     // Routes spéciales pour les membres
