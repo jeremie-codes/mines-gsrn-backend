@@ -172,7 +172,7 @@ class MemberController extends Controller
         }
     }
 
-    public function update(Request $request)
+    public function update(Request $request, $id)
     {
 
         try {
@@ -196,7 +196,7 @@ class MemberController extends Controller
                 'is_active' => 'nullable|boolean'
             ]);
 
-            $member = Member::findOrFail($request->member_id);
+            $member = Member::findOrFail($id);
 
             if(!$member) {
                 return response()->json([

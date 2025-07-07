@@ -37,7 +37,7 @@ Route::middleware('api')->group(function () {
     })->where('filename', '.+');
 
     Route::get('/carte/preview/{id}', [PdfController::class, 'previewCarte'])->name('carte.preview');
-    Route::post('/carte/generate-pdf', [PdfController::class, 'generateFromPreview'])->name('carte.pdf.generate');
+    Route::post('/carte/generate-pdf', [PdfController::class, 'generatePDF'])->name('carte.pdf.generate');
 
 
     // Routes API pour les membres (application mobile)

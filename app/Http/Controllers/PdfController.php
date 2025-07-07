@@ -8,18 +8,42 @@ use Illuminate\Http\Request;
 
 class PdfController extends Controller
 {
-    public function generateCarte($id)
+//     use Barryvdh\DomPDF\Facade\Pdf;
+// use App\Models\CartePosition;
+// use App\Models\Membre;
+
+    public function generatePDF(Request $request)
     {
-        $member = Member::findOrFail($id);
+        $member = Member::findOrFail($request->member_id);
 
-        $pdf = Pdf::loadView('carte.pdf', compact('member'));
+        // Récupérer ou stocker les positions et dimensions
+        $positions = [];
 
-        // Dimensions précises : 1012 x 638 pixels (à 96 DPI ≈ 10.5x6.6 pouces)
-        $pdf->setPaper([0, 0, 1012, 638], 'landscape'); // Custom size, no margin
+        foreach (['nom', 'postnom', 'prenom', 'fonction', 'categorie', 'site', 'numero', 'photo'] as $field) {
+            $positions[$field] = [
+                'top' => $request->input($field . '_top'),
+                'left' => $request->input($field . '_left')
+            ];
+        }
 
-        return $pdf->download('carte_membre_'.$member->numero.'.pdf');
+        // Récupérer les dimensions de l'image photo
+        $photoWidth = $request->input('photo_width', 310);
+        $photoHeight = $request->input('photo_height', 430);
+
+        return Pdf::loadView('carte.pdf', [
+            'member' => $member,
+            'positions' => $positions,
+            'photoWidth' => $photoWidth,
+            'photoHeight' => $photoHeight
+        ])->setPaper('a4', 'landscape') 
+        // ->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])
+        ->stream("carte-{$member->membershipNumber}.pdf");
+        
+        // ->setPaper('a4', 'landscape') // <--- Ici le mode paysage est défini
+        // ->stream("carte-{$member->membershipNumber}.pdf");
+
     }
-
+    
 
     public function generateFromPreview(Request $request)
     {
