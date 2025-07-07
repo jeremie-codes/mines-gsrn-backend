@@ -225,7 +225,6 @@ class MemberController extends Controller
             $member->update($data);
 
             return response()->json([
-                'member' => $member,
                 'success' => true,
                 'message' => 'Membre mis à jour avec succès'
             ], 201);
