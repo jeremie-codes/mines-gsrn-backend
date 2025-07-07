@@ -193,7 +193,8 @@ class MemberController extends Controller
                 'face_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
                 'face_base64' => 'nullable|string',
                 'date_adhesion' => 'nullable|date',
-                'is_active' => 'nullable|boolean'
+                'is_active' => 'nullable|boolean',
+                'membershipNumber' => 'nullable|string|max:255'
             ]);
 
             $member = Member::findOrFail($id);
@@ -207,9 +208,8 @@ class MemberController extends Controller
 
             $data = $request->all();
 
-            // Régénérer le numéro de membre si le site ou la ville a changé
-            if ($request->site_id != $member->site_id || $request->city_id != $member->city_id) {
-                $data['membershipNumber'] = $this->generateMembershipNumber($request->site_id, $request->city_id);
+            if ($request->has('membershipNumber') && !empty($request->membershipNumber)) {
+                $data['membershipNumber'] = $request->membershipNumber;
             }
 
             // Gérer l'upload d'image
