@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Response;
 Route::middleware('api')->group(function () {
 
     Route::get('/profile-image/{filename}', function ($filename) {
-        $path = public_path('profile-images/' . $filename);
+        $path = public_path('storage/' . $filename);
 
         if (!file_exists($path)) {
             abort(404);
