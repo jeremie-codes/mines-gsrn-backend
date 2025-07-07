@@ -44,7 +44,7 @@ Route::middleware('api')->group(function () {
     Route::get('members', [MemberController::class, 'index']);
     Route::get('members/{member}', [MemberController::class, 'show']);
     Route::post('members/create', [MemberController::class, 'apiStore']);
-    Route::put('members/{member}', [MemberController::class, 'apiUpdate']);
+    Route::put('members/{id}', [MemberController::class, 'update']);
     Route::delete('members/{id}', [MemberController::class, 'destroy']);
 
     // Route::resource('members', MemberController::class);
