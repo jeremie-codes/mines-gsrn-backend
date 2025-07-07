@@ -6,7 +6,8 @@ use App\Http\Controllers\MemberController;
 use App\Http\Controllers\SiteController;
 use App\Http\Controllers\PoolController;
 use App\Http\Controllers\UserController;
-
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Response;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -14,6 +15,22 @@ use App\Http\Controllers\UserController;
 */
 
 Route::middleware('api')->group(function () {
+
+    Route::get('/profile-image/{filename}', function ($filename) {
+        $path = storage_path('app/public/profiles/' . $filename);
+
+        if (!file_exists($path)) {
+            abort(404);
+        }
+
+        $file = file_get_contents($path);
+        $type = mime_content_type($path);
+
+        return response($file, 200)
+            ->header('Content-Type', $type)
+            ->header('Access-Control-Allow-Origin', '*');
+    });
+
     // Routes API pour les membres (application mobile)
     Route::get('members', [MemberController::class, 'index']);
     Route::get('members/{member}', [MemberController::class, 'show']);
