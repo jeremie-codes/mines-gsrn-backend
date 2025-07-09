@@ -126,10 +126,10 @@ class SiteController extends Controller
         try {
 
             $request->validate([
-                'site_id' => 'required|exists:sites,id',
+                // 'site_id' => 'required|exists:sites,id',
                 'city_id' => 'nullable|exists:cities,id',
-                'name' => 'required|string|max:255',
-                'code' => 'required|string|max:3|unique:sites,code,' . $id,
+                'name' => 'nullable|string|max:255',
+                'code' => 'nullable|string|max:3|unique:sites,code,' . $id,
                 'location' => 'nullable|string|max:255',
                 'is_active' => 'nullable|boolean',
             ]);
@@ -138,7 +138,7 @@ class SiteController extends Controller
             $data = $request->all();
             $data['code'] = strtoupper($data['code']);
 
-            $site = Site::findOrFail($request->id);
+            $site = Site::findOrFail($id);
 
             if (!$site) {
                 return response()->json([
@@ -184,7 +184,6 @@ class SiteController extends Controller
             }
 
             $site->delete();
-            $site->save();
 
             return response()->json([
                 'success' => true,

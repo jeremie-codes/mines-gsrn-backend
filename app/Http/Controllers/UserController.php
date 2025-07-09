@@ -145,20 +145,19 @@ class UserController extends Controller
         }
     }
 
-    public function update(Request $request)
+    public function update(Request $request, $id)
     {
 
         try {
            $request->validate([
-                'user_id' => 'required|exists:users,id',
-                'email' => 'required|email|unique:users,email,' . $request->user_id,
-                'username' => 'required|string|unique:users,username,' .  $request->user_id,
+                'email' => 'nullable|email|unique:users,email,' . $id,
+                'username' => 'nullable|string|unique:users,username,' .  $id,
                 'password' => 'nullable|string|min:8',
-                'role_id' => 'required|exists:roles,id',
+                'role_id' => 'nullable|exists:roles,id',
                 'is_active' => 'nullable|boolean'
             ]);
 
-            $user = User::findOrFail($request->user_id);
+            $user = User::findOrFail($id);
 
             if (!$user) {
                 return response()->json([
@@ -185,6 +184,10 @@ class UserController extends Controller
 
         } catch (\Throwable $th) {
             //throw $th;
+            return response()->json([
+                'success' => false,
+                'message' => "Erreur, " .$th->getMessage()
+            ], 500);
         }
     }
 

@@ -14,7 +14,7 @@ class PoolController extends Controller
 
         try {
 
-            $pools = Pool::paginate(10);
+            $pools = Pool::orderBy('created_at', 'desc')->paginate(10);
 
             return response()->json([
                 'success' => true,
@@ -37,12 +37,11 @@ class PoolController extends Controller
             $chefs = Member::with('fonction')
                 ->whereHas('fonction', function ($query) {
                     $query->where('name', 'Chef de Pool');
-                })
-                ->get();
+                })->orderBy('created_at', 'desc')->get();
 
             return response()->json([
                 'success' => true,
-                'pools' => $chefs
+                'chefs' => $chefs
             ], 200);
 
         } catch (\Throwable $th) {
@@ -125,7 +124,7 @@ class PoolController extends Controller
         }
     }
 
-    public function edit(Pool $id)
+    public function edit($id)
     {
         try {
 
@@ -150,9 +149,9 @@ class PoolController extends Controller
     {
         try {
             $request->validate([
-                'pool_id' => 'required|exists:pools,id',
-                'site_id' => 'required|exists:sites,id',
-                'name' => 'required|string|max:255',
+                // 'pool_id' => 'required|exists:pools,id',
+                'site_id' => 'nullable|exists:sites,id',
+                'name' => 'nullable|string|max:255',
                 'description' => 'nullable|string',
                 'is_active' => 'nullable|boolean'
             ]);
@@ -181,7 +180,7 @@ class PoolController extends Controller
         }
     }
 
-    public function destroy(Pool $id)
+    public function destroy($id)
     {
 
         try {
@@ -210,6 +209,10 @@ class PoolController extends Controller
             ], 200);
         } catch (\Throwable $th) {
             //throw $th;
+            return response()->json([
+                'success' => false,
+                'message' => "Erreur, " .$th->getMessage()
+            ], 500);
         }
 
     }
