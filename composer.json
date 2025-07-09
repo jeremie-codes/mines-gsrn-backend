@@ -6,13 +6,15 @@
     "license": "MIT",
     "require": {
         "php": ">=7.3",
+        "bacon/bacon-qr-code": "^2.0",
         "barryvdh/laravel-dompdf": "^2.2",
         "fruitcake/laravel-cors": "*",
         "guzzlehttp/guzzle": "*",
         "laravel/framework": "*",
         "laravel/sanctum": "*",
         "laravel/tinker": "*",
-        "simplesoftwareio/simple-qrcode": "~4"
+        "simplesoftwareio/simple-qrcode": "^4.2",
+        "spatie/browsershot": "^3.40"
     },
     "require-dev": {
         "facade/ignition": "*",

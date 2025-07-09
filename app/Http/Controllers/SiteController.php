@@ -69,7 +69,10 @@ class SiteController extends Controller
     {
          try {
 
-            $site = Site::with('pools', 'members', 'city')->findOrFail($id);
+            $site = Site::with('coordonateur','city')->findOrFail($id);
+
+            $site->membership_counter = $site->members->count();
+            $site->save();
 
             if (!$site) {
                 return response()->json([
@@ -107,7 +110,6 @@ class SiteController extends Controller
 
             return response()->json([
                 'success' => true,
-                'site' => $site,
                 'message' => 'Site récupéré avec succès.'
             ], 201);
         } catch (\Throwable $th) {

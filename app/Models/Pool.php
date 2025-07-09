@@ -13,7 +13,8 @@ class Pool extends Model
         'site_id',
         'name',
         'description',
-        'is_active'
+        'is_active',
+        'membership_counter'
     ];
 
     protected $casts = [
@@ -34,4 +35,5 @@ class Pool extends Model
     {
         return $query->where('is_active', true);
     }
+
 }

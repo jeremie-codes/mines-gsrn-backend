@@ -104,7 +104,10 @@ class PoolController extends Controller
     {
 
         try {
-            $pool = Pool::with('site', 'members')->findOrFail($id);
+            $pool = Pool::with('site')->findOrFail($id);
+
+            $pool->membership_counter = $pool->members->count();
+            $pool->save();
 
             if (!$pool) {
                 return response()->json([

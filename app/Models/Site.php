@@ -22,9 +22,17 @@ class Site extends Model
         'is_active' => 'boolean',
     ];
 
+    protected $appends = ['pools_count'];
+
+
     public function pools()
     {
         return $this->hasMany(Pool::class);
+    }
+
+    public function getPoolsCountAttribute()
+    {
+        return $this->pools()->count();
     }
 
     public function city()
@@ -35,6 +43,13 @@ class Site extends Model
     public function members()
     {
         return $this->hasMany(Member::class);
+    }
+
+    public function coordonateur()
+    {
+        return $this->hasOne(Member::class)->whereHas('fonction', function ($query) {
+            $query->where('name', 'Coordonateur');
+        });
     }
 
     public function scopeActive($query)
