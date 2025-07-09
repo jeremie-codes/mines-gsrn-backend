@@ -52,7 +52,7 @@ class SiteController extends Controller
             $site = Site::create($data);
 
             return response()->json([
-                'success' => true, 
+                'success' => true,
                 'site' => $site,
                 'message' => 'Site créé avec succès.'
             ], 201);
@@ -71,15 +71,14 @@ class SiteController extends Controller
 
             $site = Site::with('coordonateur','city')->findOrFail($id);
 
-            // $site->membership_counter = $site->members->count();
-            // $site->save();
-
             if (!$site) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Site non trouvé.'
                 ], 404);
             }
+
+            dd($site->pools()->count());
 
             return response()->json([
                 'success' => true,
@@ -176,10 +175,10 @@ class SiteController extends Controller
             }
 
             // Vérifier si le site a des pools ou des membres associés
-            if ($site->pools()->count() > 0 || $site->members()->count() > 0) {
+            if ($site->pools_count > 0) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Impossible de supprimer le site, il est associé à des pools ou des membres.'
+                    'message' => 'Impossible de supprimer le site, il est associé à des pools.'
                 ], 400);
             }
 
