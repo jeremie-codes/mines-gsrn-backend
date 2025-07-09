@@ -55,7 +55,12 @@ Route::middleware('api')->group(function () {
     Route::post('members/{member}/create-user', [MemberController::class, 'createUser'])->name('members.create-user.store');
 
     // Routes pour les Sites
-    Route::resource('sites', SiteController::class);
+    // Route::resource('sites', SiteController::class);
+    Route::get('sites', [PoolController::class, 'index'])->name('sites.index');
+    Route::get('sites/{id}', [PoolController::class, 'show'])->name('sites.show');
+    Route::post('sites/create', [PoolController::class, 'create'])->name('sites.create');
+    Route::put('sites/{id}', [PoolController::class, 'update'])->name('sites.update');
+    Route::delete('sites/{id}', [PoolController::class, 'delete'])->name('sites.delete');
 
     // Routes pour les Pools
     Route::get('pools', [PoolController::class, 'index'])->name('pools.index');
