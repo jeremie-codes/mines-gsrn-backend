@@ -12,7 +12,7 @@ class SiteController extends Controller
 
         try {
 
-            $sites = Site::paginate(10);
+            $sites = Site::orderBy('created_at', 'desc')->paginate(10);
 
             return response()->json([
                 'success' => true,
