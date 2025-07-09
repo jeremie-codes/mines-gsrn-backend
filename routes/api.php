@@ -60,7 +60,7 @@ Route::middleware('api')->group(function () {
     Route::get('sites/{id}', [SiteController::class, 'show'])->name('sites.show');
     Route::post('sites/create', [SiteController::class, 'store'])->name('sites.create');
     Route::put('sites/{id}', [SiteController::class, 'update'])->name('sites.update');
-    Route::delete('sites/{id}', [PoolController::class, 'destroy'])->name('sites.delete');
+    Route::delete('sites/{id}', [SiteController::class, 'destroy'])->name('sites.delete');
 
     // Routes pour les Pools
     Route::get('pools', [PoolController::class, 'index'])->name('pools.index');

@@ -175,10 +175,10 @@ class SiteController extends Controller
             }
 
             // Vérifier si le site a des pools ou des membres associés
-            if ($site->pools_count > 0) {
+            if ($site->pools_count > 0 || $site->members()->count() > 0) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Impossible de supprimer le site, il est associé à des pools.'
+                    'message' => 'Impossible de supprimer le site, il est associé à des pools ou des membres.'
                 ], 400);
             }
 
