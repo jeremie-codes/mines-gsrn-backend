@@ -71,8 +71,8 @@ class SiteController extends Controller
 
             $site = Site::with('coordonateur','city')->findOrFail($id);
 
-            $site->membership_counter = $site->members->count();
-            $site->save();
+            // $site->membership_counter = $site->members->count();
+            // $site->save();
 
             if (!$site) {
                 return response()->json([
