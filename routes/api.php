@@ -58,14 +58,14 @@ Route::middleware('api')->group(function () {
     // Route::resource('sites', SiteController::class);
     Route::get('sites', [SiteController::class, 'index'])->name('sites.index');
     Route::get('sites/{id}', [SiteController::class, 'show'])->name('sites.show');
-    Route::post('sites/create', [SiteController::class, 'create'])->name('sites.create');
+    Route::post('sites/create', [SiteController::class, 'store'])->name('sites.create');
     Route::put('sites/{id}', [SiteController::class, 'update'])->name('sites.update');
     Route::delete('sites/{id}', [PoolController::class, 'destroy'])->name('sites.delete');
 
     // Routes pour les Pools
     Route::get('pools', [PoolController::class, 'index'])->name('pools.index');
     Route::get('pools/{id}', [PoolController::class, 'show'])->name('pools.show');
-    Route::post('pools/create', [PoolController::class, 'create'])->name('pools.create');
+    Route::post('pools/create', [PoolController::class, 'store'])->name('pools.create');
     Route::put('pools/{id}', [PoolController::class, 'update'])->name('pools.update');
     Route::delete('pools/{id}', [PoolController::class, 'destroy'])->name('pools.delete');
     Route::get('chefs/pools', [PoolController::class, 'getChefs'])->name('pools.chefs');

@@ -52,7 +52,7 @@ class SiteController extends Controller
             $site = Site::create($data);
 
             return response()->json([
-                'success' => true,
+                'success' => true, 
                 'site' => $site,
                 'message' => 'Site créé avec succès.'
             ], 201);
