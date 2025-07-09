@@ -31,6 +31,13 @@ class Pool extends Model
         return $this->hasMany(Member::class);
     }
 
+        public function chefDePool()
+    {
+        return $this->hasMany(Member::class)->whereHas('fonction', function ($query) {
+            $query->where('name', 'Chef de Pool');
+        });
+    }
+
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
