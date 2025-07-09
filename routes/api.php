@@ -68,7 +68,9 @@ Route::middleware('api')->group(function () {
     Route::post('pools/create', [PoolController::class, 'store'])->name('pools.create');
     Route::put('pools/{id}', [PoolController::class, 'update'])->name('pools.update');
     Route::delete('pools/{id}', [PoolController::class, 'destroy'])->name('pools.delete');
+
     Route::get('chefs/pools', [PoolController::class, 'getChefs'])->name('pools.chefs');
+    Route::get('chefs/pools/{id}', [PoolController::class, 'getChefByPoolId']);
 
     // Route pour récupérer les communes par ville (AJAX)
     Route::get('townships/city/{cityId}', [MemberController::class, 'getTownshipsByCity'])->name('townships.by-city');

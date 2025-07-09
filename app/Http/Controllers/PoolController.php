@@ -52,6 +52,33 @@ class PoolController extends Controller
         }
     }
 
+    public function getChefByPoolId($id)
+    {
+
+        try {
+
+            $pool = Pool::with('chefDePool')->findOrFail($id);
+
+            if (!$pool) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Pool non trouvé.'
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'chef' => $pool->chefDePool
+            ], 200);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => "Erreur, " .$th->getMessage()
+            ], 500);
+        }
+    }
+
     public function create()
     {
 
