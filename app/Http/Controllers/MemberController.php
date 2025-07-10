@@ -72,9 +72,14 @@ class MemberController extends Controller
                 'city_id' => 'nullable|exists:cities,id',
                 'township_id' => 'nullable|exists:townships,id',
                 'pool_id' => 'nullable|exists:pools,id',
+                'chef_id' => 'nullable|exists:members,id',
+                'category' => 'nullable|string|max:2',
+                'street' => 'nullable|string|max:255',
                 'libelle_pool' => 'nullable|string|max:255',
                 'fonction_id' => 'nullable|exists:fonctions,id',
+                'face_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
                 'face_base64' => 'nullable|string',
+                'date_adhesion' => 'nullable|date',
                 'is_active' => 'nullable|boolean'
             ]);
 
