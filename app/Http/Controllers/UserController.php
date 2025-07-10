@@ -47,21 +47,23 @@ class UserController extends Controller
         }
 
         $motDePasseTemporaire = Str::random(8);
+        $randomDigits = str_pad(strval(rand(0, 999)), 3, '0', STR_PAD_LEFT); // 3 chiffres
 
         $userData = [
-            'username' => $member->firstname,
+            'member_id' => $member->id,
+            'username' => $member->firstname . $randomDigits, // ex: Daniel123
             'phone' => $member->phone,
-            "password" => Hash::make($motDePasseTemporaire),
-            'plain_password' => $motDePasseTemporaire
+            'password' => Hash::make($motDePasseTemporaire),
+            'plain_password' => $motDePasseTemporaire,
         ];
-        // Hash du mot de passe
 
         // Création de l'utilisateur
-        User::create($userData);
+        $user = User::create($userData);
 
         return response()->json([
             'message' => 'Utilisateur créé avec succès !',
-            'password' => $motDePasseTemporaire,
+            'username' => $user->username,
+            'plain_password' => $motDePasseTemporaire,
         ], 201); // 201 = Created
     }
 
