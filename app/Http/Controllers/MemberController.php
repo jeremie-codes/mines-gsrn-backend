@@ -82,7 +82,7 @@ class MemberController extends Controller
                 'date_adhesion' => 'nullable|date',
                 'is_active' => 'nullable|boolean'
             ]);
-            // dd($validated);
+
             $data = $request->all();
 
             // Générer automatiquement le numéro de membre
@@ -101,8 +101,10 @@ class MemberController extends Controller
                 $pool->increment('membership_counter');
             }
 
+            dd($pool);
+
             if ($site) {
-                $pool->increment('membership_counter');
+                $site->increment('membership_counter');
             }
 
             // dd($pool, $site);
