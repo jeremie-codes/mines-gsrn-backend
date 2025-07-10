@@ -17,62 +17,74 @@ use Illuminate\Support\Facades\Response;
 
 Route::middleware('api')->group(function () {
 
-    Route::get('/profile-image/{filename}', function ($filename) {
 
-        // $filename = preg_replace('#^profiles/#', '', $filename);
 
-        $path = public_path('storage/' . $filename);
+    Route::middleware('guest')->group(function () {
+        Route::post('register/{id}', [UserController::class, 'register'])->name('register');
+        Route::post('login', [UserController::class, 'login'])->name('login');
+        Route::post('logout', [UserController::class, 'logout'])->name('logout');
+    });
 
-        if (!file_exists($path)) {
-            abort(404);
-        }
+    Route::middleware('auth:sanctum')->group(function () {
 
-        $file = file_get_contents($path);
-        $type = mime_content_type($path);
+        Route::get('/profile-image/{filename}', function ($filename) {
 
-        return response($file, 200)
-            ->header('Content-Type', $type)
-            ->header('Access-Control-Allow-Origin', '*')
-            ->header('Access-Control-Allow-Origin', '*');
-    })->where('filename', '.+');
+            // $filename = preg_replace('#^profiles/#', '', $filename);
 
-    Route::get('/carte/preview/{id}', [PdfController::class, 'previewCarte'])->name('carte.preview');
-    Route::post('/carte/generate-pdf', [PdfController::class, 'generatePDF'])->name('carte.pdf.generate');
+            $path = public_path('storage/' . $filename);
 
-  // Routes pour les Utilisateurs
-    Route::resource('users', UserController::class);
+            if (!file_exists($path)) {
+                abort(404);
+            }
 
-    // Routes API pour les membres (application mobile)
-    Route::get('members', [MemberController::class, 'index']);
-    Route::get('members/{member}', [MemberController::class, 'show']);
-    Route::post('members/create', [MemberController::class, 'store']);
-    Route::put('members/{id}', [MemberController::class, 'update']);
-    Route::delete('members/{id}', [MemberController::class, 'destroy']);
+            $file = file_get_contents($path);
+            $type = mime_content_type($path);
 
-    // Route::resource('members', MemberController::class);
-    // Routes spéciales pour les membres
-    Route::get('members/{member}/assign-role', [MemberController::class, 'showAssignRole'])->name('members.assign-role');
-    Route::post('members/{member}/assign-role', [MemberController::class, 'assignRole'])->name('members.assign-role.store');
-    Route::get('members/{member}/create-user', [MemberController::class, 'showCreateUser'])->name('members.create-user');
-    Route::post('members/{member}/create-user', [MemberController::class, 'createUser'])->name('members.create-user.store');
+            return response($file, 200)
+                ->header('Content-Type', $type)
+                ->header('Access-Control-Allow-Origin', '*')
+                ->header('Access-Control-Allow-Origin', '*');
+        })->where('filename', '.+');
 
-    // Routes pour les Sites
-    // Route::resource('sites', SiteController::class);
-    Route::get('sites', [SiteController::class, 'index'])->name('sites.index');
-    Route::get('sites/{id}', [SiteController::class, 'show'])->name('sites.show');
-    Route::post('sites/create', [SiteController::class, 'store'])->name('sites.create');
-    Route::put('sites/{id}', [SiteController::class, 'update'])->name('sites.update');
-    Route::delete('sites/{id}', [SiteController::class, 'destroy'])->name('sites.delete');
+        Route::get('/carte/preview/{id}', [PdfController::class, 'previewCarte'])->name('carte.preview');
+        Route::post('/carte/generate-pdf', [PdfController::class, 'generatePDF'])->name('carte.pdf.generate');
 
-    // Routes pour les Pools
-    Route::get('pools', [PoolController::class, 'index'])->name('pools.index');
-    Route::get('pools/{id}', [PoolController::class, 'show'])->name('pools.show');
-    Route::post('pools/create', [PoolController::class, 'store'])->name('pools.create');
-    Route::put('pools/{id}', [PoolController::class, 'update'])->name('pools.update');
-    Route::delete('pools/{id}', [PoolController::class, 'destroy'])->name('pools.delete');
+    // Routes pour les Utilisateurs
+        Route::resource('users', UserController::class);
 
-    Route::get('chefs/pools', [PoolController::class, 'getChefs'])->name('pools.chefs');
-    Route::get('chefs/pools/{id}', [PoolController::class, 'getChefByPoolId']);
+        // Routes API pour les membres (application mobile)
+        Route::get('members', [MemberController::class, 'index']);
+        Route::get('members/{member}', [MemberController::class, 'show']);
+        Route::post('members/create', [MemberController::class, 'store']);
+        Route::put('members/{id}', [MemberController::class, 'update']);
+        Route::delete('members/{id}', [MemberController::class, 'destroy']);
+
+        // Route::resource('members', MemberController::class);
+        // Routes spéciales pour les membres
+        Route::get('members/{member}/assign-role', [MemberController::class, 'showAssignRole'])->name('members.assign-role');
+        Route::post('members/{member}/assign-role', [MemberController::class, 'assignRole'])->name('members.assign-role.store');
+        Route::get('members/{member}/create-user', [MemberController::class, 'showCreateUser'])->name('members.create-user');
+        Route::post('members/{member}/create-user', [MemberController::class, 'createUser'])->name('members.create-user.store');
+
+        // Routes pour les Sites
+        // Route::resource('sites', SiteController::class);
+        Route::get('sites', [SiteController::class, 'index'])->name('sites.index');
+        Route::get('sites/{id}', [SiteController::class, 'show'])->name('sites.show');
+        Route::post('sites/create', [SiteController::class, 'store'])->name('sites.create');
+        Route::put('sites/{id}', [SiteController::class, 'update'])->name('sites.update');
+        Route::delete('sites/{id}', [SiteController::class, 'destroy'])->name('sites.delete');
+
+        // Routes pour les Pools
+        Route::get('pools', [PoolController::class, 'index'])->name('pools.index');
+        Route::get('pools/{id}', [PoolController::class, 'show'])->name('pools.show');
+        Route::post('pools/create', [PoolController::class, 'store'])->name('pools.create');
+        Route::put('pools/{id}', [PoolController::class, 'update'])->name('pools.update');
+        Route::delete('pools/{id}', [PoolController::class, 'destroy'])->name('pools.delete');
+
+        Route::get('chefs/pools', [PoolController::class, 'getChefs'])->name('pools.chefs');
+        Route::get('chefs/pools/{id}', [PoolController::class, 'getChefByPoolId']);
+
+    });
 
     // Routes Public API pour les utilisateurs
     // Route pour récupérer les communes par ville (AJAX)

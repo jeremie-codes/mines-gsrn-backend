@@ -11,9 +11,7 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->foreignId('member_id')->nullable()->constrained()->onDelete('set null');
-            $table->string('email')->unique();
-            $table->string('username')->unique();
-            $table->timestamp('email_verified_at')->nullable();
+            $table->string('username')->nullable()->unique();
             $table->string('password');
             $table->foreignId('role_id')->nullable()->constrained()->onDelete('set null');
             $table->boolean('is_active')->default(true);

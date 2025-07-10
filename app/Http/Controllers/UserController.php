@@ -11,6 +11,8 @@ use App\Models\Role;
 use App\Models\Township;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
@@ -31,6 +33,57 @@ class UserController extends Controller
                 'message' => "Erreur, " .$th->getMessage()
             ], 500);
         }
+    }
+
+    public function register($id)
+    {
+
+        $member = Member::findOrFail($id);
+
+        if(!$member) {
+            return response()->json([
+                'message' => 'Utilisateur non trouvé !',
+            ], 404);
+        }
+
+        $motDePasseTemporaire = Str::random(8);
+
+        $userData = [
+            'username' => $member->firstname,
+            'phone' => $member->phone,
+            "password" => Hash::make($motDePasseTemporaire),
+            'plain_password' => $motDePasseTemporaire
+        ];
+        // Hash du mot de passe
+
+        // Création de l'utilisateur
+        User::create($userData);
+
+        return response()->json([
+            'message' => 'Utilisateur créé avec succès !',
+            'password' => $motDePasseTemporaire,
+        ], 201); // 201 = Created
+    }
+
+    public function login(Request $request) {
+        $request->validate([
+            'username' => 'nullable|string',
+            'password' => 'required',
+        ]);
+
+        $user = User::where('username', $request->username)->first() ?? Member::where('phone', $request->username);
+
+        if (! $user || ! Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Les identifiants sont incorrects.',
+            ], 404);
+        }
+
+        return response()->json([
+            'token' => $user->createToken('api-token')->plainTextToken,
+            'user' => $user,
+        ]);
     }
 
     public function create()

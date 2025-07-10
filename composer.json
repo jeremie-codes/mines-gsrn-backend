@@ -11,7 +11,7 @@
         "fruitcake/laravel-cors": "*",
         "guzzlehttp/guzzle": "*",
         "laravel/framework": "*",
-        "laravel/sanctum": "*",
+        "laravel/sanctum": "^2.15",
         "laravel/tinker": "*",
         "simplesoftwareio/simple-qrcode": "^4.2",
         "spatie/browsershot": "^3.40"
