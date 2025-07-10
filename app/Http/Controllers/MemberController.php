@@ -94,11 +94,18 @@ class MemberController extends Controller
             $member = Member::create($data);
 
             $pool = $member->pool;
+            $site = $member->site;
+
 
             if ($pool) {
                 $pool->increment('membership_counter');
             }
 
+            if ($site) {
+                $pool->increment('membership_counter');
+            }
+
+            // dd($pool, $site);
             return response()->json([
                 'success' => true,
                 'member' => $member->load('site', 'city', 'township', 'pool', 'fonction'),
@@ -266,15 +273,14 @@ class MemberController extends Controller
 
             $member->delete();
 
-            if ($site) {
+            if ($site && $site->membership_counter > 0) {
                 $site->decrement('membership_counter');
-                $site->save();
             }
 
-            if ($pool) {
+            if ($pool && $pool->membership_counter > 0) {
                 $pool->decrement('membership_counter');
-                $site->save();
             }
+
 
             return response()->json([
                 'success' => true,
