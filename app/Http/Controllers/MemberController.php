@@ -97,8 +97,6 @@ class MemberController extends Controller
                 $pool->increment('membership_counter');
             }
 
-            dd($pool);
-
             if ($site) {
                 $site->increment('membership_counter');
             }
