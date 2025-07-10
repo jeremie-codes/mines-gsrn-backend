@@ -45,7 +45,7 @@ Route::middleware('api')->group(function () {
     // Routes API pour les membres (application mobile)
     Route::get('members', [MemberController::class, 'index']);
     Route::get('members/{member}', [MemberController::class, 'show']);
-    Route::post('members/create', [MemberController::class, 'apiStore']);
+    Route::post('members/create', [MemberController::class, 'store']);
     Route::put('members/{id}', [MemberController::class, 'update']);
     Route::delete('members/{id}', [MemberController::class, 'destroy']);
 
