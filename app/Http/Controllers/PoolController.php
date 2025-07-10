@@ -37,6 +37,29 @@ class PoolController extends Controller
             $chefs = Member::with('fonction')
                 ->whereHas('fonction', function ($query) {
                     $query->where('name', 'Chef de Pool');
+                })->orderBy('created_at', 'desc')->paginate(10);
+
+            return response()->json([
+                'success' => true,
+                'chefs' => $chefs
+            ], 200);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => "Erreur, " .$th->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getChefsApp()
+    {
+
+        try {
+
+            $chefs = Member::with('fonction')
+                ->whereHas('fonction', function ($query) {
+                    $query->where('name', 'Chef de Pool');
                 })->orderBy('created_at', 'desc')->get();
 
             return response()->json([

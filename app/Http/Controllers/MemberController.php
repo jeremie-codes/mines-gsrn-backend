@@ -268,10 +268,12 @@ class MemberController extends Controller
 
             if ($site) {
                 $site->decrement('membership_counter');
+                $site->save();
             }
 
             if ($pool) {
                 $pool->decrement('membership_counter');
+                $site->save();
             }
 
             return response()->json([

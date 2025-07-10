@@ -39,6 +39,8 @@ Route::middleware('api')->group(function () {
     Route::get('/carte/preview/{id}', [PdfController::class, 'previewCarte'])->name('carte.preview');
     Route::post('/carte/generate-pdf', [PdfController::class, 'generatePDF'])->name('carte.pdf.generate');
 
+  // Routes pour les Utilisateurs
+    Route::resource('users', UserController::class);
 
     // Routes API pour les membres (application mobile)
     Route::get('members', [MemberController::class, 'index']);
@@ -72,11 +74,9 @@ Route::middleware('api')->group(function () {
     Route::get('chefs/pools', [PoolController::class, 'getChefs'])->name('pools.chefs');
     Route::get('chefs/pools/{id}', [PoolController::class, 'getChefByPoolId']);
 
+    // Routes Public API pour les utilisateurs
     // Route pour récupérer les communes par ville (AJAX)
     Route::get('townships/city/{cityId}', [MemberController::class, 'getTownshipsByCity'])->name('townships.by-city');
-
-    // Routes pour les Utilisateurs
-    Route::resource('users', UserController::class);
 
     Route::get('townships', [UserController::class, 'getTownship']);
     Route::get('townships/{id}', [UserController::class, 'getTownshipById']);
@@ -100,6 +100,12 @@ Route::middleware('api')->group(function () {
     Route::delete('townships/delete/{id}', [UserController::class, 'deleteTownship']);
     Route::delete('cities/delete/{id}', [UserController::class, 'deleteCity']);
     Route::delete('countries/delete/{id}', [UserController::class, 'deleteCountry']);
+
+    // Mobile Route
+    Route::post('app/members/create', [MemberController::class, 'apiStore']);
+    Route::get('app/sites', [SiteController::class, 'index']);
+    Route::get('app/pools', [PoolController::class, 'index']);
+    Route::get('app/chefs/pools', [PoolController::class, 'getChefsApp']);
 
 });
 
