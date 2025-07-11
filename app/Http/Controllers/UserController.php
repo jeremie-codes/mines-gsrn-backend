@@ -90,15 +90,22 @@ class UserController extends Controller
 
     public function logout(Request $request)
     {
-        // Supprime uniquement le token utilisé pour cette requête
-        $request->user()->currentAccessToken()->delete();
+        $user = $request->user();
+
+        if ($user && $user->currentAccessToken()) {
+            $user->currentAccessToken()->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Déconnexion réussie.',
+            ]);
+        }
 
         return response()->json([
-            'success' => true,
-            'message' => 'Déconnexion réussie.',
-        ]);
+            'success' => false,
+            'message' => 'Aucun utilisateur authentifié ou token invalide.',
+        ], 401);
     }
-
 
     public function create()
     {
