@@ -19,8 +19,6 @@ use Illuminate\Support\Facades\Response;
 Route::middleware('api')->group(function () {
 
 
-        Route::put('/permissions/{id}', [RoleController::class, 'update']);
-        Route::resource('users', UserController::class);
 
     Route::middleware('guest')->group(function () {
         Route::post('register/{id}', [UserController::class, 'register'])->name('register');
@@ -29,6 +27,9 @@ Route::middleware('api')->group(function () {
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('logout', [UserController::class, 'logout'])->name('logout');
+
+        Route::put('/profiles/{id}', [RoleController::class, 'update']);
+        Route::resource('users', UserController::class);
 
         Route::get('/profile-image/{filename}', function ($filename) {
 
