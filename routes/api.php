@@ -6,6 +6,7 @@ use App\Http\Controllers\MemberController;
 use App\Http\Controllers\PdfController;
 use App\Http\Controllers\SiteController;
 use App\Http\Controllers\PoolController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Response;
@@ -45,6 +46,8 @@ Route::middleware('api')->group(function () {
                 ->header('Access-Control-Allow-Origin', '*')
                 ->header('Access-Control-Allow-Origin', '*');
         })->where('filename', '.+');
+
+        Route::put('/permissions/{id}', [RoleController::class, 'update']);
 
         Route::get('/carte/preview/{id}', [PdfController::class, 'previewCarte'])->name('carte.preview');
         Route::post('/carte/generate-pdf', [PdfController::class, 'generatePDF'])->name('carte.pdf.generate');

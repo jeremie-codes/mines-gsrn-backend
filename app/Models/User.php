@@ -51,4 +51,9 @@ class User extends Authenticatable
     {
         return $query->where('is_active', true);
     }
+
+    public function permissons()
+    {
+        return $this->hasMany(Permission::class);
+    }
 }

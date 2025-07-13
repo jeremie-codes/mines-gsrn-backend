@@ -19,9 +19,9 @@ class Role extends Model
         'is_active' => 'boolean',
     ];
 
-    public function permissions()
+    public function profiles()
     {
-        return $this->belongsToMany(Permission::class);
+        return $this->belongsToMany(Profile::class);
     }
 
     public function users()
