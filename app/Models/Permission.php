@@ -15,7 +15,7 @@ class Profile extends Model
     ];
 
         protected $casts = [
-        'permissions' => 'array',
+        'permissions' => 'array'
     ];
 
     public function user()
