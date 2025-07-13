@@ -20,7 +20,7 @@ class UserController extends Controller
     {
 
         try {
-            $users = User::with('permissons', 'member')->paginate(10);
+            $users = User::with('profiles', 'member')->paginate(10);
 
             return response()->json([
                 'success' => true,
@@ -168,7 +168,7 @@ class UserController extends Controller
     {
 
         try {
-            $user = User::with('member', 'role', 'permissons')->findOrFail($id);
+            $user = User::with('member', 'role', 'profiles')->findOrFail($id);
             // $user->load('member', 'role.permissions');
 
             if (!$user) {

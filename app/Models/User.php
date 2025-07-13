@@ -42,18 +42,13 @@ class User extends Authenticatable
         return $this->belongsTo(Role::class);
     }
 
-    public function hasPermission($permission)
-    {
-        return $this->role->permissions->contains('name', $permission);
-    }
-
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
     }
 
-    public function permissons()
+    public function profiles()
     {
-        return $this->hasMany(Permission::class);
+        return $this->hasMany(Profile::class);
     }
 }

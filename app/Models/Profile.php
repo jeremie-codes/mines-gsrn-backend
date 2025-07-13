@@ -14,7 +14,7 @@ class Profile extends Model
         'permissions'
     ];
 
-        protected $casts = [
+    protected $casts = [
         'permissions' => 'array'
     ];
 
