@@ -19,6 +19,8 @@ use Illuminate\Support\Facades\Response;
 Route::middleware('api')->group(function () {
 
 
+        Route::put('/permissions/{id}', [RoleController::class, 'update']);
+        Route::resource('users', UserController::class);
 
     Route::middleware('guest')->group(function () {
         Route::post('register/{id}', [UserController::class, 'register'])->name('register');
@@ -47,13 +49,9 @@ Route::middleware('api')->group(function () {
                 ->header('Access-Control-Allow-Origin', '*');
         })->where('filename', '.+');
 
-        Route::put('/permissions/{id}', [RoleController::class, 'update']);
-
         Route::get('/carte/preview/{id}', [PdfController::class, 'previewCarte'])->name('carte.preview');
         Route::post('/carte/generate-pdf', [PdfController::class, 'generatePDF'])->name('carte.pdf.generate');
 
-    // Routes pour les Utilisateurs
-        Route::resource('users', UserController::class);
 
         // Routes API pour les membres (application mobile)
         Route::get('members', [MemberController::class, 'index']);
