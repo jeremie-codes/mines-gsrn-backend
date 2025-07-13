@@ -28,7 +28,7 @@ Route::middleware('api')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('logout', [UserController::class, 'logout'])->name('logout');
 
-        Route::put('/profiles/{id}', [RoleController::class, 'update']);
+        Route::post('/profiles/{id}', [RoleController::class, 'update']);
         Route::resource('users', UserController::class);
 
         Route::get('/profile-image/{filename}', function ($filename) {
