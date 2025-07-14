@@ -13,7 +13,6 @@ class PoolController extends Controller
     {
 
         try {
-
             $pools = Pool::orderBy('created_at', 'desc')->paginate(10);
 
             return response()->json([

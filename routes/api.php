@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CategoryController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MemberController;
@@ -53,6 +54,10 @@ Route::middleware('api')->group(function () {
         Route::get('/carte/preview/{id}', [PdfController::class, 'previewCarte'])->name('carte.preview');
         Route::post('/carte/generate-pdf', [PdfController::class, 'generatePDF'])->name('carte.pdf.generate');
 
+        Route::get('categories', [CategoryController::class, 'index']);
+        Route::post('categories', [CategoryController::class, 'store']);
+        Route::put('categories/{id}', [CategoryController::class, 'update']);
+        Route::delete('categories/{id}', [CategoryController::class, 'destroy']);
 
         // Routes API pour les membres (application mobile)
         Route::get('members', [MemberController::class, 'index']);
