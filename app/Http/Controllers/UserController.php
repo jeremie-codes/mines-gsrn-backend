@@ -20,7 +20,7 @@ class UserController extends Controller
     {
 
         try {
-            $users = User::with('profiles', 'member')->paginate(10);
+            $users = User::with('profiles')->paginate(10);
 
             return response()->json([
                 'success' => true,
