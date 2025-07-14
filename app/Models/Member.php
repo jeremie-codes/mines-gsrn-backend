@@ -36,6 +36,17 @@ class Member extends Model
         'is_active' => 'boolean',
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($cotisation) {
+            if (!$cotisation->first_payment) {
+                $cotisation->first_payment = now()->addMonths(3);
+            }
+        });
+    }
+
     public function cotisations()
     {
         return $this->hasMany(Cotisation::class);

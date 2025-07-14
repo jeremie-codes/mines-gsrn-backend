@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cotisation;
+use App\Models\Member;
 use Illuminate\Http\Request;
 
 class CotisationController extends Controller
@@ -26,7 +27,7 @@ class CotisationController extends Controller
         }
     }
 
-    public function store(Request $request)
+    public function store(Request $request, $id)
     {
         try {
             $validated = $request->validate([
@@ -38,6 +39,17 @@ class CotisationController extends Controller
                 'description' => 'nullable|string|max:255',
                 'created_at' => 'nullable|date'
             ]);
+
+            $member = Member::find($id);
+
+            if (!$member) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Membre non trouvé !'
+                ]);
+            }
+
+            $validated['member_id'] = $id;
 
             // Création de la cotisation
             $cotisation = Cotisation::create($validated);
@@ -85,6 +97,8 @@ class CotisationController extends Controller
                 'description' => 'nullable|string|max:255',
                 'created_at' => 'nullable|date'
             ]);
+
+            $validated['member_id'] = $id;
 
             $cotisation->update($validated);
 
