@@ -14,6 +14,8 @@ class Cotisation extends Model
         'amount',
         'currency',
         'status',
+        'reference',
+        'description',
         'created_at'
     ];
 

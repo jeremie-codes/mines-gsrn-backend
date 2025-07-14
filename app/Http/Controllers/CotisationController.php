@@ -34,6 +34,8 @@ class CotisationController extends Controller
                 'amount' => 'required|numeric|min:0',
                 'currency' => 'required|string|max:10',
                 'status' => 'nullable|string|max:50',
+                'reference' => 'nullable|string|max:255',
+                'description' => 'nullable|string|max:255',
                 'created_at' => 'nullable|date'
             ]);
 
@@ -79,6 +81,8 @@ class CotisationController extends Controller
                 'amount' => 'sometimes|required|numeric|min:0',
                 'currency' => 'sometimes|required|string|max:10',
                 'status' => 'nullable|string|max:50',
+                'reference' => 'nullable|string|max:255',
+                'description' => 'nullable|string|max:255',
                 'created_at' => 'nullable|date'
             ]);
 
