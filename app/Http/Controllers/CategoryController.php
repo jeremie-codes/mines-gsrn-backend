@@ -24,10 +24,18 @@ class CategoryController extends Controller
             ], 500);
         }
     }
-
     public function store(Request $request)
     {
         try {
+            // Vérifier si la catégorie existe déjà
+            if (Category::where('name', $request->name)->exists()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Cette catégorie existe déjà.'
+                ], 409);
+            }
+
+            // Valider les autres données
             $validated = $request->validate([
                 'name' => 'required|string|max:5',
                 'amount' => 'required|numeric',
@@ -39,7 +47,7 @@ class CategoryController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Catégorie créée avec succès'
-            ], 201); // Code 201 pour "created"
+            ], 201);
 
         } catch (\Throwable $th) {
             return response()->json([
@@ -48,6 +56,7 @@ class CategoryController extends Controller
             ], 500);
         }
     }
+
 
 
     public function update(Request $request, $id)

@@ -86,14 +86,17 @@ class MemberController extends Controller
 
             $data = $request->all();
 
-            $category = Category::where('name', $request->category)->first()->id;
+            $categoryModel = Category::where('name', $request->category)->first();
 
-            if(!$category) {
+            if (!$categoryModel) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Categorie non trouvé'
+                    'message' => 'Catégorie non trouvée'
                 ], 404);
             }
+
+            $category = $categoryModel->id;
+
 
             // Générer automatiquement le numéro de membre
             $data['membershipNumber'] = $this->generateMembershipNumber($request->site_id, $request->city_id);
@@ -221,14 +224,17 @@ class MemberController extends Controller
                 'membershipNumber' => 'nullable|string|max:255'
             ]);
 
-            $category = Category::where('name', $request->category)->first()->id;
+            $categoryModel = Category::where('name', $request->category)->first();
 
-            if(!$category) {
+            if (!$categoryModel) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Categorie non trouvé'
+                    'message' => 'Catégorie non trouvée'
                 ], 404);
             }
+
+            $category = $categoryModel->id;
+
 
             $member = Member::findOrFail($id);
 
