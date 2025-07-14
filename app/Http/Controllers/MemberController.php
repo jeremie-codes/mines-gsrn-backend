@@ -135,7 +135,7 @@ class MemberController extends Controller
     public function show($id)
     {
         try {
-            $member = Member::with('site', 'city', 'township', 'pool', 'fonction', 'chef', 'user', 'cotisations')->findOrFail($id);
+            $member = Member::with('category','site', 'city', 'township', 'pool', 'fonction', 'chef', 'user', 'cotisations')->findOrFail($id);
 
             $base64Image = null;
 
