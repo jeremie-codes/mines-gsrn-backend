@@ -52,7 +52,7 @@ class UserController extends Controller
         $userData = [
             'member_id' => $member->id,
             'username' => $member->firstname . $randomDigits, // ex: Daniel123
-            'phone' => $member->membershipNumber,
+            'member_number' => $member->membershipNumber,
             'password' => Hash::make($motDePasseTemporaire),
             'plain_password' => $motDePasseTemporaire,
         ];
@@ -73,7 +73,7 @@ class UserController extends Controller
             'password' => 'required',
         ]);
 
-        $user = User::where('username', $request->username)->orWhere('phone', $request->membershipNumber)->first();
+        $user = User::where('username', $request->username)->orWhere('member_number', $request->membershipNumber)->first();
 
         if (! $user || ! Hash::check($request->password, $user->password)) {
             return response()->json([

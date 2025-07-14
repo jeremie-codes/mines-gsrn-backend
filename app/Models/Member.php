@@ -28,12 +28,23 @@ class Member extends Model
         'fonction_id',
         'qrcode_url',
         'date_adhesion',
-        'category'
+        'category_id',
+        'cotisation_id'
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
     ];
+
+    public function cotisations()
+    {
+        return $this->belongsToMany(Cotisation::class);
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
 
     public function site()
     {

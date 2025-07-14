@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddPhoneToUsers extends Migration
+class AddCotisationIdToMembersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class AddPhoneToUsers extends Migration
      */
     public function up()
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->string('member_number')->nullable()->unique();
+        Schema::table('members', function (Blueprint $table) {
+            $table->foreignId('cotisation_id')->nullable()->constrained()->onDelete('cascade');
         });
     }
 
@@ -25,7 +25,7 @@ class AddPhoneToUsers extends Migration
      */
     public function down()
     {
-        Schema::table('users', function (Blueprint $table) {
+        Schema::table('members', function (Blueprint $table) {
             //
         });
     }
