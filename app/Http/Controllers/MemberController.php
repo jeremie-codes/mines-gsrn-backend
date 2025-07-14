@@ -122,7 +122,6 @@ class MemberController extends Controller
             // dd($pool, $site);
             return response()->json([
                 'success' => true,
-                'member' => $member->load('site', 'city', 'township', 'pool', 'fonction'),
                 'message' => 'Membre créé avec succès'
             ], 201);
         } catch (\Throwable $th) {
