@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CotisationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MemberController;
@@ -58,6 +59,12 @@ Route::middleware('api')->group(function () {
         Route::post('categories', [CategoryController::class, 'store']);
         Route::put('categories/{id}', [CategoryController::class, 'update']);
         Route::delete('categories/{id}', [CategoryController::class, 'destroy']);
+
+        Route::get('cotisations', [CotisationController::class, 'index']);
+        // Route::get('cotisations/{member}', [CotisationController::class, 'show']);
+        Route::post('cotisations/create', [CotisationController::class, 'store']);
+        Route::put('cotisations/{id}', [CotisationController::class, 'update']);
+        Route::delete('cotisations/{id}', [CotisationController::class, 'destroy']);
 
         // Routes API pour les membres (application mobile)
         Route::get('members', [MemberController::class, 'index']);
