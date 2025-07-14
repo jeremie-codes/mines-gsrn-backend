@@ -38,11 +38,20 @@ class UserController extends Controller
     public function register($id)
     {
 
-        $member = Member::findOrFail($id);
+        $member = Member::find($id);
+        $existedUser = User::where('member_id', $id);
 
         if(!$member) {
             return response()->json([
+                "success" => false,
                 'message' => 'Utilisateur non trouvé !',
+            ], 404);
+        }
+
+        if($existedUser) {
+            return response()->json([
+                "success" => false,
+                'message' => 'un utilisateur avec ce membre existe déjà !',
             ], 404);
         }
 
