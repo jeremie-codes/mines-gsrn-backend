@@ -29,7 +29,9 @@ class Member extends Model
         'qrcode_url',
         'date_adhesion',
         'category_id',
-        'cotisation_id'
+        'cotisation_id',
+        'first_payment',
+        'next_payment',
     ];
 
     protected $casts = [
@@ -40,9 +42,9 @@ class Member extends Model
     {
         parent::boot();
 
-        static::creating(function ($cotisation) {
-            if (!$cotisation->first_payment) {
-                $cotisation->first_payment = now()->addMonths(3);
+        static::creating(function ($member) {
+            if (!$member->first_payment) {
+                $member->first_payment = now()->addMonths(3);
             }
         });
     }

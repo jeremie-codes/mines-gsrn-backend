@@ -10,6 +10,7 @@ class Cotisation extends Model
     use HasFactory;
 
     protected $fillable = [
+        'member_id',
         'type',
         'amount',
         'currency',
@@ -19,5 +20,18 @@ class Cotisation extends Model
         'created_at'
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($cotisation) {
+
+            $member = Member::findOrFail($cotisation->member_id);
+
+            if ($member && $member->first_payment) {
+                $member->first_payment = null;
+            }
+        });
+    }
 
 }

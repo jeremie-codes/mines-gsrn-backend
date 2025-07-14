@@ -81,7 +81,7 @@ class CotisationController extends Controller
                 ], 404);
             }
 
-            if ($cotisation->status === 'success') {
+            if ($cotisation->status === 'payée') {
                 return response()->json([
                     'success' => false,
                     'message' => 'Impossible de modifier une cotisation déjà validée.'

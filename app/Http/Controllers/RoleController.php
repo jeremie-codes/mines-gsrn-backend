@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Models\Permission;
+use App\Models\Profile;
 use Illuminate\Http\Request;
 
 class RoleController extends Controller
@@ -14,6 +14,7 @@ class RoleController extends Controller
         try {
 
             $validated = $request->validate([
+                'name' => 'nullable|string',
                 'permissions' => 'array',
                 'permissions.*' => 'string',
             ]);
@@ -29,9 +30,9 @@ class RoleController extends Controller
 
             $validated['permissions'] = $validated['permissions'] ?? [];
 
-            $permission = Permission::updateOrInsert([
+            $permission = Profile::updateOrInsert([
                 ['user_id' => $id],
-                ['permissions' => $validated]
+                [$validated]
             ]);
 
             return response()->json([

@@ -19,7 +19,7 @@ class CreateCotisationsTable extends Migration
             $table->string('type');
             $table->decimal('amount', 10, 2);
             $table->string('currency')->nullable();
-            $table->enum('status', ['pending', 'failed', 'success'])->default('pending');
+            $table->enum('status', ['en attente', 'payée', 'échouée'])->default('en attente');
             $table->timestamps();
         });
     }
