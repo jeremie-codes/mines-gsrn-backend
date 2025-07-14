@@ -67,6 +67,7 @@ Route::middleware('api')->group(function () {
         Route::delete('cotisations/{id}', [CotisationController::class, 'destroy']);
 
         // Routes API pour les membres (application mobile)
+        Route::get('members/export', [MemberController::class, 'export']);
         Route::get('members', [MemberController::class, 'index']);
         Route::get('members/{member}', [MemberController::class, 'show']);
         Route::post('members/create', [MemberController::class, 'store']);

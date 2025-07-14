@@ -34,6 +34,22 @@ class MemberController extends Controller
             ], 500);
         }
     }
+    
+    public function export()
+    {
+        try {
+            $members = Member::with('user')->orderBy('created_at', 'desc')->get();
+            return response()->json([
+                'success' => true,
+                'members' => $members
+            ], 201);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => "Erreur, " .$th->getMessage()
+            ], 500);
+        }
+    }
 
     public function create()
     {
