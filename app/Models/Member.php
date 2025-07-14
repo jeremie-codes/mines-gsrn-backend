@@ -38,7 +38,7 @@ class Member extends Model
 
     public function cotisations()
     {
-        return $this->belongsToMany(Cotisation::class);
+        return $this->hasMany(Cotisation::class);
     }
 
     public function category()
