@@ -39,7 +39,7 @@ class UserController extends Controller
     {
 
         $member = Member::find($id);
-        $existedUser = User::where('member_id', $id);
+        $existedUser = User::where('member_id', $id)->get()->first();
 
         if(!$member) {
             return response()->json([
@@ -52,6 +52,7 @@ class UserController extends Controller
             return response()->json([
                 "success" => false,
                 'message' => 'un utilisateur avec ce membre existe déjà !',
+                "user" => $existedUser
             ], 404);
         }
 

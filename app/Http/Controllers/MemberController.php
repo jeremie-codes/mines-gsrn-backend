@@ -633,7 +633,7 @@ class MemberController extends Controller
      * API pour créer/modifier un membre depuis mobile (avec base64)
      */
     public function apiStore(Request $request)
-    {
+{
         try {
             $validated = $request->validate([
                 'firstname' => 'nullable|string|max:255',

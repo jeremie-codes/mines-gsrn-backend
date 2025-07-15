@@ -173,7 +173,7 @@ class CotisationController extends Controller
                     'currency' => $request->currency,
                     'pay_method' => $request->type,
                     "callbackUrl" => $urlCallback,
-                    "merchant" => $request->reference,
+                    "merchant" => $request->merchant,
                     "reference" => $request->reference,
                     "type" => $request->type,
                 ]
