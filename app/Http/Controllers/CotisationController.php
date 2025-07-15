@@ -214,7 +214,6 @@ class CotisationController extends Controller
                     'type' => 'flexpaie',
                     'amount' => $validated['amount'],
                     'currency' => $validated['currency'],
-                    'status' => 'payée',
                     'reference' => $validated['reference'],
                     'description' => 'Paiement cotisation',
                 ]);
