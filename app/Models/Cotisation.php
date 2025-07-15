@@ -25,13 +25,14 @@ class Cotisation extends Model
         parent::boot();
 
         static::creating(function ($cotisation) {
-
-            $member = Member::findOrFail($cotisation->member_id);
+            $member = Member::find($cotisation->member_id);
 
             if ($member && $member->first_payment) {
                 $member->first_payment = null;
+                $member->save();
             }
         });
     }
+
 
 }
