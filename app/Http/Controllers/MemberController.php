@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class MemberController extends Controller
 {
@@ -633,9 +634,9 @@ class MemberController extends Controller
      * API pour créer/modifier un membre depuis mobile (avec base64)
      */
     public function apiStore(Request $request)
-{
+    {
         try {
-            $validated = $request->validate([
+            $validator = Validator::make($request->all(), [
                 'firstname' => 'nullable|string|max:255',
                 'lastname' => 'nullable|string|max:255',
                 'middlename' => 'nullable|string|max:255',
@@ -655,10 +656,18 @@ class MemberController extends Controller
                 'is_active' => 'nullable|boolean'
             ]);
 
-            $data = $request->all();
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => $validator->errors(),
+                    'message' => 'Les données envoyées ne sont pas valides.'
+                ], 422);
+            }
 
+            $validated = $validator->validated();
+
+            // Vérification de la catégorie
             $categoryModel = Category::where('name', $request->category)->first();
-
             if (!$categoryModel) {
                 return response()->json([
                     'success' => false,
@@ -666,42 +675,32 @@ class MemberController extends Controller
                 ], 404);
             }
 
-            $category = $categoryModel->id;
+            $validated['category_id'] = $categoryModel->id;
 
+            // Génération du numéro d'adhésion
+            $validated['membershipNumber'] = $this->generateMembershipNumber($validated['site_id'], $validated['city_id'] ?? null);
 
-            // Générer automatiquement le numéro de membre
-            $data['membershipNumber'] = $this->generateMembershipNumber($request->site_id, $request->city_id);
+            // Traitement de l'image
+            $validated['face_path'] = $this->handleImageUpload($request);
 
-            // Gérer l'upload d'image
-            $data['face_path'] = $this->handleImageUpload($request);
-            $data['category_id'] = $category;
+            $member = Member::create($validated);
 
-            $member = Member::create($data);
+            if ($member->pool) $member->pool->increment('membership_counter');
+            if ($member->site) $member->site->increment('membership_counter');
 
-            $pool = $member->pool;
-            $site = $member->site;
-
-
-            if ($pool) {
-                $pool->increment('membership_counter');
-            }
-
-            if ($site) {
-                $site->increment('membership_counter');
-            }
-
-            // dd($pool, $site);
             return response()->json([
                 'success' => true,
                 'message' => 'Membre créé avec succès'
             ], 201);
+
         } catch (\Throwable $th) {
             return response()->json([
                 'success' => false,
-                'message' => "Erreur, " .$th->getMessage()
+                'message' => 'Erreur interne : ' . $th->getMessage()
             ], 500);
         }
     }
+
 
     /**
      * API pour modifier un membre depuis mobile
