@@ -113,7 +113,7 @@ class CotisationController extends Controller
 
             $member = Member::find($cotisation->member_id);
 
-            if ($$member && $member->first_payment && $cotisation->status == "payée") {
+            if ($member && $member->first_payment && $cotisation->status == "payée") {
                 $firstPayment = Carbon::parse($member->first_payment);
                 $member->next_payment = $firstPayment->addMonths(3);
                 $member->first_payment = null;
