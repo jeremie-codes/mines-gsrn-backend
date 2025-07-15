@@ -160,6 +160,8 @@ class CotisationController extends Controller
             $client = new Client();
             $token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJcL2xvZ2luIiwicm9sZXMiOlsiTUVSQ0hBTlQiXSwiZXhwIjoxNzkyNDUyNzA5LCJzdWIiOiJkMzY1ZDdmMjU1NGY1ZDIzMGQ5ODA4MTgxMWE2NTE3YSJ9.y5uiKVPY0w8aexcaa6sB-UjKUDHRX9u8L1u04-JVzV0";
 
+            $urlCallback = url('/flexpaie_callback');
+
             $response = $client->request('POST', $validated, [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $token,
@@ -170,19 +172,24 @@ class CotisationController extends Controller
                     'amount' => $request->amount,
                     'currency' => $request->currency,
                     'pay_method' => $request->type,
-                    "callbackUrl" => "https://b924-81-177-186-13.ngrok-free.app/callback",
-                    "merchant" => "BEVENT",
-                    "reference" => $formattedNumber,
-                    "type" => "1",
+                    "callbackUrl" => $urlCallback,
+                    "merchant" => $request->reference,
+                    "reference" => $request->reference,
+                    "type" => $request->type,
                 ]
             ]);
 
+            $data = json_decode($response->getBody()->getContents());
+
             return response()->json([
                 'success' => true,
-                // 'data' => $request->all()
+                'data' => $data
             ], 201);
         } catch (\Throwable $th) {
-
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la mise à jour de la cotisation : ' . $th->getMessage()
+            ], 500);
         }
     }
 
