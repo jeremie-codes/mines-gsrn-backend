@@ -177,7 +177,7 @@ class CotisationController extends Controller
             $validated = $request->validate([
                 'type' => 'required',
                 'phone' => 'required',
-                'amount' => 'required|numeric|min:0',
+                'amount' => 'required',
                 'currency' => 'required|string|max:10',
                 'reference' => 'required|string|max:255',
                 'merchant' => 'required',
@@ -234,7 +234,7 @@ class CotisationController extends Controller
         } catch (\Throwable $th) {
             return response()->json([
                 'success' => false,
-                'message' => 'Erreur lors de la mise à jour de la cotisation : ' . $th->getMessage()
+                'message' => 'Erreur d\'enregistrement de cotisation : ' . $th->getMessage()
             ], 500);
         }
     }
