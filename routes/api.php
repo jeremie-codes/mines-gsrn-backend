@@ -62,7 +62,7 @@ Route::middleware('api')->group(function () {
 
         Route::get('cotisations', [CotisationController::class, 'index']);
         // Route::get('cotisations/{member}', [CotisationController::class, 'show']);
-        Route::post('cotisations', [CotisationController::class, 'store']);
+        Route::post('cotisations/{id}', [CotisationController::class, 'store']);
         Route::put('cotisations/{id}', [CotisationController::class, 'update']);
         Route::delete('cotisations/{id}', [CotisationController::class, 'destroy']);
 
