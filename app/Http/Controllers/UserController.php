@@ -85,7 +85,7 @@ class UserController extends Controller
 
         $user = User::where('username', $request->username)
             ->orWhereHas('member', function ($query) use ($request) {
-                $query->where('membership_number', $request->username);
+                $query->where('membershipNumber', $request->username);
             })->first();
 
         if (! $user || ! Hash::check($request->password, $user->password)) {
