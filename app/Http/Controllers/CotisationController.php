@@ -6,6 +6,7 @@ use App\Models\Cotisation;
 use App\Models\Member;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
+use Carbon\Carbon;
 
 class CotisationController extends Controller
 {
@@ -55,6 +56,13 @@ class CotisationController extends Controller
             // Création de la cotisation
             $cotisation = Cotisation::create($validated);
 
+            if ($member->first_payment && $cotisation->status == "payée") {
+                $firstPayment = Carbon::parse($member->first_payment);
+                $member->next_payment = $firstPayment->addMonths(3);
+                $member->first_payment = null;
+                $member->save();
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'Cotisation enregistrée avec succès.',
@@ -102,6 +110,13 @@ class CotisationController extends Controller
             $validated['member_id'] = $id;
 
             $cotisation->update($validated);
+
+            if ($member->first_payment && $cotisation->status == "payée") {
+                $firstPayment = Carbon::parse($member->first_payment);
+                $member->next_payment = $firstPayment->addMonths(3);
+                $member->first_payment = null;
+                $member->save();
+            }
 
             return response()->json([
                 'success' => true,
@@ -192,11 +207,12 @@ class CotisationController extends Controller
             $data = json_decode($response->getBody()->getContents());
 
             if ($data->code == 0) {
-                Cotisation::create([
+                $cotisation = Cotisation::create([
                     'member_id' => $id,
                     'type' => 'flexpaie',
                     'amount' => $validated['amount'],
                     'currency' => $validated['currency'],
+                    'status' => 'payée',
                     'reference' => $validated['reference'],
                     'description' => 'Paiement cotisation',
                 ]);
@@ -222,7 +238,7 @@ class CotisationController extends Controller
 
     public function callback (Request $request) {
         return response()->json([
-            'success' => false,
+            'success' => true,
             'data' => $request->all()
         ], 201);
     }
