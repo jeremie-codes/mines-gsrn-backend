@@ -34,7 +34,7 @@ class MemberController extends Controller
             ], 500);
         }
     }
-    
+
     public function export()
     {
         try {
@@ -635,8 +635,7 @@ class MemberController extends Controller
     public function apiStore(Request $request)
     {
         try {
-
-            $request->validate([
+            $validated = $request->validate([
                 'firstname' => 'nullable|string|max:255',
                 'lastname' => 'nullable|string|max:255',
                 'middlename' => 'nullable|string|max:255',
@@ -645,30 +644,57 @@ class MemberController extends Controller
                 'city_id' => 'nullable|exists:cities,id',
                 'township_id' => 'nullable|exists:townships,id',
                 'pool_id' => 'nullable|exists:pools,id',
+                'chef_id' => 'nullable|exists:members,id',
+                'category' => 'nullable|string',
+                'street' => 'nullable|string|max:255',
                 'libelle_pool' => 'nullable|string|max:255',
                 'fonction_id' => 'nullable|exists:fonctions,id',
+                'face_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
                 'face_base64' => 'nullable|string',
+                'date_adhesion' => 'nullable|date',
                 'is_active' => 'nullable|boolean'
             ]);
 
             $data = $request->all();
 
+            $categoryModel = Category::where('name', $request->category)->first();
+
+            if (!$categoryModel) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Catégorie non trouvée'
+                ], 404);
+            }
+
+            $category = $categoryModel->id;
+
+
             // Générer automatiquement le numéro de membre
             $data['membershipNumber'] = $this->generateMembershipNumber($request->site_id, $request->city_id);
 
-            // Gérer l'image base64
-            if ($request->has('face_base64') && !empty($request->face_base64)) {
-                $data['face_path'] = $this->saveBase64Image($request->face_base64);
-            }
+            // Gérer l'upload d'image
+            $data['face_path'] = $this->handleImageUpload($request);
+            $data['category_id'] = $category;
 
             $member = Member::create($data);
 
+            $pool = $member->pool;
+            $site = $member->site;
+
+
+            if ($pool) {
+                $pool->increment('membership_counter');
+            }
+
+            if ($site) {
+                $site->increment('membership_counter');
+            }
+
+            // dd($pool, $site);
             return response()->json([
                 'success' => true,
-                'message' => 'Membre créé avec succès',
-                'member' => $member->load('site', 'city', 'township', 'pool', 'fonction')
+                'message' => 'Membre créé avec succès'
             ], 201);
-
         } catch (\Throwable $th) {
             return response()->json([
                 'success' => false,

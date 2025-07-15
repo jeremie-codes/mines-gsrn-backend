@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Cotisation;
 use App\Models\Member;
 use Illuminate\Http\Request;
+use GuzzleHttp\Client;
 
 class CotisationController extends Controller
 {
@@ -144,6 +145,46 @@ class CotisationController extends Controller
         }
     }
 
+    public function flexpaie (Request $request) {
+        try {
+
+            $validated = $request->validate([
+                'type' => 'required',
+                'phone' => 'required',
+                'amount' => 'required|numeric|min:0',
+                'currency' => 'required|string|max:10',
+                'reference' => 'required|string|max:255',
+                'merchant' => 'required',
+            ]);
+
+            $client = new Client();
+            $token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJcL2xvZ2luIiwicm9sZXMiOlsiTUVSQ0hBTlQiXSwiZXhwIjoxNzkyNDUyNzA5LCJzdWIiOiJkMzY1ZDdmMjU1NGY1ZDIzMGQ5ODA4MTgxMWE2NTE3YSJ9.y5uiKVPY0w8aexcaa6sB-UjKUDHRX9u8L1u04-JVzV0";
+
+            $response = $client->request('POST', $validated, [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $token,
+                    'Accept' => 'application/json',
+                ],
+                'json' => [
+                    'phone' => $request->phone,
+                    'amount' => $request->amount,
+                    'currency' => $request->currency,
+                    'pay_method' => $request->type,
+                    "callbackUrl" => "https://b924-81-177-186-13.ngrok-free.app/callback",
+                    "merchant" => "BEVENT",
+                    "reference" => $formattedNumber,
+                    "type" => "1",
+                ]
+            ]);
+
+            return response()->json([
+                'success' => true,
+                // 'data' => $request->all()
+            ], 201);
+        } catch (\Throwable $th) {
+
+        }
+    }
 
     public function callback (Request $request) {
         return response()->json([
