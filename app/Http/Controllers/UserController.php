@@ -76,7 +76,7 @@ class UserController extends Controller
         ], 201); // 201 = Created
     }
 
-   public function login(Request $request)
+    public function login(Request $request)
     {
         $request->validate([
             'username' => 'nullable|string',
@@ -100,7 +100,6 @@ class UserController extends Controller
             'user' => $user,
         ]);
     }
-
 
     public function logout(Request $request)
     {
