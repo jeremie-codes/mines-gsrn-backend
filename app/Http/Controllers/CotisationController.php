@@ -111,7 +111,9 @@ class CotisationController extends Controller
 
             $cotisation->update($validated);
 
-            if ($member->first_payment && $cotisation->status == "payée") {
+            $member = Member::find($cotisation->member_id);
+
+            if ($$member && $member->first_payment && $cotisation->status == "payée") {
                 $firstPayment = Carbon::parse($member->first_payment);
                 $member->next_payment = $firstPayment->addMonths(3);
                 $member->first_payment = null;
@@ -219,7 +221,8 @@ class CotisationController extends Controller
 
                 return response()->json([
                     'success' => true,
-                    'data' => $data
+                    'data' => $data,
+                    'cotisation_id' => $cotisation->id
                 ], 201);
             }
 
