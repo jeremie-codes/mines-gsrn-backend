@@ -145,8 +145,17 @@ class CotisationController extends Controller
         }
     }
 
-    public function flexpaie (Request $request) {
+    public function flexpaie (Request $request, $id) {
         try {
+
+            $member = Member::find($id);
+
+            if (!$member) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Membre non trouvé !'
+                ]);
+            }
 
             $validated = $request->validate([
                 'type' => 'required',
@@ -155,6 +164,7 @@ class CotisationController extends Controller
                 'currency' => 'required|string|max:10',
                 'reference' => 'required|string|max:255',
                 'merchant' => 'required',
+
             ]);
 
             $client = new Client();
@@ -181,10 +191,27 @@ class CotisationController extends Controller
 
             $data = json_decode($response->getBody()->getContents());
 
+            if ($data->code == 0) {
+                Cotisation::create([
+                    'member_id' => $id,
+                    'type' => 'flexpaie',
+                    'amount' => $validated['amount'],
+                    'currency' => $validated['currency'],
+                    'reference' => $validated['reference'],
+                    'description' => 'Paiement cotisation',
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'data' => $data
+                ], 201);
+            }
+
             return response()->json([
-                'success' => true,
+                'success' => false,
                 'data' => $data
             ], 201);
+
         } catch (\Throwable $th) {
             return response()->json([
                 'success' => false,
