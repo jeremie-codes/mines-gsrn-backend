@@ -145,4 +145,11 @@ class CotisationController extends Controller
     }
 
 
+    public function callback (Request $request) {
+        return response()->json([
+            'success' => true,
+            'data' => $request->all()
+        ], 201);
+    }
+
 }

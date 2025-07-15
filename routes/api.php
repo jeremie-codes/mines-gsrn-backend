@@ -27,6 +27,8 @@ Route::middleware('api')->group(function () {
         Route::post('login', [UserController::class, 'login'])->name('login');
     });
 
+    Route::post('flexpaie_callback', [CotisationController::class, 'callback'])->name('callback');
+
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('logout', [UserController::class, 'logout'])->name('logout');
 
