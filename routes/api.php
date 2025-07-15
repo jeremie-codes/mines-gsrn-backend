@@ -32,7 +32,6 @@ Route::middleware('api')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('flexpaie', [CotisationController::class, 'flexpaie'])->name('flexpaie');
 
-
         Route::post('logout', [UserController::class, 'logout'])->name('logout');
 
         Route::post('/profiles/{id}', [RoleController::class, 'update']);

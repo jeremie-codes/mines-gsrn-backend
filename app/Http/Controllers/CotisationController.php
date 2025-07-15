@@ -162,7 +162,7 @@ class CotisationController extends Controller
 
             $urlCallback = url('/flexpaie_callback');
 
-            $response = $client->request('POST', $validated, [
+            $response = $client->request('POST', 'https://backend.flexpay.cd/api/rest/v1/paymentService', [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $token,
                     'Accept' => 'application/json',
