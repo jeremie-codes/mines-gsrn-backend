@@ -20,7 +20,7 @@ class UserController extends Controller
     {
 
         try {
-            $users = User::with('profiles', 'member')->paginate(10);
+            $users = User::with('profiles', 'member')->orderBy('created_at', 'desc')->paginate(10);
 
             return response()->json([
                 'success' => true,
@@ -76,13 +76,18 @@ class UserController extends Controller
         ], 201); // 201 = Created
     }
 
-    public function login(Request $request) {
+   public function login(Request $request)
+    {
         $request->validate([
             'username' => 'nullable|string',
+            'membershipNumber' => 'nullable|string',
             'password' => 'required',
         ]);
 
-        $user = User::where('username', $request->username)->orWhere('member_number', $request->membershipNumber)->first();
+        $user = User::where('username', $request->username)
+            ->orWhereHas('member', function ($query) use ($request) {
+                $query->where('membership_number', $request->membershipNumber);
+            })->first();
 
         if (! $user || ! Hash::check($request->password, $user->password)) {
             return response()->json([
@@ -96,6 +101,7 @@ class UserController extends Controller
             'user' => $user,
         ]);
     }
+
 
     public function logout(Request $request)
     {
