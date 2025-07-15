@@ -80,13 +80,12 @@ class UserController extends Controller
     {
         $request->validate([
             'username' => 'nullable|string',
-            'membershipNumber' => 'nullable|string',
             'password' => 'required',
         ]);
 
         $user = User::where('username', $request->username)
             ->orWhereHas('member', function ($query) use ($request) {
-                $query->where('membership_number', $request->membershipNumber);
+                $query->where('membership_number', $request->username);
             })->first();
 
         if (! $user || ! Hash::check($request->password, $user->password)) {
