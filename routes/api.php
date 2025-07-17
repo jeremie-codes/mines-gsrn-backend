@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CotisationController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\PdfController;
@@ -9,6 +10,8 @@ use App\Http\Controllers\SiteController;
 use App\Http\Controllers\PoolController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Response;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -20,13 +23,13 @@ Route::middleware('api')->group(function () {
 
 
     Route::middleware('guest')->group(function () {
-        Route::post('register/', [UserController::class, 'register'])->name('register');
+        Route::post('register/{id}', [UserController::class, 'register'])->name('register');
         Route::post('login', [UserController::class, 'login'])->name('login');
     });
 
     Route::post('flexpaie_callback', [CotisationController::class, 'callback'])->name('callbak');
 
-    // Route::middleware('auth:sanctum')->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
         Route::post('flexpaie/{id}', [CotisationController::class, 'flexpaie'])->name('flexpaie');
 
         Route::post('logout', [UserController::class, 'logout'])->name('logout');
@@ -58,22 +61,22 @@ Route::middleware('api')->group(function () {
 
         Route::get('categories', [CategoryController::class, 'index']);
         Route::post('categories', [CategoryController::class, 'store']);
-        Route::post('categories/update/{id}', [CategoryController::class, 'update']);
-        Route::post('categories/{id}', [CategoryController::class, 'destroy']);
+        Route::put('categories/{id}', [CategoryController::class, 'update']);
+        Route::delete('categories/{id}', [CategoryController::class, 'destroy']);
 
         Route::get('cotisations', [CotisationController::class, 'index']);
         // Route::get('cotisations/{member}', [CotisationController::class, 'show']);
         Route::post('cotisations/{id}', [CotisationController::class, 'store']);
-        Route::post('cotisations/update/{id}', [CotisationController::class, 'update']);
-        Route::post('cotisations/{id}', [CotisationController::class, 'destroy']);
+        Route::put('cotisations/{id}', [CotisationController::class, 'update']);
+        Route::delete('cotisations/{id}', [CotisationController::class, 'destroy']);
 
         // Routes API pour les membres (application mobile)
         Route::get('members/export', [MemberController::class, 'export']);
         Route::get('members', [MemberController::class, 'index']);
         Route::get('members/{member}', [MemberController::class, 'show']);
         Route::post('members/create', [MemberController::class, 'store']);
-        Route::post('members/update', [MemberController::class, 'update']);
-        Route::post('members/{id}', [MemberController::class, 'destroy']);
+        Route::put('members/{id}', [MemberController::class, 'update']);
+        Route::delete('members/{id}', [MemberController::class, 'destroy']);
 
         // Route::resource('members', MemberController::class);
         // Routes spéciales pour les membres
@@ -87,20 +90,20 @@ Route::middleware('api')->group(function () {
         Route::get('sites', [SiteController::class, 'index'])->name('sites.index');
         Route::get('sites/{id}', [SiteController::class, 'show'])->name('sites.show');
         Route::post('sites/create', [SiteController::class, 'store'])->name('sites.create');
-        Route::post('sites/update/{id}', [SiteController::class, 'update'])->name('sites.update');
-        Route::post('sites/{id}', [SiteController::class, 'destroy'])->name('sites.delete');
+        Route::put('sites/{id}', [SiteController::class, 'update'])->name('sites.update');
+        Route::delete('sites/{id}', [SiteController::class, 'destroy'])->name('sites.delete');
 
         // Routes pour les Pools
         Route::get('pools', [PoolController::class, 'index'])->name('pools.index');
         Route::get('pools/{id}', [PoolController::class, 'show'])->name('pools.show');
         Route::post('pools/create', [PoolController::class, 'store'])->name('pools.create');
-        Route::post('pools/update/{id}', [PoolController::class, 'update'])->name('pools.update');
-        Route::post('pools/{id}', [PoolController::class, 'destroy'])->name('pools.delete');
+        Route::put('pools/{id}', [PoolController::class, 'update'])->name('pools.update');
+        Route::delete('pools/{id}', [PoolController::class, 'destroy'])->name('pools.delete');
 
         Route::get('chefs/pools', [PoolController::class, 'getChefs'])->name('pools.chefs');
         Route::get('chefs/pools/{id}', [PoolController::class, 'getChefByPoolId']);
 
-    // });
+    });
 
     // Routes Public API pour les utilisateurs
     // Route pour récupérer les communes par ville (AJAX)
@@ -116,23 +119,23 @@ Route::middleware('api')->group(function () {
     Route::get('functions', [UserController::class, 'getFunction']);
     Route::get('functions/{id}', [UserController::class, 'getFunctionById']);
     Route::post('functions/create', [UserController::class, 'createFunction']);
-    Route::post('functions/update/update', [UserController::class, 'updateFunction']);
-    Route::post('functions/delete/{id}', [UserController::class, 'deleteFunction']);
+    Route::put('functions/update', [UserController::class, 'updateFunction']);
+    Route::delete('functions/delete/{id}', [UserController::class, 'deleteFunction']);
 
     Route::post('townships/create', [UserController::class, 'createTownship']);
     Route::post('cities/create', [UserController::class, 'createCity']);
     Route::post('countries/create', [UserController::class, 'createCountry']);
-    Route::post('townships/update/update', [UserController::class, 'updateTownship']);
-    Route::post('cities/update/update', [UserController::class, 'updateCity']);
-    Route::post('countries/update/update', [UserController::class, 'updateCountry']);
-    Route::post('townships/delete/{id}', [UserController::class, 'deleteTownship']);
-    Route::post('cities/delete/{id}', [UserController::class, 'deleteCity']);
-    Route::post('countries/delete/{id}', [UserController::class, 'deleteCountry']);
+    Route::put('townships/update', [UserController::class, 'updateTownship']);
+    Route::put('cities/update', [UserController::class, 'updateCity']);
+    Route::put('countries/update', [UserController::class, 'updateCountry']);
+    Route::delete('townships/delete/{id}', [UserController::class, 'deleteTownship']);
+    Route::delete('cities/delete/{id}', [UserController::class, 'deleteCity']);
+    Route::delete('countries/delete/{id}', [UserController::class, 'deleteCountry']);
 
     // Mobile Route
     Route::post('app/members/create', [MemberController::class, 'apiStore']);
     Route::get('app/sites', [SiteController::class, 'index']);
-    Route::get('app/pools', [PoolController::class, 'indexApi']);
+    Route::get('app/pools', [PoolController::class, 'index']);
     Route::get('app/chefs/pools', [PoolController::class, 'getChefsApp']);
 
 });
