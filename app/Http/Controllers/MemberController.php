@@ -705,8 +705,6 @@ class MemberController extends Controller
                         'message' => 'Catégorie par défaut introuvable'
                     ], 404);
                 }
-            } else {
-                $category = $categoryModel->id;
             }
 
             $validated['category_id'] = $categoryModel->id;
