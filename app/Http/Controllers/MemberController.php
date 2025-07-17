@@ -273,17 +273,17 @@ class MemberController extends Controller
             $newSiteId = $request->input('site_id');
 
             // Vérifie si le site a changé
-            // if ($newSiteId && $newSiteId != $oldSiteId) {
-            //     $newSite = Site::find($newSiteId);
-            //     $oldSite = Site::find($oldSiteId);
+            if ($newSiteId && $newSiteId != $oldSiteId) {
+                $newSite = Site::find($newSiteId);
+                $oldSite = Site::find($oldSiteId);
 
-            //     // Génère un nouveau membership_number
-            //     $data['membershipNumber'] = $this->generateMembershipNumber($request->site_id, $request->city_id);
+                // Génère un nouveau membership_number
+                $data['membershipNumber'] = $this->generateMembershipNumber($request->site_id, $request->city_id);
 
-            //     // Optionnel : incrémente le compteur du nouveau site
-            //     $newSite->increment('membership_counter');
-            //     $oldSite->increment('membership_counter');
-            // }
+                // Optionnel : incrémente le compteur du nouveau site
+                $newSite->increment('membership_counter');
+                $oldSite->increment('membership_counter');
+            }
 
 
             $data = $request->all();
