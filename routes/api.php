@@ -133,7 +133,7 @@ Route::middleware('api')->group(function () {
     // Mobile Route
     Route::post('app/members/create', [MemberController::class, 'apiStore']);
     Route::get('app/sites', [SiteController::class, 'index']);
-    Route::get('app/pools', [PoolController::class, 'index']);
+    Route::get('app/pools', [PoolController::class, 'indexApi']);
     Route::get('app/chefs/pools', [PoolController::class, 'getChefsApp']);
 
 });
