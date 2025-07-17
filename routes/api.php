@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CotisationController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\PdfController;
@@ -10,8 +9,6 @@ use App\Http\Controllers\SiteController;
 use App\Http\Controllers\PoolController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Response;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -61,13 +58,13 @@ Route::middleware('api')->group(function () {
 
         Route::get('categories', [CategoryController::class, 'index']);
         Route::post('categories', [CategoryController::class, 'store']);
-        Route::put('categories/{id}', [CategoryController::class, 'update']);
+        Route::post('categories/update/{id}', [CategoryController::class, 'update']);
         Route::delete('categories/{id}', [CategoryController::class, 'destroy']);
 
         Route::get('cotisations', [CotisationController::class, 'index']);
         // Route::get('cotisations/{member}', [CotisationController::class, 'show']);
         Route::post('cotisations/{id}', [CotisationController::class, 'store']);
-        Route::put('cotisations/{id}', [CotisationController::class, 'update']);
+        Route::post('cotisations/update/{id}', [CotisationController::class, 'update']);
         Route::delete('cotisations/{id}', [CotisationController::class, 'destroy']);
 
         // Routes API pour les membres (application mobile)
@@ -75,7 +72,7 @@ Route::middleware('api')->group(function () {
         Route::get('members', [MemberController::class, 'index']);
         Route::get('members/{member}', [MemberController::class, 'show']);
         Route::post('members/create', [MemberController::class, 'store']);
-        Route::put('members/', [MemberController::class, 'update']);
+        Route::post('members/update', [MemberController::class, 'update']);
         Route::delete('members/{id}', [MemberController::class, 'destroy']);
 
         // Route::resource('members', MemberController::class);
@@ -90,14 +87,14 @@ Route::middleware('api')->group(function () {
         Route::get('sites', [SiteController::class, 'index'])->name('sites.index');
         Route::get('sites/{id}', [SiteController::class, 'show'])->name('sites.show');
         Route::post('sites/create', [SiteController::class, 'store'])->name('sites.create');
-        Route::put('sites/{id}', [SiteController::class, 'update'])->name('sites.update');
+        Route::post('sites/update/{id}', [SiteController::class, 'update'])->name('sites.update');
         Route::delete('sites/{id}', [SiteController::class, 'destroy'])->name('sites.delete');
 
         // Routes pour les Pools
         Route::get('pools', [PoolController::class, 'index'])->name('pools.index');
         Route::get('pools/{id}', [PoolController::class, 'show'])->name('pools.show');
         Route::post('pools/create', [PoolController::class, 'store'])->name('pools.create');
-        Route::put('pools/{id}', [PoolController::class, 'update'])->name('pools.update');
+        Route::post('pools/update/{id}', [PoolController::class, 'update'])->name('pools.update');
         Route::delete('pools/{id}', [PoolController::class, 'destroy'])->name('pools.delete');
 
         Route::get('chefs/pools', [PoolController::class, 'getChefs'])->name('pools.chefs');
@@ -119,15 +116,15 @@ Route::middleware('api')->group(function () {
     Route::get('functions', [UserController::class, 'getFunction']);
     Route::get('functions/{id}', [UserController::class, 'getFunctionById']);
     Route::post('functions/create', [UserController::class, 'createFunction']);
-    Route::put('functions/update', [UserController::class, 'updateFunction']);
+    Route::post('functions/update/update', [UserController::class, 'updateFunction']);
     Route::delete('functions/delete/{id}', [UserController::class, 'deleteFunction']);
 
     Route::post('townships/create', [UserController::class, 'createTownship']);
     Route::post('cities/create', [UserController::class, 'createCity']);
     Route::post('countries/create', [UserController::class, 'createCountry']);
-    Route::put('townships/update', [UserController::class, 'updateTownship']);
-    Route::put('cities/update', [UserController::class, 'updateCity']);
-    Route::put('countries/update', [UserController::class, 'updateCountry']);
+    Route::post('townships/update/update', [UserController::class, 'updateTownship']);
+    Route::post('cities/update/update', [UserController::class, 'updateCity']);
+    Route::post('countries/update/update', [UserController::class, 'updateCountry']);
     Route::delete('townships/delete/{id}', [UserController::class, 'deleteTownship']);
     Route::delete('cities/delete/{id}', [UserController::class, 'deleteCity']);
     Route::delete('countries/delete/{id}', [UserController::class, 'deleteCountry']);

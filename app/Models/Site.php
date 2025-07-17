@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Site extends Model
 {
@@ -60,20 +61,26 @@ class Site extends Model
     /**
      * Générer le prochain numéro de membre pour ce site
      */
-    public function generateMembershipNumber($cityProvinceCode = null)
+    public function generateMembershipNumber($cityProvinceCode = null): string
     {
-        // Incrémenter le compteur
-        $this->increment('membership_counter');
+        $provinceCode = $cityProvinceCode ?? 'XXX';
+        $siteCode     = $this->code;
+        $year         = date('y'); // ex. "25"
+        $prefix       = $provinceCode . $siteCode . $year; // ex. "KINDPN25"
 
-        // Récupérer le nouveau compteur
-        $counter = $this->fresh()->membership_counter;
+        // Récupérer la séquence max après ce préfixe
+        $maxSeq = Member::query()
+            ->selectRaw(
+                "MAX(CAST(SUBSTRING(membershipNumber, ?, 2) AS UNSIGNED)) as max_seq",
+                [strlen($prefix) + 1]
+            )
+            ->where('membershipNumber', 'like', $prefix . '%')
+            ->value('max_seq');
 
-        // Format: PROVINCE_CODE + SITE_CODE + 5_DIGITS + YEAR
-        $provinceCode = $cityProvinceCode ?? 'XXX'; // Code par défaut si pas de ville
-        $siteCode = $this->code;
-        $counterFormatted = str_pad($counter, 5, '0', STR_PAD_LEFT);
-        $year = date('y'); // Année sur 2 chiffres
+        $nextSeq = $maxSeq ? $maxSeq + 1 : 1;
+        $sequence = str_pad($nextSeq, 2, '0', STR_PAD_LEFT); // ex. "01"
 
-        return $provinceCode . $siteCode . $counterFormatted . $year;
+        return $prefix . $sequence; // ex. "KINDPN2501"
     }
+
 }

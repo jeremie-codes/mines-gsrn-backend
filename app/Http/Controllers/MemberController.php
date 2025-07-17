@@ -103,17 +103,22 @@ class MemberController extends Controller
 
             $data = $request->all();
 
+            // Vérifier si la catégorie existe
             $categoryModel = Category::where('name', $request->category)->first();
 
+            // Si la catégorie n'est pas trouvée, choisir la catégorie par défaut (ID = 1)
             if (!$categoryModel) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Catégorie non trouvée'
-                ], 404);
+                // Si la catégorie n'existe pas, affecte la catégorie par défaut
+                $category = Category::find(1);  // Catégorie par défaut avec ID = 1
+                if (!$category) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Catégorie par défaut introuvable'
+                    ], 404);
+                }
+            } else {
+                $category = $categoryModel->id;
             }
-
-            $category = $categoryModel->id;
-
 
             // Générer automatiquement le numéro de membre
             $data['membershipNumber'] = $this->generateMembershipNumber($request->site_id, $request->city_id);
@@ -122,11 +127,12 @@ class MemberController extends Controller
             $data['face_path'] = $this->handleImageUpload($request);
             $data['category_id'] = $category;
 
+            // Créer le membre
             $member = Member::create($data);
 
+            // Incrémenter les compteurs des pools et des sites
             $pool = $member->pool;
             $site = $member->site;
-
 
             if ($pool) {
                 $pool->increment('membership_counter');
@@ -136,7 +142,6 @@ class MemberController extends Controller
                 $site->increment('membership_counter');
             }
 
-            // dd($pool, $site);
             return response()->json([
                 'success' => true,
                 'message' => 'Membre créé avec succès'
@@ -144,10 +149,11 @@ class MemberController extends Controller
         } catch (\Throwable $th) {
             return response()->json([
                 'success' => false,
-                'message' => "Erreur, " .$th->getMessage()
+                'message' => "Erreur, " . $th->getMessage()
             ], 500);
         }
     }
+
 
     public function show($id)
     {
