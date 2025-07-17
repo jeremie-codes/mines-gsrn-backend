@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CotisationController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\PdfController;
@@ -9,6 +10,8 @@ use App\Http\Controllers\SiteController;
 use App\Http\Controllers\PoolController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Response;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -20,7 +23,7 @@ Route::middleware('api')->group(function () {
 
 
     Route::middleware('guest')->group(function () {
-        Route::post('register/', [UserController::class, 'register'])->name('register');
+        Route::post('register/{id}', [UserController::class, 'register'])->name('register');
         Route::post('login', [UserController::class, 'login'])->name('login');
     });
 
@@ -101,12 +104,10 @@ Route::middleware('api')->group(function () {
         Route::get('chefs/pools/{id}', [PoolController::class, 'getChefByPoolId']);
 
     });
-
     // Routes Public API pour les utilisateurs
     // Route pour récupérer les communes par ville (AJAX)
     Route::get('townships/city/{cityId}', [MemberController::class, 'getTownshipsByCity'])->name('townships.by-city');
 
-    
     Route::get('townships', [UserController::class, 'getTownship']);
     Route::get('townships/{id}', [UserController::class, 'getTownshipById']);
     Route::get('cities', [UserController::class, 'getCities']);
@@ -135,7 +136,7 @@ Route::middleware('api')->group(function () {
     Route::get('app/sites', [SiteController::class, 'index']);
     Route::get('app/pools', [PoolController::class, 'index']);
     Route::get('app/chefs/pools', [PoolController::class, 'getChefsApp']);
-    
-    
 
 });
+
+
