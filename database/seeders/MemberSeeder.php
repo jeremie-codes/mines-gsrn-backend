@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Category;
 use App\Models\City;
 use App\Models\Fonction;
 use App\Models\Member;
@@ -9,7 +10,6 @@ use App\Models\Pool;
 use App\Models\Site;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class MemberSeeder extends Seeder
 {
@@ -33,6 +33,53 @@ class MemberSeeder extends Seeder
                     'is_active' => true,
                 ]
             );
+
+            $site2 = Site::create(
+            [
+                'code' => 'TSH',
+                'name' => 'Tshuenge',
+                'location' => 'Kinshasa',
+                'city_id' => $city->id,
+                'is_active' => true,
+            ]);
+
+            $poolsOther = [
+                'Lokali 1' => ['Ma Marie', 'Théo Makawu'],
+                'Masina' => ['Dieu Nzila', 'Mr Souley'],
+            ];
+
+            $sitesOther = [
+                ['code' => 'RVA', 'name' => 'RVA'],
+                ['code' => 'BNO', 'name' => 'Bono'],
+                ['code' => 'NSB', 'name' => 'Nsele Bambou'],
+                ['code' => 'IDP', 'name' => 'indépendant'],
+            ];
+
+            foreach ($sitesOther as $siteoth) {
+                Site::create([
+                    'code' => $siteoth['code'],
+                    'name' => $siteoth['name'],
+                    'location' => 'Kinshasa',
+                    'city_id' => $city->id,
+                    'is_active' => true,
+                ]);
+            }
+
+            $categories = [
+                ['amount' => '500', 'name' => 'A', 'currency' => 'CDF'],
+                ['amount' => '500', 'name' => 'B', 'currency' => 'CDF'],
+                ['amount' => '500', 'name' => 'C', 'currency' => 'CDF'],
+                ['amount' => '500', 'name' => 'D', 'currency' => 'CDF'],
+            ];
+
+            foreach ($categories as $category) {
+                Category::create([
+                    'name' => $category['name'],
+                    'amount' => $category['amount'],
+                    'currency' => $category['currency'],
+                ]);
+            }
+
 
             // Récupérer la fonction chef de pool
             $chefDePoolFonction = Fonction::where('name', 'Chef de Pool')->first();
@@ -88,6 +135,40 @@ class MemberSeeder extends Seeder
                         'membershipNumber' => $membershipNumber,
                         'site_id' => $site->id,
                         'city_id' => $city->id,
+                        'category_id' => 1,
+                        'pool_id' => $pool->id,
+                        'fonction_id' => $chefDePoolFonction->id,
+                        'is_active' => true,
+                        'date_adhesion' => now(),
+                    ]);
+
+                }
+            }
+
+            foreach ($poolsOther as $poolNameOth => $chefsOth) {
+                $pool = Pool::create([
+                    'site_id' => $site->id,
+                    'name' => $poolNameOth,
+                    'description' => 'Pool de ' . $poolNameOth,
+                    'is_active' => true,
+                ]);
+
+                foreach ($chefsOth as $chefNameOth) {
+                    if ($chefNameOth === '?') continue;
+
+                    $namesOth = explode(' ', $chefNameOth);
+                    $firstnameOth = array_shift($namesOth);
+                    $lastnameOth = implode(' ', $namesOth) ?: null;
+
+                    $membershipNumberOth = $this->generateMembershipNumber($site->id, $city->id);
+
+                    $member = Member::create([
+                        'firstname' => $firstnameOth,
+                        'lastname' => $lastnameOth,
+                        'membershipNumber' => $membershipNumberOth,
+                        'site_id' => $site2->id,
+                        'city_id' => $city->id,
+                        'category_id' => 1,
                         'pool_id' => $pool->id,
                         'fonction_id' => $chefDePoolFonction->id,
                         'is_active' => true,

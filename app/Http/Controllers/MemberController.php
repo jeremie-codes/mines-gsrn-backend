@@ -259,7 +259,7 @@ class MemberController extends Controller
             $category = $categoryModel->id;
 
 
-            $member = Member::findOrFail($request->member_id);
+            $member = Member::find($request->member_id);
 
             if(!$member) {
                 return response()->json([
@@ -267,6 +267,23 @@ class MemberController extends Controller
                     'message' => 'Membre non trouvé'
                 ], 404);
             }
+
+            $oldSiteId = $member->site_id;
+            $newSiteId = $request->input('site_id');
+
+            // Vérifie si le site a changé
+            if ($newSiteId && $newSiteId != $oldSiteId) {
+                $newSite = Site::find($newSiteId);
+                $oldSite = Site::find($oldSiteId);
+
+                // Génère un nouveau membership_number
+                $data['membershipNumber'] = $this->generateMembershipNumber($request->site_id, $request->city_id);
+
+                // Optionnel : incrémente le compteur du nouveau site
+                $newSite->increment('membership_counter');
+                $oldSite->increment('membership_counter');
+            }
+
 
             $data = $request->all();
 
