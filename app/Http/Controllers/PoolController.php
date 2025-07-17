@@ -28,6 +28,25 @@ class PoolController extends Controller
         }
     }
 
+    public function indexApi()
+    {
+
+        try {
+            $pools = Pool::orderBy('created_at', 'desc')->get();
+
+            return response()->json([
+                'success' => true,
+                'pools' => $pools
+            ], 200);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => "Erreur, " .$th->getMessage()
+            ], 500);
+        }
+    }
+
     public function getChefs()
     {
 
