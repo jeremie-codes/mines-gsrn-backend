@@ -135,5 +135,7 @@ Route::middleware('api')->group(function () {
     Route::get('app/sites', [SiteController::class, 'index']);
     Route::get('app/pools', [PoolController::class, 'index']);
     Route::get('app/chefs/pools', [PoolController::class, 'getChefsApp']);
+    
+    
 
 });
