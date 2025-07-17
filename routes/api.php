@@ -23,7 +23,7 @@ Route::middleware('api')->group(function () {
 
 
     Route::middleware('guest')->group(function () {
-        Route::post('register/{id}', [UserController::class, 'register'])->name('register');
+        Route::post('register/', [UserController::class, 'register'])->name('register');
         Route::post('login', [UserController::class, 'login'])->name('login');
     });
 
@@ -75,7 +75,7 @@ Route::middleware('api')->group(function () {
         Route::get('members', [MemberController::class, 'index']);
         Route::get('members/{member}', [MemberController::class, 'show']);
         Route::post('members/create', [MemberController::class, 'store']);
-        Route::put('members/{id}', [MemberController::class, 'update']);
+        Route::put('members/', [MemberController::class, 'update']);
         Route::delete('members/{id}', [MemberController::class, 'destroy']);
 
         // Route::resource('members', MemberController::class);

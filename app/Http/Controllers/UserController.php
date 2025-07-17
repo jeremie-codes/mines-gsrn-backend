@@ -20,7 +20,7 @@ class UserController extends Controller
     {
 
         try {
-            $users = User::with('profiles', 'member')->orderBy('created_at', 'desc')->paginate(10);
+            $users = User::orderBy('created_at', 'desc')->paginate(10);
 
             return response()->json([
                 'success' => true,
@@ -35,46 +35,33 @@ class UserController extends Controller
         }
     }
 
-    public function register($id)
+    public function register(Request $request)
     {
+        try {
 
-        $member = Member::find($id);
-        $existedUser = User::where('member_id', $id)->get()->first();
+            $request->validate([
+                "username" => "required|string|unique:users,username"
+            ])
 
-        if(!$member) {
+            $motDePasseTemporaire = Str::random(8);
+
+            $userData = [
+                'username' => $request->username,
+                'password' => Hash::make($motDePasseTemporaire),
+                'plain_password' => $motDePasseTemporaire,
+            ];
+
+            // Création de l'utilisateur
+            $user = User::create($userData);
+
             return response()->json([
-                "success" => false,
-                'message' => 'Utilisateur non trouvé !',
-            ], 404);
+                'message' => 'Utilisateur créé avec succès !',
+                'username' => $user->username,
+                'plain_password' => $motDePasseTemporaire,
+            ], 201);
+        } catch (\Throwable $th) {
+            //throw $th;
         }
-
-        if($existedUser) {
-            return response()->json([
-                "success" => false,
-                'message' => 'un utilisateur avec ce membre existe déjà !',
-                "user" => $existedUser
-            ], 404);
-        }
-
-        $motDePasseTemporaire = Str::random(8);
-        $randomDigits = str_pad(strval(rand(0, 999)), 3, '0', STR_PAD_LEFT); // 3 chiffres
-
-        $userData = [
-            'member_id' => $member->id,
-            'username' => $member->firstname . $randomDigits, // ex: Daniel123
-            'member_number' => $member->membershipNumber,
-            'password' => Hash::make($motDePasseTemporaire),
-            'plain_password' => $motDePasseTemporaire,
-        ];
-
-        // Création de l'utilisateur
-        $user = User::create($userData);
-
-        return response()->json([
-            'message' => 'Utilisateur créé avec succès !',
-            'username' => $user->username,
-            'plain_password' => $motDePasseTemporaire,
-        ], 201); // 201 = Created
     }
 
     public function login(Request $request)
@@ -84,10 +71,7 @@ class UserController extends Controller
             'password' => 'required',
         ]);
 
-        $user = User::where('username', $request->username)
-            ->orWhereHas('member', function ($query) use ($request) {
-                $query->where('membershipNumber', $request->username);
-            })->first();
+        $user = User::where('username', $request->username)->first();
 
         if (! $user || ! Hash::check($request->password, $user->password)) {
             return response()->json([

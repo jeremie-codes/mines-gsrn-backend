@@ -215,11 +215,12 @@ class MemberController extends Controller
         }
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
 
         try {
             $request->validate([
+                'member_id' => 'required',
                 'firstname' => 'nullable|string|max:255',
                 'lastname' => 'nullable|string|max:255',
                 'middlename' => 'nullable|string|max:255',
@@ -252,7 +253,7 @@ class MemberController extends Controller
             $category = $categoryModel->id;
 
 
-            $member = Member::findOrFail($id);
+            $member = Member::findOrFail($request->member_id);
 
             if(!$member) {
                 return response()->json([
