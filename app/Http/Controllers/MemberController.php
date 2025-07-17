@@ -693,18 +693,15 @@ class MemberController extends Controller
             $validated = $validator->validated();
 
             // Vérification de la catégorie
-            $categoryModel = Category::where('name', $request->category)->first();
+            $categoryModel = Category::where('name', $request->category)->first() ?? Category::find(1);
 
             // Si la catégorie n'est pas trouvée, choisir la catégorie par défaut (ID = 1)
             if (!$categoryModel) {
                 // Si la catégorie n'existe pas, affecte la catégorie par défaut
-                $category = Category::find(1);  // Catégorie par défaut avec ID = 1
-                if (!$category) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Catégorie par défaut introuvable'
-                    ], 404);
-                }
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Catégorie par défaut introuvable'
+                ], 404);
             }
 
             $validated['category_id'] = $categoryModel->id;
