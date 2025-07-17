@@ -41,7 +41,7 @@ class UserController extends Controller
 
             $request->validate([
                 "username" => "required|string|unique:users,username"
-            ])
+            ]);
 
             $motDePasseTemporaire = Str::random(8);
 
