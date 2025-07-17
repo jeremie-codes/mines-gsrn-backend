@@ -259,7 +259,6 @@ class MemberController extends Controller
 
             $category = $categoryModel->id;
 
-
             $member = Member::find($request->member_id);
 
             if(!$member) {
@@ -271,6 +270,8 @@ class MemberController extends Controller
 
             $oldSiteId = $member->site_id;
             $newSiteId = $request->input('site_id');
+
+            $data = $request->all();
 
             // Vérifie si le site a changé
             if ($newSiteId && $newSiteId != $oldSiteId) {
@@ -284,9 +285,6 @@ class MemberController extends Controller
                 $newSite->increment('membership_counter');
                 $oldSite->increment('membership_counter');
             }
-
-
-            $data = $request->all();
 
             if ($request->has('membershipNumber') && !empty($request->membershipNumber)) {
                 $data['membershipNumber'] = $request->membershipNumber;
