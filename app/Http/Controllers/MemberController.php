@@ -23,20 +23,20 @@ class MemberController extends Controller
     public function index()
     {
         try {
-            $members = Member::all();
+            $members = Member::orderBy('created_at', 'desc')->paginate(10);
 
-            foreach ($members as $member) {
-                if (!$member->membershipNumber && $member->site_id) {
-                    $dataMembershipNumber = $this->generateMembershipNumber($member->site_id, $member->city_id);
-                    $member->membershipNumber = $dataMembershipNumber;
-                    $member->save();
-                }
-            }
+            // foreach ($members as $member) {
+            //     if (!$member->membershipNumber && $member->site_id) {
+            //         $dataMembershipNumber = $this->generateMembershipNumber($member->site_id, $member->city_id);
+            //         $member->membershipNumber = $dataMembershipNumber;
+            //         $member->save();
+            //     }
+            // }
 
             return response()->json([
                 'success' => true,
                 'members' => $members,
-                'count' => $members->count()
+                // 'count' => $members->count()
             ], 201);
         } catch (\Throwable $th) {
             return response()->json([
