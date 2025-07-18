@@ -11,7 +11,6 @@ use App\Models\Role;
 use App\Models\Township;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
 
 class UserController extends Controller

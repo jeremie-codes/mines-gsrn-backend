@@ -23,10 +23,20 @@ class MemberController extends Controller
     public function index()
     {
         try {
-            $members = Member::with('user')->orderBy('created_at', 'desc')->paginate(10);
+            $members = Member::all();
+
+            foreach ($members as $member) {
+                if (!$member->membershipNumber && $member->site_id) {
+                    $dataMembershipNumber = $this->generateMembershipNumber($member->site_id, $member->city_id);
+                    $member->membershipNumber = $dataMembershipNumber;
+                    $member->save();
+                }
+            }
+
             return response()->json([
                 'success' => true,
-                'members' => $members
+                'members' => $members,
+                'count' => $members->count()
             ], 201);
         } catch (\Throwable $th) {
             return response()->json([
@@ -283,7 +293,9 @@ class MemberController extends Controller
 
                 // Optionnel : incrémente le compteur du nouveau site
                 $newSite->increment('membership_counter');
-                $oldSite->increment('membership_counter');
+                if ($oldSite) {
+                    $oldSite->decrement('membership_counter');
+                }
             }
 
             if ($request->has('membershipNumber') && !empty($request->membershipNumber)) {
