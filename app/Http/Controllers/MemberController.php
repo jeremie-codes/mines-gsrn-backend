@@ -279,7 +279,7 @@ class MemberController extends Controller
             }
 
             $oldSiteId = $member->site_id;
-            $newSiteId = $request->input('site_id');
+            $newSiteId = $request->site_id;
 
             $data = $request->all();
 
