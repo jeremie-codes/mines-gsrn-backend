@@ -23,6 +23,7 @@ class MemberController extends Controller
     public function index()
     {
         try {
+
             $members = Member::orderBy('created_at', 'desc')->paginate(10);
 
             // foreach ($members as $member) {
@@ -36,7 +37,6 @@ class MemberController extends Controller
             return response()->json([
                 'success' => true,
                 'members' => $members,
-                // 'count' => $members->count()
             ], 201);
         } catch (\Throwable $th) {
             return response()->json([

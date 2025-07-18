@@ -29,7 +29,7 @@ Route::middleware('api')->group(function () {
 
     Route::post('flexpaie_callback', [CotisationController::class, 'callback'])->name('callbak');
 
-    // Route::middleware('auth:sanctum')->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
         Route::post('flexpaie/{id}', [CotisationController::class, 'flexpaie'])->name('flexpaie');
 
         Route::post('logout', [UserController::class, 'logout'])->name('logout');
@@ -103,7 +103,7 @@ Route::middleware('api')->group(function () {
         Route::get('chefs/pools', [PoolController::class, 'getChefs'])->name('pools.chefs');
         Route::get('chefs/pools/{id}', [PoolController::class, 'getChefByPoolId']);
 
-    // });
+    });
     // Routes Public API pour les utilisateurs
     // Route pour récupérer les communes par ville (AJAX)
     Route::get('townships/city/{cityId}', [MemberController::class, 'getTownshipsByCity'])->name('townships.by-city');
