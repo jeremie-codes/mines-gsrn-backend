@@ -292,7 +292,10 @@ class MemberController extends Controller
                 $data['membershipNumber'] = $this->generateMembershipNumber($request->site_id, $request->city_id);
 
                 // Optionnel : incrémente le compteur du nouveau site
-                $newSite->increment('membership_counter');
+                if ($newSite) {
+                    $newSite->increment('membership_counter');
+                }
+
                 if ($oldSite) {
                     $oldSite->decrement('membership_counter');
                 }
