@@ -20,6 +20,51 @@ use Illuminate\Support\Facades\Validator;
 
 class MemberController extends Controller
 {
+
+    public function stats()
+    {
+        try {
+            $members = Member::count();
+            $membersActives = Member::where('active', true)->count();
+            $membersInactives = Member::where('active', false)->count();
+
+            $sites = Site::count();
+            $sitesActives = Site::where('active', true)->count();
+            $sitesInactives = Site::where('active', false)->count();
+
+            
+            $pools = Pool::count();
+            $poolsActives = Pool::where('active', true)->count();
+            $poolsInactives = Pool::where('active', false)->count();
+
+
+            $users = user::count();
+            $usersActives = user::where('active', true)->count();
+            $usersInactives = user::where('active', false)->count();
+
+            return response()->json([
+                'success' => true,
+                'members' => $members,
+                'membersActives' => $membersActives,
+                'membersInactives' => $membersInactives,
+                'sites' => $sites,
+                'sitesActives' => $sitesActives,
+                'sitesInactives' => $sitesInactives,
+                'pools' => $pools,
+                'poolsActives' => $poolsActives,
+                'poolsInactives' => $poolsInactives,
+                'users' => $users,
+                'usersActives' => $usersActives,
+                'usersInactives' => $usersInactives,
+            ], 201);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => "Erreur, " .$th->getMessage()
+            ], 500);
+        }
+    }
+
     public function index()
     {
         try {
