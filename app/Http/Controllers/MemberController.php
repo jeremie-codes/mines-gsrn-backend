@@ -24,38 +24,36 @@ class MemberController extends Controller
     public function stats()
     {
         try {
-            $members = Member::count();
-            $membersActives = Member::where('active', true)->count();
-            $membersInactives = Member::where('active', false)->count();
+            $members = [
+                'total' => Member::count(),
+                'actives' => Member::where('is_active', true)->count(),
+                'inactives' => Member::where('is_active', false)->count()
+            ];
 
-            $sites = Site::count();
-            $sitesActives = Site::where('active', true)->count();
-            $sitesInactives = Site::where('active', false)->count();
-
+            $sites = [
+                'total' => Site::count(),
+                'actives' => Site::where('is_active', true)->count(),
+                'inactives' => Site::where('is_active', false)->count()
+            ];
             
-            $pools = Pool::count();
-            $poolsActives = Pool::where('active', true)->count();
-            $poolsInactives = Pool::where('active', false)->count();
+            $pools = [
+                'total' => Pool::count(),
+                'actives' => Pool::where('is_active', true)->count(),
+                'inactives' => Pool::where('is_active', false)->count()
+            ];
 
-
-            $users = user::count();
-            $usersActives = user::where('active', true)->count();
-            $usersInactives = user::where('active', false)->count();
+            $users = [
+                'total' => User::count(),
+                'actives' => User::where('is_active', true)->count(),
+                'inactives' => User::where('is_active', false)->count()
+            ];
 
             return response()->json([
                 'success' => true,
                 'members' => $members,
-                'membersActives' => $membersActives,
-                'membersInactives' => $membersInactives,
                 'sites' => $sites,
-                'sitesActives' => $sitesActives,
-                'sitesInactives' => $sitesInactives,
                 'pools' => $pools,
-                'poolsActives' => $poolsActives,
-                'poolsInactives' => $poolsInactives,
-                'users' => $users,
-                'usersActives' => $usersActives,
-                'usersInactives' => $usersInactives,
+                'users' => $users
             ], 201);
         } catch (\Throwable $th) {
             return response()->json([
