@@ -101,7 +101,7 @@ class MemberController extends Controller
                 'township_id' => 'nullable|exists:townships,id',
                 'pool_id' => 'nullable|exists:pools,id',
                 'chef_id' => 'nullable|exists:members,id',
-                'category' => 'nullable|string',
+                'category_id' => 'nullable|string|numeric',
                 'street' => 'nullable|string|max:255',
                 'gender' => 'nullable|string',
                 'libelle_pool' => 'nullable|string|max:255',
@@ -114,29 +114,13 @@ class MemberController extends Controller
 
             $data = $request->all();
 
-            // Vérifier si la catégorie existe
-            $categoryModel = Category::where('name', $request->category)->first();
-
-            // Si la catégorie n'est pas trouvée, choisir la catégorie par défaut (ID = 1)
-            if (!$categoryModel) {
-                // Si la catégorie n'existe pas, affecte la catégorie par défaut
-                $category = Category::find(1);  // Catégorie par défaut avec ID = 1
-                if (!$category) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Catégorie par défaut introuvable'
-                    ], 404);
-                }
-            } else {
-                $category = $categoryModel->id;
-            }
 
             // Générer automatiquement le numéro de membre
             $data['membershipNumber'] = $this->generateMembershipNumber($request->site_id, $request->city_id);
 
             // Gérer l'upload d'image
             $data['face_path'] = $this->handleImageUpload($request);
-            $data['category_id'] = $category;
+
 
             // Créer le membre
             $member = Member::create($data);
