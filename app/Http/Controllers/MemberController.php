@@ -231,7 +231,7 @@ class MemberController extends Controller
                 'township_id' => 'nullable|exists:townships,id',
                 'pool_id' => 'nullable|exists:pools,id',
                 'chef_id' => 'nullable|exists:members,id',
-                'category' => 'nullable|string',
+                'category_id' => 'nullable|string',
                 'street' => 'nullable|string|max:255',
                 'libelle_pool' => 'nullable|string|max:255',
                 'fonction_id' => 'nullable|exists:fonctions,id',
@@ -242,16 +242,6 @@ class MemberController extends Controller
                 'membershipNumber' => 'nullable|string|max:255'
             ]);
 
-            $categoryModel = Category::where('name', $request->category)->first();
-
-            if (!$categoryModel) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Catégorie non trouvée'
-                ], 404);
-            }
-
-            $category = $categoryModel->id;
 
             $member = Member::find($request->member_id);
 
@@ -298,8 +288,6 @@ class MemberController extends Controller
                 }
                 $data['face_path'] = $newImagePath;
             }
-
-            $data['category_id'] = $category;
 
             $member->update($data);
 
