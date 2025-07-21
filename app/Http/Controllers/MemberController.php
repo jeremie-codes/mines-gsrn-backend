@@ -231,7 +231,7 @@ class MemberController extends Controller
                 'township_id' => 'nullable|exists:townships,id',
                 'pool_id' => 'nullable|exists:pools,id',
                 'chef_id' => 'nullable|exists:members,id',
-                'category_id' => 'nullable|string',
+                'category_id' => 'nullable|exists:categories,id',
                 'street' => 'nullable|string|max:255',
                 'libelle_pool' => 'nullable|string|max:255',
                 'fonction_id' => 'nullable|exists:fonctions,id',
