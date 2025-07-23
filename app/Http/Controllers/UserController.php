@@ -358,16 +358,15 @@ class UserController extends Controller
         }
     }
 
-    public function updateFunction(Request $request)
+    public function updateFunction(Request $request, $id)
     {
 
         try {
             $request->validate([
-                'function_id' => 'required|exists:fonctions,id',
-                'name' => 'required|string|unique:fonctions,name,' . $request->function_id
+                'name' => 'required|string|unique:fonctions,name,' . $id
             ]);
 
-            $function = Fonction::findOrFail($request->function_id);
+            $function = Fonction::findOrFail($id);
 
             if (!$function) {
                 return response()->json([
@@ -638,18 +637,17 @@ class UserController extends Controller
         }
     }
 
-    public function updateCountry(Request $request)
+    public function updateCountry(Request $request, $id)
     {
 
         try {
             $request->validate([
-                'country_id' => 'required|exists:countries,id',
-                'name' => 'required|string|unique:countries,name,' . $request->country_id,
-                'code' => 'required|string|unique:countries,code,' . $request->country_id,
+                'name' => 'required|string|unique:countries,name,' . $id,
+                'code' => 'required|string|unique:countries,code,' . $id,
                 'is_active' => 'nullable|boolean'
             ]);
 
-            $country = Country::findOrFail($request->country_id);
+            $country = Country::findOrFail($id);
 
             if (!$country) {
                 return response()->json([
@@ -675,18 +673,17 @@ class UserController extends Controller
         }
     }
 
-    public function updateCity(Request $request)
+    public function updateCity(Request $request, $id)
     {
 
         try {
             $request->validate([
-                'city_id' => 'required|exists:cities,id',
-                'name' => 'required|string|unique:cities,name,' . $request->city_id,
+                'name' => 'required|string|unique:cities,name,' . $id,
                 'country_id' => 'required|exists:countries,id',
                 'is_active' => 'nullable|boolean'
             ]);
 
-            $city = City::findOrFail($request->city_id);
+            $city = City::findOrFail($id);
 
             if (!$city) {
                 return response()->json([
@@ -712,18 +709,17 @@ class UserController extends Controller
         }
     }
 
-    public function updateTownship(Request $request)
+    public function updateTownship(Request $request, $id)
     {
 
         try {
             $request->validate([
-                'township_id' => 'required|exists:townships,id',
-                'name' => 'required|string|unique:townships,name,' . $request->township_id,
+                'name' => 'required|string|unique:townships,name,' . $id,
                 'city_id' => 'required|exists:cities,id',
                 'is_active' => 'nullable|boolean'
             ]);
 
-            $township = Township::findOrFail($request->township_id);
+            $township = Township::findOrFail($id);
 
             if (!$township) {
                 return response()->json([

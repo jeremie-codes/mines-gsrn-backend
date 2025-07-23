@@ -116,18 +116,18 @@ Route::middleware('api')->group(function () {
     Route::get('functions', [UserController::class, 'getFunction']);
     Route::get('functions/{id}', [UserController::class, 'getFunctionById']);
     Route::post('functions/create', [UserController::class, 'createFunction']);
-    Route::post('functions/update', [UserController::class, 'updateFunction']);
-    Route::post('functions/delete/{id}', [UserController::class, 'deleteFunction']);
+    Route::post('functions/update/{id}', [UserController::class, 'updateFunction']);
+    Route::post('functions/{id}', [UserController::class, 'deleteFunction']);
 
     Route::post('townships/create', [UserController::class, 'createTownship']);
     Route::post('cities/create', [UserController::class, 'createCity']);
     Route::post('countries/create', [UserController::class, 'createCountry']);
-    Route::post('townships/update', [UserController::class, 'updateTownship']);
-    Route::post('cities/update', [UserController::class, 'updateCity']);
-    Route::post('countries/update', [UserController::class, 'updateCountry']);
-    Route::post('townships/delete/{id}', [UserController::class, 'deleteTownship']);
-    Route::post('cities/delete/{id}', [UserController::class, 'deleteCity']);
-    Route::post('countries/delete/{id}', [UserController::class, 'deleteCountry']);
+    Route::post('townships/update/{id}', [UserController::class, 'updateTownship']);
+    Route::post('cities/update/{id}', [UserController::class, 'updateCity']);
+    Route::post('countries/update/{id}', [UserController::class, 'updateCountry']);
+    Route::post('townships/{id}', [UserController::class, 'deleteTownship']);
+    Route::post('cities/{id}', [UserController::class, 'deleteCity']);
+    Route::post('countries/{id}', [UserController::class, 'deleteCountry']);
 
     // Mobile Route
     Route::post('app/members/create', [MemberController::class, 'apiStore']);
