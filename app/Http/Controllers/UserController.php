@@ -291,7 +291,7 @@ class UserController extends Controller
     {
 
         try {
-            $functions = Fonction::all();
+            $functions = Fonction::orderBy('created_at', 'desc')->get();
 
             return response()->json([
                 'success' => true,
@@ -334,12 +334,21 @@ class UserController extends Controller
 
     public function createFunction(Request $request)
     {
+        $request->validate([
+            'name' => 'required|string'
+        ]);
+
+        // Vérifie si une fonction avec le même nom existe déjà
+        $existing = Fonction::where('name', $request->name)->first();
+        if ($existing) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Cette fonction existe déjà.',
+                'function' => $existing
+            ], 409); // 409 Conflict
+        }
 
         try {
-            $request->validate([
-                'name' => 'required|string|unique:fonctions,name'
-            ]);
-
             $function = Fonction::create([
                 'name' => $request->name
             ]);
@@ -353,10 +362,11 @@ class UserController extends Controller
         } catch (\Throwable $th) {
             return response()->json([
                 'success' => false,
-                'message' => "Erreur, " .$th->getMessage()
+                'message' => "Erreur : " . $th->getMessage()
             ], 500);
         }
     }
+
 
     public function updateFunction(Request $request, $id)
     {
@@ -549,14 +559,33 @@ class UserController extends Controller
 
     public function createCountry(Request $request)
     {
+        $request->validate([
+            'name' => 'required|string',
+            'code' => 'required|string',
+            'is_active' => 'nullable|boolean'
+        ]);
+
+        // Vérifie si un pays avec le même nom existe déjà
+        $existingByName = Country::where('name', $request->name)->first();
+        if ($existingByName) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Un pays avec ce nom existe déjà.',
+                'country' => $existingByName
+            ], 409);
+        }
+
+        // Vérifie si un pays avec le même code existe déjà
+        $existingByCode = Country::where('code', $request->code)->first();
+        if ($existingByCode) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Un pays avec ce code existe déjà.',
+                'country' => $existingByCode
+            ], 409);
+        }
 
         try {
-            $request->validate([
-                'name' => 'required|string|unique:countries,name',
-                'code' => 'required|string|unique:countries,code',
-                'is_active' => 'nullable|boolean'
-            ]);
-
             $country = Country::create([
                 'name' => $request->name,
                 'code' => $request->code,
@@ -572,20 +601,32 @@ class UserController extends Controller
         } catch (\Throwable $th) {
             return response()->json([
                 'success' => false,
-                'message' => "Erreur, " .$th->getMessage()
+                'message' => "Erreur : " . $th->getMessage()
             ], 500);
         }
     }
 
     public function createCity(Request $request)
     {
-
         try {
             $request->validate([
-                'name' => 'required|string|unique:cities,name',
+                'name' => 'required|string',
                 'country_id' => 'required|exists:countries,id',
                 'is_active' => 'nullable|boolean'
             ]);
+
+            // Vérifie si une ville avec le même nom existe déjà dans le même pays
+            $existingCity = City::where('name', $request->name)
+                ->where('country_id', $request->country_id)
+                ->first();
+
+            if ($existingCity) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Cette ville existe déjà dans ce pays.',
+                    'city' => $existingCity
+                ], 409);
+            }
 
             $city = City::create([
                 'name' => $request->name,
@@ -602,20 +643,32 @@ class UserController extends Controller
         } catch (\Throwable $th) {
             return response()->json([
                 'success' => false,
-                'message' => "Erreur, " .$th->getMessage()
+                'message' => "Erreur : " . $th->getMessage()
             ], 500);
         }
     }
 
     public function createTownship(Request $request)
     {
-
         try {
             $request->validate([
-                'name' => 'required|string|unique:townships,name',
+                'name' => 'required|string',
                 'city_id' => 'required|exists:cities,id',
                 'is_active' => 'nullable|boolean'
             ]);
+
+            // Vérifie si une commune avec le même nom existe déjà dans cette ville
+            $existingTownship = Township::where('name', $request->name)
+                ->where('city_id', $request->city_id)
+                ->first();
+
+            if ($existingTownship) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Cette commune existe déjà dans cette ville.',
+                    'township' => $existingTownship
+                ], 409);
+            }
 
             $township = Township::create([
                 'name' => $request->name,
@@ -632,7 +685,7 @@ class UserController extends Controller
         } catch (\Throwable $th) {
             return response()->json([
                 'success' => false,
-                'message' => "Erreur, " .$th->getMessage()
+                'message' => "Erreur : " . $th->getMessage()
             ], 500);
         }
     }
