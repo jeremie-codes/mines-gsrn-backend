@@ -39,6 +39,7 @@ class CategoryController extends Controller
             $validated = $request->validate([
                 'name' => 'required|string|max:5',
                 'amount' => 'required|numeric',
+                'equivalent' => 'required|numeric',
                 'currency' => 'required|string'
             ]);
 
@@ -65,6 +66,7 @@ class CategoryController extends Controller
             $validated = $request->validate([
                 'name' => 'nullable|string|max:5',
                 'amount' => 'nullable|numeric',
+                'equivalent' => 'required|numeric',
                 'currency' => 'nullable|string',
             ]);
 
