@@ -631,6 +631,7 @@ class UserController extends Controller
 
             $city = City::create([
                 'name' => $request->name,
+                'code' => $request->code,
                 'country_id' => $request->country_id,
                 'is_active' => $request->is_active ?? true
             ]);
@@ -673,6 +674,7 @@ class UserController extends Controller
 
             $township = Township::create([
                 'name' => $request->name,
+                'code' => $request->code,
                 'city_id' => $request->city_id,
                 'is_active' => $request->is_active ?? true
             ]);
