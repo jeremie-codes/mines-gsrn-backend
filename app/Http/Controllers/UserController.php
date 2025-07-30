@@ -424,11 +424,11 @@ class UserController extends Controller
     {
 
         try {
-            $townshps = Township::all();
+            $townships = Township::all();
 
             return response()->json([
                 'success' => true,
-                'townshps' => $townshps
+                'townships' => $townships
             ], 200);
 
         } catch (\Throwable $th) {
@@ -443,9 +443,9 @@ class UserController extends Controller
     {
 
         try {
-            $townshp = Township::with('city')->findOrFail($id);
+            $township = Township::with('city')->findOrFail($id);
 
-            if (!$townshp) {
+            if (!$township) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Commune non trouvée.'
@@ -454,7 +454,7 @@ class UserController extends Controller
 
             return response()->json([
                 'success' => true,
-                'townshp' => $townshp
+                'township' => $township
             ], 200);
 
         } catch (\Throwable $th) {
@@ -611,6 +611,7 @@ class UserController extends Controller
         try {
             $request->validate([
                 'name' => 'required|string',
+                'code' => 'required|string',
                 'country_id' => 'required|exists:countries,id',
                 'is_active' => 'nullable|boolean'
             ]);
@@ -653,6 +654,7 @@ class UserController extends Controller
         try {
             $request->validate([
                 'name' => 'required|string',
+                'code' => 'required|string',
                 'city_id' => 'required|exists:cities,id',
                 'is_active' => 'nullable|boolean'
             ]);
@@ -666,7 +668,6 @@ class UserController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'Cette commune existe déjà dans cette ville.',
-                    'township' => $existingTownship
                 ], 409);
             }
 
@@ -679,7 +680,6 @@ class UserController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Commune créée avec succès.',
-                'township' => $township
             ], 201);
 
         } catch (\Throwable $th) {
