@@ -424,7 +424,7 @@ class UserController extends Controller
     {
 
         try {
-            $townships = Township::all();
+            $townships = Township::orderBy('created_at', 'desc')->get();
 
             return response()->json([
                 'success' => true,
@@ -469,7 +469,7 @@ class UserController extends Controller
     {
 
         try {
-            $cities = City::all();
+            $cities = City::orderBy('created_at', 'desc')->get();
 
             return response()->json([
                 'success' => true,
