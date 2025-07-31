@@ -29,6 +29,63 @@ class CotisationController extends Controller
         }
     }
 
+    // public function store(Request $request, $id)
+    // {
+    //     try {
+    //         $validated = $request->validate([
+    //             'type' => 'required|in:cash,flexpaie',
+    //             'amount' => 'required|numeric|min:0',
+    //             'currency' => 'required|string|max:10',
+    //             'status' => 'nullable|string|max:50',
+    //             'reference' => 'nullable|string|max:255',
+    //             'description' => 'nullable|string|max:255',
+    //             'created_at' => 'nullable|date',
+    //             'retard' => 'nullable|boolean',
+    //             'nombre_retard' => 'nullable|numeric'
+    //         ]);
+
+    //         $member = Member::find($id);
+
+    //         if (!$member) {
+    //             return response()->json([
+    //                 'success' => false,
+    //                 'message' => 'Membre non trouvé !'
+    //             ]);
+    //         }
+
+    //         $validated['member_id'] = $id;
+
+    //         // Création de la cotisation
+    //         $cotisation = Cotisation::create($validated);
+
+    //         if ($member->first_payment && $cotisation->status == "payée") {
+    //             $firstPayment = Carbon::parse($member->first_payment);
+    //             $member->next_payment = $firstPayment->addMonths(3);
+    //             $member->first_payment = null;
+    //             $member->save();
+    //         }
+
+    //         if (!$member->first_payment && $cotisation->status == "payée") {
+    //             $firstPayment = Carbon::parse($member->first_payment);
+    //             $member->next_payment = $firstPayment->addMonths(3);
+    //             $member->first_payment = null;
+    //             $member->save();
+    //         }
+
+    //         return response()->json([
+    //             'success' => true,
+    //             'message' => 'Cotisation enregistrée avec succès.',
+    //             'data' => $cotisation
+    //         ], 201); // 201 = Created
+
+    //     } catch (\Throwable $th) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Erreur lors de l’enregistrement de la cotisation : ' . $th->getMessage()
+    //         ], 500);
+    //     }
+    // }
+
     public function store(Request $request, $id)
     {
         try {
@@ -39,7 +96,9 @@ class CotisationController extends Controller
                 'status' => 'nullable|string|max:50',
                 'reference' => 'nullable|string|max:255',
                 'description' => 'nullable|string|max:255',
-                'created_at' => 'nullable|date'
+                'created_at' => 'nullable|date',
+                'retard' => 'nullable|boolean',
+                'nombre_retard' => 'nullable|numeric|min:1'
             ]);
 
             $member = Member::find($id);
@@ -51,30 +110,44 @@ class CotisationController extends Controller
                 ]);
             }
 
-            $validated['member_id'] = $id;
+            $nombreMois = 1;
 
-            // Création de la cotisation
-            $cotisation = Cotisation::create($validated);
-
-            if ($member->first_payment && $cotisation->status == "payée") {
-                $firstPayment = Carbon::parse($member->first_payment);
-                $member->next_payment = $firstPayment->addMonths(3);
-                $member->first_payment = null;
-                $member->save();
+            if (!empty($validated['retard']) && !empty($validated['nombre_retard'])) {
+                $nombreMois = (int) $validated['nombre_retard'];
             }
 
-            if (!$member->first_payment && $cotisation->status == "payée") {
-                $firstPayment = Carbon::parse($member->first_payment);
-                $member->next_payment = $firstPayment->addMonths(3);
-                $member->first_payment = null;
-                $member->save();
+            $cotisations = [];
+
+            $baseDate = $member->next_payment 
+                ? Carbon::parse($member->next_payment)
+                : Carbon::now();
+
+            for ($i = 0; $i < $nombreMois; $i++) {
+                $cotisationData = array_merge($validated, [
+                    'member_id' => $id,
+                    'created_at' => isset($validated['created_at']) 
+                        ? Carbon::parse($validated['created_at'])->addMonths($i)
+                        : now()->addMonths($i)
+                ]);
+
+                $cotisations[] = Cotisation::create($cotisationData);
             }
+
+            // Mise à jour de la date de prochain paiement
+            $member->next_payment = $baseDate->copy()->addMonths($nombreMois);
+
+            // Si c'était le premier paiement, on le vide
+            if ($member->first_payment) {
+                $member->first_payment = null;
+            }
+
+            $member->save();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Cotisation enregistrée avec succès.',
-                'data' => $cotisation
-            ], 201); // 201 = Created
+                'message' => 'Cotisation(s) enregistrée(s) avec succès.',
+                'data' => $cotisations
+            ], 201);
 
         } catch (\Throwable $th) {
             return response()->json([
@@ -83,6 +156,7 @@ class CotisationController extends Controller
             ], 500);
         }
     }
+
 
     public function update(Request $request, $id)
     {
