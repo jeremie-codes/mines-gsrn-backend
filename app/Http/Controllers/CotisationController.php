@@ -63,6 +63,13 @@ class CotisationController extends Controller
                 $member->save();
             }
 
+            if (!$member->first_payment && $cotisation->status == "payée") {
+                $firstPayment = Carbon::parse($member->first_payment);
+                $member->next_payment = $firstPayment->addMonths(3);
+                $member->first_payment = null;
+                $member->save();
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'Cotisation enregistrée avec succès.',
@@ -114,8 +121,8 @@ class CotisationController extends Controller
             $member = Member::find($cotisation->member_id);
 
             if ($member && $member->first_payment && $cotisation->status == "payée") {
-                $firstPayment = Carbon::parse($member->first_payment);
-                $member->next_payment = $firstPayment->addMonths(3);
+                $lastPayment = Carbon::parse($member->next_payment);
+                $member->next_payment = $lastPayment->addMonths(1);
                 $member->first_payment = null;
                 $member->save();
             }
@@ -140,10 +147,10 @@ class CotisationController extends Controller
             $cotisation = Cotisation::findOrFail($id);
 
             // Vérifie si la cotisation est validée → empêcher la suppression
-            if ($cotisation->status === 'validée') {
+            if ($cotisation->status === 'payée') {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Impossible de supprimer une cotisation déjà validée.'
+                    'message' => 'Impossible de supprimer une cotisation déjà payée.'
                 ], 403);
             }
 
