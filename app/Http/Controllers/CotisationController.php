@@ -14,7 +14,7 @@ class CotisationController extends Controller
     public function index ()
     {
         try {
-            $cotisations = Cotisation::orderBy('created_at', 'desc')->get();
+            $cotisations = Cotisation::orderBy('id', 'desc')->get();
 
             return response()->json([
                 'success' => true,
