@@ -203,7 +203,8 @@ class CotisationController extends Controller
                 'currency' => 'required|string|max:10',
                 'reference' => 'required|string|max:255',
                 'merchant' => 'required',
-
+                'retard' => 'nullable|boolean',
+                'nombre_retard' => 'nullable|numeric|min:1'
             ]);
 
             $client = new Client();
@@ -218,7 +219,7 @@ class CotisationController extends Controller
                 ],
                 'json' => [
                     'phone' => $request->phone,
-                    'amount' => $request->amount,
+                    'amount' => $request->amount * $request->nombre_retard,
                     'currency' => $request->currency,
                     'pay_method' => $request->type,
                     "callbackUrl" => $urlCallback,
@@ -231,19 +232,48 @@ class CotisationController extends Controller
             $data = json_decode($response->getBody()->getContents());
 
             if ($data->code == 0) {
-                $cotisation = Cotisation::create([
-                    'member_id' => $id,
-                    'type' => 'flexpaie',
-                    'amount' => $validated['amount'],
-                    'currency' => $validated['currency'],
-                    'reference' => $validated['reference'],
-                    'description' => 'Paiement cotisation',
-                ]);
+
+
+                $nombreMois = 1;
+
+                if (!empty($validated['retard']) && !empty($validated['nombre_retard'])) {
+                    $nombreMois = (int) $validated['nombre_retard'];
+                }
+
+                $cotisations = [];
+
+                $baseDate = $member->next_payment 
+                    ? Carbon::parse($member->next_payment)
+                    : Carbon::now();
+
+                for ($i = 0; $i < $nombreMois; $i++) {
+                    $cotisationData = array_merge($validated, [
+                        'member_id' => $id,
+                        'created_at' => isset($validated['created_at']) 
+                            ? Carbon::parse($validated['created_at'])->addMonths($i)
+                            : now()->addMonths($i)
+                    ]);
+
+                    $cotisations[] = Cotisation::create($cotisationData);
+                }
+
+                // Mise à jour de la date de prochain paiement
+                $member->next_payment = $baseDate->copy()->addMonths($nombreMois);
+
+                // $cotisation = Cotisation::create([
+                //     'member_id' => $id,
+                //     'type' => 'flexpaie',
+                //     'amount' => $validated['amount'],
+                //     'currency' => $validated['currency'],
+                //     'reference' => $validated['reference'],
+                //     'description' => 'Paiement cotisation',
+                // ]);
+                $lastCotisation = end($cotisations);
 
                 return response()->json([
                     'success' => true,
                     'data' => $data,
-                    'cotisation_id' => $cotisation->id
+                    'cotisation_id' => $lastCotisation->id
                 ], 201);
             }
 
