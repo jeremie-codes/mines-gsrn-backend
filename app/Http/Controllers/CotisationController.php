@@ -131,7 +131,7 @@ class CotisationController extends Controller
                 'created_at' => 'nullable|date'
             ]);
 
-            $cotisation->update($validated);
+            $cotisationUpdated = $cotisation->update($validated);
 
             $member = Member::find($cotisation->member_id);
 
@@ -145,7 +145,7 @@ class CotisationController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Cotisation mise à jour avec succès.',
-                'data' => $cotisation
+                'data' => $cotisationUpdated
             ], 200);
 
         } catch (\Throwable $th) {
