@@ -29,63 +29,6 @@ class CotisationController extends Controller
         }
     }
 
-    // public function store(Request $request, $id)
-    // {
-    //     try {
-    //         $validated = $request->validate([
-    //             'type' => 'required|in:cash,flexpaie',
-    //             'amount' => 'required|numeric|min:0',
-    //             'currency' => 'required|string|max:10',
-    //             'status' => 'nullable|string|max:50',
-    //             'reference' => 'nullable|string|max:255',
-    //             'description' => 'nullable|string|max:255',
-    //             'created_at' => 'nullable|date',
-    //             'retard' => 'nullable|boolean',
-    //             'nombre_retard' => 'nullable|numeric'
-    //         ]);
-
-    //         $member = Member::find($id);
-
-    //         if (!$member) {
-    //             return response()->json([
-    //                 'success' => false,
-    //                 'message' => 'Membre non trouvé !'
-    //             ]);
-    //         }
-
-    //         $validated['member_id'] = $id;
-
-    //         // Création de la cotisation
-    //         $cotisation = Cotisation::create($validated);
-
-    //         if ($member->first_payment && $cotisation->status == "payée") {
-    //             $firstPayment = Carbon::parse($member->first_payment);
-    //             $member->next_payment = $firstPayment->addMonths(3);
-    //             $member->first_payment = null;
-    //             $member->save();
-    //         }
-
-    //         if (!$member->first_payment && $cotisation->status == "payée") {
-    //             $firstPayment = Carbon::parse($member->first_payment);
-    //             $member->next_payment = $firstPayment->addMonths(3);
-    //             $member->first_payment = null;
-    //             $member->save();
-    //         }
-
-    //         return response()->json([
-    //             'success' => true,
-    //             'message' => 'Cotisation enregistrée avec succès.',
-    //             'data' => $cotisation
-    //         ], 201); // 201 = Created
-
-    //     } catch (\Throwable $th) {
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'Erreur lors de l’enregistrement de la cotisation : ' . $th->getMessage()
-    //         ], 500);
-    //     }
-    // }
-
     public function store(Request $request, $id)
     {
         try {
@@ -187,8 +130,6 @@ class CotisationController extends Controller
                 'description' => 'nullable|string|max:255',
                 'created_at' => 'nullable|date'
             ]);
-
-            $validated['member_id'] = $id;
 
             $cotisation->update($validated);
 
