@@ -68,9 +68,9 @@ class CotisationController extends Controller
             for ($i = 0; $i < $nombreMois; $i++) {
                 $cotisationData = array_merge($validated, [
                     'member_id' => $id,
-                    'created_at' => isset($validated['created_at']) 
-                        ? Carbon::parse($validated['created_at'])->addMonths($i)
-                        : now()->addMonths($i)
+                    // 'created_at' => isset($validated['created_at']) 
+                    //     ? Carbon::parse($validated['created_at'])->addMonths($i)
+                    //     : now()->addMonths($i)
                 ]);
 
                 $cotisations[] = Cotisation::create($cotisationData);
@@ -249,9 +249,9 @@ class CotisationController extends Controller
                 for ($i = 0; $i < $nombreMois; $i++) {
                     $cotisationData = array_merge($validated, [
                         'member_id' => $id,
-                        'created_at' => isset($validated['created_at']) 
-                            ? Carbon::parse($validated['created_at'])->addMonths($i)
-                            : now()->addMonths($i)
+                        // 'created_at' => isset($validated['created_at']) 
+                        //     ? Carbon::parse($validated['created_at'])->addMonths($i)
+                        //     : now()->addMonths($i)
                     ]);
 
                     $cotisations[] = Cotisation::create($cotisationData);
