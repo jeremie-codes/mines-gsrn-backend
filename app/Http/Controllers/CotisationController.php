@@ -361,55 +361,55 @@ class CotisationController extends Controller
                 ]
             ]);
     
-            // $data = json_decode($response->getBody()->getContents());
+            $data = json_decode($response->getBody()->getContents());
     
-            // if ($data->code == 0) {
-            //     $nombreMois = (int) $month;
+            if ($data->code == 0) {
+                $nombreMois = (int) $month;
     
-            //     $cotisations = [];
-            //     $baseDate = $member->next_payment 
-            //         ? Carbon::parse($member->next_payment)
-            //         : Carbon::now();
+                $cotisations = [];
+                $baseDate = $member->next_payment 
+                    ? Carbon::parse($member->next_payment)
+                    : Carbon::now();
     
-            //     for ($i = 0; $i < $nombreMois; $i++) {
-            //         $cotisation = Cotisation::create([
-            //             'member_id' => $member->id,
-            //             'type' => 'flexpaie by sms',
-            //             'amount' => $amount,
-            //             'currency' => $currency,
-            //             'status' => 'pending',
-            //             'reference' => $data->reference,
-            //             'description' => 'Paiement cotisation',
-            //         ]);
-            //         $cotisations[] = $cotisation;
+                for ($i = 0; $i < $nombreMois; $i++) {
+                    $cotisation = Cotisation::create([
+                        'member_id' => $member->id,
+                        'type' => 'flexpaie by sms',
+                        'amount' => $amount,
+                        'currency' => $currency,
+                        'status' => 'pending',
+                        'reference' => $data->reference,
+                        'description' => 'Paiement cotisation',
+                    ]);
+                    $cotisations[] = $cotisation;
     
-            //         Transaction::create([
-            //             'cotisation_id' => $cotisation->id,
-            //             'transaction_id' => $transaction_id,
-            //             'phone' => $phone,
-            //             'amount' => $amount,
-            //             'currency' => $currency,
-            //             'month' => $month,
-            //             'callback_response' => json_encode($data),
-            //         ]);
-            //     }
+                    Transaction::create([
+                        'cotisation_id' => $cotisation->id,
+                        'transaction_id' => $transaction_id,
+                        'phone' => $phone,
+                        'amount' => $amount,
+                        'currency' => $currency,
+                        'month' => $month,
+                        'callback_response' => json_encode($data),
+                    ]);
+                }
     
-            //     $member->next_payment = $baseDate->copy()->addMonths($nombreMois);
-            //     $member->save();
+                $member->next_payment = $baseDate->copy()->addMonths($nombreMois);
+                $member->save();
     
-            //     return response()->json([
-            //         'code' => "0",
-            //         'message' => "OK",
-            //         'member' => $member->firstname . ' ' . $member->lastname . ' ' . $member->middlename,
-            //     ], 201);
-            // }
+                return response()->json([
+                    'code' => "0",
+                    'message' => "OK",
+                    'member' => $member->firstname . ' ' . $member->lastname . ' ' . $member->middlename,
+                ], 201);
+            }
     
-            return response()->json([
-                'code' => "1",
-                'message' => "Erreur d'enregistrement de cotisation",
-                'data' => $response,
-                // 'member' => $member->firstname . ' ' . $member->lastname . ' ' . $member->middlename,
-            ], 400);
+                // return response()->json([
+                //     'code' => "1",
+                //     'message' => "Erreur d'enregistrement de cotisation",
+                //     'data' => $response,
+                //     // 'member' => $member->firstname . ' ' . $member->lastname . ' ' . $member->middlename,
+                // ], 400);
     
         } catch (\Throwable $th) {
             return response()->json([
