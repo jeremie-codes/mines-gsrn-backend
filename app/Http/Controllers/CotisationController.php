@@ -404,12 +404,11 @@ class CotisationController extends Controller
                 ], 201);
             }
     
-                // return response()->json([
-                //     'code' => "1",
-                //     'message' => "Erreur d'enregistrement de cotisation",
-                //     'data' => $response,
-                //     // 'member' => $member->firstname . ' ' . $member->lastname . ' ' . $member->middlename,
-                // ], 400);
+            return response()->json([
+                'code' => "1",
+                'message' => "NOK",
+                'member' => "",
+            ], 400);
     
         } catch (\Throwable $th) {
             return response()->json([
