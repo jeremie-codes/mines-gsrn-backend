@@ -209,7 +209,7 @@ class CotisationController extends Controller
             ]);
 
             $client = new Client();
-            $token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJcL2xvZ2luIiwicm9sZXMiOlsiTUVSQ0hBTlQiXSwiZXhwIjoxNzkyNDUyNzA5LCJzdWIiOiJkMzY1ZDdmMjU1NGY1ZDIzMGQ5ODA4MTgxMWE2NTE3YSJ9.y5uiKVPY0w8aexcaa6sB-UjKUDHRX9u8L1u04-JVzV0";
+            $token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJcL2xvZ2luIiwicm9sZXMiOlsiTUVSQ0hBTlQiXSwiZXhwIjoxODAxMjM4NDA3LCJzdWIiOiI5ZDVhYTkwN2ZiOTI2Y2FkYzdkZGU0ZmFhODk0Yzc5ZCJ9._j9WlAfDWZwRciXecND5w2SI_mGBR7x82ad3fXFv_VA";
 
             $urlCallback = url('/flexpaie_callback');
 
@@ -222,7 +222,6 @@ class CotisationController extends Controller
                     'phone' => $request->phone,
                     'amount' => $request->amount * $request->nombre_retard,
                     'currency' => $request->currency,
-                    'pay_method' => $request->type,
                     "callbackUrl" => $urlCallback,
                     "merchant" => $request->merchant,
                     "reference" => $request->reference,
@@ -342,7 +341,7 @@ class CotisationController extends Controller
     private function pushFlexpaie ($amount, $phone, $currency, $member, $month, $transaction_id) {
         try {
             $client = new Client();
-            $token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJcL2xvZ2luIiwicm9sZXMiOlsiTUVSQ0hBTlQiXSwiZXhwIjoxNzkyNDUyNzA5LCJzdWIiOiJkMzY1ZDdmMjU1NGY1ZDIzMGQ5ODA4MTgxMWE2NTE3YSJ9.y5uiKVPY0w8aexcaa6sB-UjKUDHRX9u8L1u04-JVzV0";
+            $token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJcL2xvZ2luIiwicm9sZXMiOlsiTUVSQ0hBTlQiXSwiZXhwIjoxODAxMjM4NDA3LCJzdWIiOiI5ZDVhYTkwN2ZiOTI2Y2FkYzdkZGU0ZmFhODk0Yzc5ZCJ9._j9WlAfDWZwRciXecND5w2SI_mGBR7x82ad3fXFv_VA";
             $urlCallback = url('/flexpaie_callback');
     
             $response = $client->request('POST', 'https://backend.flexpay.cd/api/rest/v1/paymentService', [
@@ -355,59 +354,59 @@ class CotisationController extends Controller
                     'amount' => $amount * $month,
                     'currency' => $currency,
                     "callbackUrl" => $urlCallback,
-                    "merchant" => 'tajiri',
+                    "merchant" => 'COOPEFEMAC',
                     "reference" => $transaction_id,
                     "type" => "1",
                 ]
             ]);
     
-            $data = json_decode($response->getBody()->getContents());
+            // $data = json_decode($response->getBody()->getContents());
     
-            if ($data->code == 0) {
-                $nombreMois = (int) $month;
+            // if ($data->code == 0) {
+            //     $nombreMois = (int) $month;
     
-                $cotisations = [];
-                $baseDate = $member->next_payment 
-                    ? Carbon::parse($member->next_payment)
-                    : Carbon::now();
+            //     $cotisations = [];
+            //     $baseDate = $member->next_payment 
+            //         ? Carbon::parse($member->next_payment)
+            //         : Carbon::now();
     
-                for ($i = 0; $i < $nombreMois; $i++) {
-                    $cotisation = Cotisation::create([
-                        'member_id' => $member->id,
-                        'type' => 'flexpaie by sms',
-                        'amount' => $amount,
-                        'currency' => $currency,
-                        'status' => 'pending',
-                        'reference' => $data->reference,
-                        'description' => 'Paiement cotisation',
-                    ]);
-                    $cotisations[] = $cotisation;
+            //     for ($i = 0; $i < $nombreMois; $i++) {
+            //         $cotisation = Cotisation::create([
+            //             'member_id' => $member->id,
+            //             'type' => 'flexpaie by sms',
+            //             'amount' => $amount,
+            //             'currency' => $currency,
+            //             'status' => 'pending',
+            //             'reference' => $data->reference,
+            //             'description' => 'Paiement cotisation',
+            //         ]);
+            //         $cotisations[] = $cotisation;
     
-                    Transaction::create([
-                        'cotisation_id' => $cotisation->id,
-                        'transaction_id' => $transaction_id,
-                        'phone' => $phone,
-                        'amount' => $amount,
-                        'currency' => $currency,
-                        'month' => $month,
-                        'callback_response' => json_encode($data),
-                    ]);
-                }
+            //         Transaction::create([
+            //             'cotisation_id' => $cotisation->id,
+            //             'transaction_id' => $transaction_id,
+            //             'phone' => $phone,
+            //             'amount' => $amount,
+            //             'currency' => $currency,
+            //             'month' => $month,
+            //             'callback_response' => json_encode($data),
+            //         ]);
+            //     }
     
-                $member->next_payment = $baseDate->copy()->addMonths($nombreMois);
-                $member->save();
+            //     $member->next_payment = $baseDate->copy()->addMonths($nombreMois);
+            //     $member->save();
     
-                return response()->json([
-                    'code' => "0",
-                    'message' => "OK",
-                    'member' => $member->firstname . ' ' . $member->lastname . ' ' . $member->middlename,
-                ], 201);
-            }
+            //     return response()->json([
+            //         'code' => "0",
+            //         'message' => "OK",
+            //         'member' => $member->firstname . ' ' . $member->lastname . ' ' . $member->middlename,
+            //     ], 201);
+            // }
     
             return response()->json([
                 'code' => "1",
                 'message' => "NOK",
-                'member' => "",
+                'member' => $amount, $phone, $currency, $member, $month, $transaction_id
             ], 400);
     
         } catch (\Throwable $th) {
