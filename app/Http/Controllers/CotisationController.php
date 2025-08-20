@@ -213,6 +213,8 @@ class CotisationController extends Controller
 
             $urlCallback = url('/flexpaie_callback');
 
+            $retard = $request->nombre_retard ?? 1;
+
             $response = $client->request('POST', 'https://backend.flexpay.cd/api/rest/v1/paymentService', [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $token,
@@ -220,7 +222,7 @@ class CotisationController extends Controller
                 ],
                 'json' => [
                     'phone' => $request->phone,
-                    'amount' => $request->amount * $request->nombre_retard,
+                    'amount' => $request->amount * $retard,
                     'currency' => $request->currency,
                     "callbackUrl" => $urlCallback,
                     "merchant" => $request->merchant,
