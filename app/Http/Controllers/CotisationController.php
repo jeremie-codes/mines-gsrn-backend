@@ -185,6 +185,7 @@ class CotisationController extends Controller
         }
     }
 
+    // Route pour le flexpaie web app
     public function flexpaie (Request $request, $id) {
         try {
 
@@ -292,6 +293,7 @@ class CotisationController extends Controller
         }
     }
 
+    // Route pour le paiement par sms
     public function payBySms(Request $request)
     {
 
@@ -327,8 +329,91 @@ class CotisationController extends Controller
             if (strtoupper($member->category->currency) != strtoupper($request->currency)) {
                 $amount = $member->category->equivalent;
             }
+    
+            // $response = $client->request('POST', 'https://backend.flexpay.cd/api/rest/v1/paymentService', [
+            //     'headers' => [
+            //         'Authorization' => 'Bearer ' . $token,
+            //         'Accept' => 'application/json',
+            //     ],
+            //     'json' => [
+            //         'phone' => $request->phone,
+            //         'amount' => $amount * $request->month,
+            //         'currency' => $request->currency,
+            //         "callbackUrl" => $urlCallback,
+            //         "merchant" => 'COOPEFEMAC',
+            //         "reference" => $request->transaction_id,
+            //         "type" => "1",
+            //     ],
+            //     'verify' => false
+            // ]);
 
-            $response = $this->pushFlexpaie($amount, $request->phone, $request->currency, $member, $request->month, $request->transaction_id);
+
+            $client = new Client();
+            $token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJcL2xvZ2luIiwicm9sZXMiOlsiTUVSQ0hBTlQiXSwiZXhwIjoxODAxMjM4NDA3LCJzdWIiOiI5ZDVhYTkwN2ZiOTI2Y2FkYzdkZGU0ZmFhODk0Yzc5ZCJ9._j9WlAfDWZwRciXecND5w2SI_mGBR7x82ad3fXFv_VA";
+
+            $urlCallback = url('/flexpaie_callback');
+
+            $retard = $request->nombre_retard ?? 1;
+
+            $response = $client->request('POST', 'https://backend.flexpay.cd/api/rest/v1/paymentService', [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $token,
+                    'Accept' => 'application/json',
+                ],
+                'json' => [
+                    'phone' => $request->phone,
+                    'amount' => $request->amount * $retard,
+                    'currency' => $request->currency,
+                    "callbackUrl" => $urlCallback,
+                    "merchant" => 'COOPEFEMAC',
+                    "reference" => $request->transaction_id,
+                    "type" => "1",
+                ]
+            ]);
+
+    
+            $data = json_decode($response->getBody()->getContents());
+    
+            if ($data->code == 0) {
+                $nombreMois = (int) $request->month;
+    
+                $cotisations = [];
+                $baseDate = $member->next_payment 
+                    ? Carbon::parse($member->next_payment)
+                    : Carbon::now();
+    
+                for ($i = 0; $i < $nombreMois; $i++) {
+                    $cotisation = Cotisation::create([
+                        'member_id' => $member->id,
+                        'type' => 'flexpaie by sms',
+                        'amount' => $amount,
+                        'currency' => $request->currency,
+                        'status' => 'pending',
+                        'reference' => $data->reference,
+                        'description' => 'Paiement cotisation',
+                    ]);
+                    $cotisations[] = $cotisation;
+    
+                    Transaction::create([
+                        'cotisation_id' => $cotisation->id,
+                        'transaction_id' => $request->transaction_id,
+                        'phone' => $request->phone,
+                        'amount' => $amount,
+                        'currency' => $request->currency,
+                        'month' => $request->month,
+                        'callback_response' => json_encode($data),
+                    ]);
+                }
+    
+                $member->next_payment = $baseDate->copy()->addMonths($nombreMois);
+                $member->save();
+    
+                return response()->json([
+                    'code' => "0",
+                    'message' => "OK",
+                    'member' => $member->firstname . ' ' . $member->lastname . ' ' . $member->middlename,
+                ], 201);
+            }
 
             return $response;
 
@@ -340,7 +425,7 @@ class CotisationController extends Controller
         }
     }
 
-    private function pushFlexpaie ($amount, $phone, $currency, $member, $month, $transaction_id) {
+    private function pushFlexpaie ($amount, $phone, $currency, $member, $month = 1, $transaction_id) {
         try {
             $client = new Client();
             $token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJcL2xvZ2luIiwicm9sZXMiOlsiTUVSQ0hBTlQiXSwiZXhwIjoxODAxMjM4NDA3LCJzdWIiOiI5ZDVhYTkwN2ZiOTI2Y2FkYzdkZGU0ZmFhODk0Yzc5ZCJ9._j9WlAfDWZwRciXecND5w2SI_mGBR7x82ad3fXFv_VA";
@@ -408,7 +493,7 @@ class CotisationController extends Controller
             return response()->json([
                 'code' => "1",
                 'message' => "NOK",
-                'member' => $amount, $phone, $currency, $member, $month, $transaction_id
+                'member' => ""
             ], 400);
     
         } catch (\Throwable $th) {
