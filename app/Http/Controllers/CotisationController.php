@@ -342,7 +342,7 @@ class CotisationController extends Controller
     private function pushFlexpaie ($amount, $phone, $currency, $member, $month, $transaction_id) {
         try {
             $client = new Client();
-            $token = env('FLEXPAIE_TOKEN');
+            $token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJcL2xvZ2luIiwicm9sZXMiOlsiTUVSQ0hBTlQiXSwiZXhwIjoxNzkyNDUyNzA5LCJzdWIiOiJkMzY1ZDdmMjU1NGY1ZDIzMGQ5ODA4MTgxMWE2NTE3YSJ9.y5uiKVPY0w8aexcaa6sB-UjKUDHRX9u8L1u04-JVzV0";
             $urlCallback = url('/flexpaie_callback');
     
             $response = $client->request('POST', 'https://backend.flexpay.cd/api/rest/v1/paymentService', [
