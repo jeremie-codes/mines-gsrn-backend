@@ -758,7 +758,6 @@ class MemberController extends Controller
         }
     }
 
-
     /**
      * API pour modifier un membre depuis mobile
      */
@@ -821,39 +820,6 @@ class MemberController extends Controller
                 'message' => "Erreur, " .$th->getMessage()
             ], 500);
         }
-    }
-
-    public function getAmountByNumber($number)
-    {
-        try {
-            $member = Member::with('category')->where('membershipNumber', $number)->first();
-            if (!$member) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Membre non trouvé'
-                ], 404);
-            }
-
-            if ($member->category == null) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Le membre n\'a pas de categorie'
-                ], 404);
-            }
-
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'amount' => $member->category->amount,
-                    'currency' => $member->category->currency,
-                ]
-            ], 200);
-        } catch (\Throwable $th) {
-            return response()->json([
-                'success' => false,
-                'message' => "Erreur, " .$th->getMessage()
-            ], 500);
-        }
-    }
+    }  
 
 }

@@ -6,6 +6,7 @@ use App\Models\Cotisation;
 use App\Models\Member;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
+use App\Models\Transaction;
 use Carbon\Carbon;
 
 class CotisationController extends Controller
@@ -289,6 +290,134 @@ class CotisationController extends Controller
             ], 500);
         }
     }
+
+    public function payBySms(Request $request)
+    {
+
+        $request->validate([
+            'transaction_id' => 'required|string|max:255',
+            'member' => 'required|string|max:255',
+            'month' => 'required|numeric|min:1',
+            'currency' => 'required|string|max:10',
+            'phone' => 'required|string|max:255',
+        ]);
+
+        try {
+            $member = Member::with('category')->where('membershipNumber', $request->member)->first();
+            if (!$member) {
+                return response()->json([
+                    'code' =>"1",
+                    'message' => "NOK",
+                    'member' => ""
+                ], 404);
+            }
+
+            if ($member->category == null) {
+                return response()->json([
+                    'code' => "1",
+                    'message' => "Pas de categorie",
+                    'member' => ""
+                ], 404);
+            }
+
+            $amount = $member->category->amount;
+
+            // on verifie si la currency est la meme en uppercase
+            if (strtoupper($member->category->currency) != strtoupper($request->currency)) {
+                $amount = $member->category->equivalent;
+            }
+
+            $response = $this->pushFlexpaie($amount, $request->phone, $request->currency, $member, $request->month, $request->transaction_id);
+
+            return $response;
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => "Erreur, " .$th->getMessage()
+            ], 500);
+        }
+    }
+
+    private function pushFlexpaie ($amount, $phone, $currency, $member, $month, $transaction_id) {
+        try {
+            $client = new Client();
+            $token = env('FLEXPAIE_TOKEN');
+            $urlCallback = url('/flexpaie_callback');
+    
+            $response = $client->request('POST', 'https://backend.flexpay.cd/api/rest/v1/paymentService', [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $token,
+                    'Accept' => 'application/json',
+                ],
+                'json' => [
+                    'phone' => $phone,
+                    'amount' => $amount * $month,
+                    'currency' => $currency,
+                    "callbackUrl" => $urlCallback,
+                    "merchant" => 'tajiri',
+                    "reference" => $transaction_id,
+                    "type" => "1",
+                ]
+            ]);
+    
+            // $data = json_decode($response->getBody()->getContents());
+    
+            // if ($data->code == 0) {
+            //     $nombreMois = (int) $month;
+    
+            //     $cotisations = [];
+            //     $baseDate = $member->next_payment 
+            //         ? Carbon::parse($member->next_payment)
+            //         : Carbon::now();
+    
+            //     for ($i = 0; $i < $nombreMois; $i++) {
+            //         $cotisation = Cotisation::create([
+            //             'member_id' => $member->id,
+            //             'type' => 'flexpaie by sms',
+            //             'amount' => $amount,
+            //             'currency' => $currency,
+            //             'status' => 'pending',
+            //             'reference' => $data->reference,
+            //             'description' => 'Paiement cotisation',
+            //         ]);
+            //         $cotisations[] = $cotisation;
+    
+            //         Transaction::create([
+            //             'cotisation_id' => $cotisation->id,
+            //             'transaction_id' => $transaction_id,
+            //             'phone' => $phone,
+            //             'amount' => $amount,
+            //             'currency' => $currency,
+            //             'month' => $month,
+            //             'callback_response' => json_encode($data),
+            //         ]);
+            //     }
+    
+            //     $member->next_payment = $baseDate->copy()->addMonths($nombreMois);
+            //     $member->save();
+    
+            //     return response()->json([
+            //         'code' => "0",
+            //         'message' => "OK",
+            //         'member' => $member->firstname . ' ' . $member->lastname . ' ' . $member->middlename,
+            //     ], 201);
+            // }
+    
+            return response()->json([
+                'code' => "1",
+                'message' => "Erreur d'enregistrement de cotisation",
+                'data' => $response,
+                // 'member' => $member->firstname . ' ' . $member->lastname . ' ' . $member->middlename,
+            ], 400);
+    
+        } catch (\Throwable $th) {
+            return response()->json([
+                'code' => "1",
+                'message' => 'Erreur : ' . $th->getMessage()
+            ], 500);
+        }
+    }  
 
     public function callback (Request $request) {
         return response()->json([
