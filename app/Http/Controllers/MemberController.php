@@ -833,9 +833,20 @@ class MemberController extends Controller
                     'message' => 'Membre non trouvé'
                 ], 404);
             }
+
+            if ($member->category == null) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Le membre n\'a pas de categorie'
+                ], 404);
+            }
+
             return response()->json([
                 'success' => true,
-                'amount' => $member->category->amount
+                'data' => [
+                    'amount' => $member->category->amount,
+                    'currency' => $member->category->currency,
+                ]
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
