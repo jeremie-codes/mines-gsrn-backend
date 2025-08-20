@@ -135,6 +135,9 @@ Route::middleware('api')->group(function () {
     Route::get('app/pools', [PoolController::class, 'index']);
     Route::get('app/chefs/pools', [PoolController::class, 'getChefsApp']);
 
+    // Route get amount by memberShip numbers
+    Route::get('amount/{number}', [MemberController::class, 'getAmountByNumber']);
+
 });
 
 

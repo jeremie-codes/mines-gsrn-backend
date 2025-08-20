@@ -823,4 +823,26 @@ class MemberController extends Controller
         }
     }
 
+    public function getAmountByNumber($number)
+    {
+        try {
+            $member = Member::with('category')->where('membershipNumber', $number)->first();
+            if (!$member) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Membre non trouvé'
+                ], 404);
+            }
+            return response()->json([
+                'success' => true,
+                'amount' => $member->category->amount
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => "Erreur, " .$th->getMessage()
+            ], 500);
+        }
+    }
+
 }
