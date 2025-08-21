@@ -468,71 +468,79 @@ class CotisationController extends Controller
     public function callbackBySms (Request $request, $month, $memberId) 
     {
         
-        $dataRq = $request->json()->all();
-
-        // Accéder à orderNumber
-        $orderNumber = $dataRq['orderNumber'] ?? null;
-        $member = Member::with('category')->find($memberId);
-        $cotisation = Cotisation::where('member_id ', $memberId)->where('reference', $dataRq['reference'])->first();
-
-        $client = new Client();    
-        $response = $client->request('GET', $this->ApiCheckFlexPaie . $orderNumber, [
-            'headers' => [
-                'Authorization' => 'Bearer ' . $this->token,
-                'Accept'        => 'application/json',
-            ],
-            'verify' => false,
-        ]);
-
-        $data = json_decode($response->getBody()->getContents());
-
-        $transaction = Transaction::where('order_number', $orderNumber);
-
-        if (isset($data) && $data->code == 0) {
+        try {
             
-            if (isset($data->transaction) && $data->transaction->status == 0) {
-                $nombreMois = $month;
+            $dataRq = $request->json()->all();
+
+            // Accéder à orderNumber
+            $orderNumber = $dataRq['orderNumber'] ?? null;
+            $member = Member::with('category')->find($memberId);
+            $cotisation = Cotisation::where('member_id ', $memberId)->where('reference', $dataRq['reference'])->first();
+
+            $client = new Client();    
+            $response = $client->request('GET', $this->ApiCheckFlexPaie . $orderNumber, [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $this->token,
+                    'Accept'        => 'application/json',
+                ],
+                'verify' => false,
+            ]);
+
+            $data = json_decode($response->getBody()->getContents());
+
+            $transaction = Transaction::where('order_number', $orderNumber);
+
+            if (isset($data) && $data->code == 0) {
                 
-                $baseDate = $member->next_payment
-                    ? Carbon::parse($member->next_payment)
-                    : Carbon::now();
-    
-                $member->next_payment = $baseDate->copy()->addMonths($nombreMois);
-                $member->save();
+                if (isset($data->transaction) && $data->transaction->status == 0) {
+                    $nombreMois = $month;
+                    
+                    $baseDate = $member->next_payment
+                        ? Carbon::parse($member->next_payment)
+                        : Carbon::now();
+        
+                    $member->next_payment = $baseDate->copy()->addMonths($nombreMois);
+                    $member->save();
 
-                $transaction->update([
-                    'status' => 'success', 
-                    'callback_response' => json_encode($data),
-                ]);
+                    $transaction->update([
+                        'status' => 'success', 
+                        'callback_response' => json_encode($data),
+                    ]);
 
-                $cotisation->update([
-                    'status' => 'payée', 
-                ]);
-    
-                return response()->json([
-                    'message' => "Callback réçu",
-                ], 200);
-            }
-            elseif (isset($data->transaction) && $data->transaction->status == 2) {
-                return response()->json([
-                    'message' => "Callback réçu",
-                ], 200);
-            }
-            else {
-                $cotisation->update([
-                    'status' => 'échouée', 
-                ]);
+                    $cotisation->update([
+                        'status' => 'payée', 
+                    ]);
+        
+                    return response()->json([
+                        'message' => "Callback réçu",
+                    ], 200);
+                }
+                elseif (isset($data->transaction) && $data->transaction->status == 2) {
+                    return response()->json([
+                        'message' => "Callback réçu",
+                    ], 200);
+                }
+                else {
+                    $cotisation->update([
+                        'status' => 'échouée', 
+                    ]);
 
-                $transaction->update([
-                    'status' => 'failed', 
-                    'callback_response' => json_encode($data),
-                ]);
+                    $transaction->update([
+                        'status' => 'failed', 
+                        'callback_response' => json_encode($data),
+                    ]);
+                }
             }
+                
+            return response()->json([
+                'message' => "Callback réçu",
+            ], 200);
+        } catch (\Throwable $th) {
+            $transaction->update([
+                'status' => 'failed', 
+                'callback_response' => json_encode($th->getMessage()),
+            ]);
         }
-            
-        return response()->json([
-            'message' => "Callback réçu",
-        ], 200);
 
     }
 
