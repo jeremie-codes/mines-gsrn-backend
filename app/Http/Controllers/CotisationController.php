@@ -475,7 +475,7 @@ class CotisationController extends Controller
             // Accéder à orderNumber
             $orderNumber = $dataRq['orderNumber'] ?? null;
             $reference = $dataRq['reference'] ?? null;
-            $member = Member::with('category')->find($memberId);
+            $member = Member::find($memberId);
             // $cotisation = Cotisation::where('member_id', $memberId)->where('reference', $reference)->first();
 
             // $client = new Client();    
