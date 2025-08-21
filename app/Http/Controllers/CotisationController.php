@@ -539,7 +539,7 @@ class CotisationController extends Controller
 
             $transaction->update([
                 'status' => 'failed', 
-                'callback_response' => "condition non lue",
+                'callback_response' => json_encode($data),
             ]);
                 
             return response()->json([
