@@ -490,14 +490,14 @@ class CotisationController extends Controller
 
             $transaction = Transaction::where('order_number', $orderNumber);
 
-            if (isset($data)) {
+            if ($data->code == 0) {
 
                 $transaction->update([
                     'status' => 'failed', 
                     'callback_response' => "condition code lue",
                 ]);
                 
-                // if (isset($data->transaction) && $data->transaction->status == "0") {
+                // if (isset($data->transaction) && $data->transaction->status == 0) {
                 //     $nombreMois = $month;
                     
                 //     $baseDate = $member->next_payment
