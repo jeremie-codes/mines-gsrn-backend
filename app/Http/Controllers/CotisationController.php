@@ -495,9 +495,11 @@ class CotisationController extends Controller
                 if ($datas->transaction->status == 0) {
                     $nombreMois = $month;
                     
-                    $baseDate = $member->next_payment
-                        ? Carbon::parse($member->next_payment)
-                        : Carbon::now();
+                    $baseDate = Carbon::parse(
+                        $member->next_payment
+                            ?? $member->first_payment
+                            ?? now()
+                    );                    
         
                     $member->next_payment = $baseDate->copy()->addMonths($nombreMois);
                     $member->save();
@@ -530,7 +532,13 @@ class CotisationController extends Controller
                             $cotisation->status = 'échouée';
                             $cotisation->save();
                         }
-                    } 
+                    }
+
+                    $baseDate = Carbon::parse(
+                        $member->next_payment
+                            ?? $member->first_payment
+                            ?? now()
+                    );
 
                     $transaction->update([
                         'status' => 'failed', 
