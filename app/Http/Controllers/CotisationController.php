@@ -489,7 +489,7 @@ class CotisationController extends Controller
         $transaction = Transaction::where('order_number', $orderNumber);
         $transaction->update([
             'status' => 'success', 
-            // 'callback_response' => json_encode($data),
+            'callback_response' => $dataRq,
         ]);
 
         // if (isset($data) && $data->code == 0) {
