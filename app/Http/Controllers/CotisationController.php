@@ -538,8 +538,8 @@ class CotisationController extends Controller
             // // }
 
             $transaction->update([
-                'status' => 'failed', 
-                'callback_response' => json_encode($cotisation->reference),
+                'status' => 'échoué', 
+                // 'callback_response' => json_encode($cotisation->reference),
             ]);
                 
             return response()->json([
