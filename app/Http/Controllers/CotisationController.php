@@ -473,7 +473,7 @@ class CotisationController extends Controller
         // Accéder à orderNumber
         $orderNumber = $dataRq['orderNumber'] ?? null;
         $member = Member::with('category')->find($memberId);
-        $cotisation = Cotisation::where('member_id ', $memberId)->andWhere('reference', $dataRq['reference']);
+        $cotisation = Cotisation::where('member_id ', $memberId)->where('reference', $dataRq['reference'])->first();
 
         $client = new Client();    
         $response = $client->request('GET', $this->ApiCheckFlexPaie . $orderNumber, [
