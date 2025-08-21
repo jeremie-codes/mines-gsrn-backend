@@ -474,22 +474,21 @@ class CotisationController extends Controller
         $orderNumber = $dataRq['orderNumber'] ?? null;
         $member = Member::with('category')->find($memberId);
 
-        
+        $client = new Client();    
+        $response = $client->request('GET', $this->ApiCheckFlexPaie . $orderNumber, [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $this->token,
+                'Accept'        => 'application/json',
+            ],
+            'verify' => false,
+        ]);
 
-        // $client = new Client();    
-        // $response = $client->request('GET', $this->ApiCheckFlexPaie . $orderNumber, [
-        //     'headers' => [
-        //         'Authorization' => 'Bearer ' . $this->token,
-        //         'Accept'        => 'application/json',
-        //     ],
-        //     'verify' => false,
-        // ]);
+        $data = json_decode($response->getBody()->getContents());
 
-        // $data = json_decode($response->getBody()->getContents());
         $transaction = Transaction::where('order_number', $orderNumber);
         $transaction->update([
             'status' => 'success', 
-            'callback_response' => $dataRq,
+            'callback_response' => $data,
         ]);
 
         // if (isset($data) && $data->code == 0) {
