@@ -486,10 +486,10 @@ class CotisationController extends Controller
                 'verify' => false,
             ]);
 
-            $data = json_decode($responses->getBody()->getContents());
+            $datas = json_decode($responses->getBody()->getContents());
             $transaction = Transaction::where('order_number', $orderNumber);
             
-            if ((string) $data->code == "0") {
+            if ($datas->code == 0) {
 
                 $transaction->update([
                     'status' => 'failed', 
@@ -538,7 +538,7 @@ class CotisationController extends Controller
 
             $transaction->update([
                 'status' => 'failed', 
-                'callback_response' => $data->code == 0,
+                'callback_response' => $datas->code == 0,
             ]);
                 
             return response()->json([
