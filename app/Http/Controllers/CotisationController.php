@@ -489,12 +489,12 @@ class CotisationController extends Controller
             $datas = json_decode($responses->getBody()->getContents());
             $transaction = Transaction::where('order_number', $orderNumber);
             
-            if ((int) $datas->code == 0) {
+            // if ((int) $datas->code == 0) {
 
-                $transaction->update([
-                    'status' => 'failed', 
-                    'callback_response' => "condition code lue",
-                ]);
+                // $transaction->update([
+                //     'status' => 'failed', 
+                //     'callback_response' => "condition code lue",
+                // ]);
                 
                 // if (isset($data->transaction) && $data->transaction->status == 0) {
                 //     $nombreMois = $month;
@@ -534,11 +534,11 @@ class CotisationController extends Controller
                 //         'callback_response' => json_encode($data),
                 //     ]);
                 // }
-            }
+            // }
 
             $transaction->update([
                 'status' => 'failed', 
-                'callback_response' => $datas->code == 0,
+                'callback_response' => json_encode($datas->code->transaction),
             ]);
                 
             return response()->json([
