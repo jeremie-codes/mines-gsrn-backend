@@ -538,7 +538,7 @@ class CotisationController extends Controller
             // // }
 
             if ($cotisation) {
-                $cotisation->status = 'échoué';
+                $cotisation->status = 'échouée';
                 $cotisation->save();
             }
                 
