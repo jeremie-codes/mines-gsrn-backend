@@ -540,6 +540,9 @@ class CotisationController extends Controller
                             ?? now()
                     );
 
+                    $member->next_payment = $baseDate->copy()->addMonths($month);
+                    $member->save();
+
                     $transaction->update([
                         'status' => 'failed', 
                         'callback_response' => json_encode($datas),
