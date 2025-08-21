@@ -487,10 +487,9 @@ class CotisationController extends Controller
             ]);
 
             $data = json_decode($response->getBody()->getContents());
-
-            $transaction = Transaction::where('order_number', $orderNumber);
-
-            if ($data->code == 0) {
+            
+            if ($data->code == "0") {
+                $transaction = Transaction::where('order_number', $orderNumber);
 
                 $transaction->update([
                     'status' => 'failed', 
