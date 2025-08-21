@@ -475,7 +475,7 @@ class CotisationController extends Controller
             // Accéder à orderNumber
             $orderNumber = $dataRq['orderNumber'] ?? null;
             $reference = $dataRq['reference'] ?? null;
-            // $member = Member::with('category')->find($memberId);
+            $member = Member::with('category')->find($memberId);
             // $cotisation = Cotisation::where('member_id', $memberId)->where('reference', $reference)->first();
 
             // $client = new Client();    
@@ -539,7 +539,7 @@ class CotisationController extends Controller
 
             $transaction->update([
                 'status' => 'failed', 
-                'callback_response' => json_encode($reference. '-' . $memberId),
+                'callback_response' => json_encode($member),
             ]);
                 
             return response()->json([
