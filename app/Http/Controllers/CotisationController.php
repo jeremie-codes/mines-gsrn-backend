@@ -473,6 +473,7 @@ class CotisationController extends Controller
         // Accéder à orderNumber
         $orderNumber = $dataRq['orderNumber'] ?? null;
         $member = Member::with('category')->find($memberId);
+        $cotisation = Cotisation::where('member_id ', $memberId)->andWhere('reference', $dataRq['reference']);
 
         $client = new Client();    
         $response = $client->request('GET', $this->ApiCheckFlexPaie . $orderNumber, [
@@ -488,11 +489,6 @@ class CotisationController extends Controller
         $transaction = Transaction::where('order_number', $orderNumber);
 
         if (isset($data) && $data->code == 0) {
-
-            // $transaction->update([
-            //     'status' => 'failed', 
-            //     'callback_response' => json_encode($data),
-            // ]);
             
             if (isset($data->transaction) && $data->transaction->status == 0) {
                 $nombreMois = $month;
@@ -508,6 +504,10 @@ class CotisationController extends Controller
                     'status' => 'success', 
                     'callback_response' => json_encode($data),
                 ]);
+
+                $cotisation->update([
+                    'status' => 'payée', 
+                ]);
     
                 return response()->json([
                     'message' => "Callback réçu",
@@ -519,6 +519,10 @@ class CotisationController extends Controller
                 ], 200);
             }
             else {
+                $cotisation->update([
+                    'status' => 'échouée', 
+                ]);
+
                 $transaction->update([
                     'status' => 'failed', 
                     'callback_response' => json_encode($data),
