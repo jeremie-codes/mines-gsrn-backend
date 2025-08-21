@@ -474,51 +474,57 @@ class CotisationController extends Controller
         $orderNumber = $dataRq['orderNumber'] ?? null;
         $member = Member::with('category')->find($memberId);
 
-        $client = new Client();    
-        $response = $client->request('GET', $this->ApiCheckFlexPaie . $orderNumber, [
-            'headers' => [
-                'Authorization' => 'Bearer ' . $this->token,
-                'Accept'        => 'application/json',
-            ],
-            'verify' => false,
+        
+
+        // $client = new Client();    
+        // $response = $client->request('GET', $this->ApiCheckFlexPaie . $orderNumber, [
+        //     'headers' => [
+        //         'Authorization' => 'Bearer ' . $this->token,
+        //         'Accept'        => 'application/json',
+        //     ],
+        //     'verify' => false,
+        // ]);
+
+        // $data = json_decode($response->getBody()->getContents());
+        $transaction = Transaction::where('order_number', $orderNumber);
+        $transaction->update([
+            'status' => 'success', 
+            // 'callback_response' => json_encode($data),
         ]);
 
-        $data = json_decode($response->getBody()->getContents());
-        $transaction = Transaction::where('order_number', $orderNumber);
-
-        if (isset($data) && $data->code == 0) {
+        // if (isset($data) && $data->code == 0) {
             
-            if (isset($data->transaction) && $data->transaction->status == 0) {
-                $nombreMois = $month;
+        //     if (isset($data->transaction) && $data->transaction->status == 0) {
+        //         $nombreMois = $month;
                 
-                $baseDate = $member->next_payment
-                    ? Carbon::parse($member->next_payment)
-                    : Carbon::now();
+        //         $baseDate = $member->next_payment
+        //             ? Carbon::parse($member->next_payment)
+        //             : Carbon::now();
     
-                $member->next_payment = $baseDate->copy()->addMonths($nombreMois);
-                $member->save();
+        //         $member->next_payment = $baseDate->copy()->addMonths($nombreMois);
+        //         $member->save();
 
-                $transaction->update([
-                    'status' => 'success', 
-                    'callback_response' => json_encode($data),
-                ]);
+        //         $transaction->update([
+        //             'status' => 'success', 
+        //             'callback_response' => json_encode($data),
+        //         ]);
     
-                return response()->json([
-                    'message' => "Callback réçu",
-                ], 200);
-            }
-            elseif (isset($data->transaction) && $data->transaction->status == 2) {
-                return response()->json([
-                    'message' => "Callback réçu",
-                ], 200);
-            }
-            else {
-                $transaction->update([
-                    'status' => 'failed', 
-                    'callback_response' => json_encode($data),
-                ]);
-            }
-        }
+        //         return response()->json([
+        //             'message' => "Callback réçu",
+        //         ], 200);
+        //     }
+        //     elseif (isset($data->transaction) && $data->transaction->status == 2) {
+        //         return response()->json([
+        //             'message' => "Callback réçu",
+        //         ], 200);
+        //     }
+        //     else {
+        //         $transaction->update([
+        //             'status' => 'failed', 
+        //             'callback_response' => json_encode($data),
+        //         ]);
+        //     }
+        // }
             
         return response()->json([
             'message' => "Callback réçu",
