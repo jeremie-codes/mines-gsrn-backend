@@ -537,8 +537,10 @@ class CotisationController extends Controller
             //     }
             // // }
 
-            $cotisation->status = 'échoué';
-            $cotisation->save();
+            if ($cotisation) {
+                $cotisation->status = 'échoué';
+                $cotisation->save();
+            }
                 
             return response()->json([
                 'message' => "Callback réçu",
