@@ -476,7 +476,7 @@ class CotisationController extends Controller
             $orderNumber = $dataRq['orderNumber'] ?? null;
             $reference = $dataRq['reference'] ?? null;
             $member = Member::with('category')->find($memberId);
-            $cotisation = Cotisation::where('member_id', $memberId)->where('reference', $reference)->first();
+            // $cotisation = Cotisation::where('member_id', $memberId)->where('reference', $reference)->first();
 
             // $client = new Client();    
             // $responses = $client->request('GET', $this->ApiCheckFlexPaie . $orderNumber, [
@@ -488,7 +488,7 @@ class CotisationController extends Controller
             // ]);
 
             // $datas = json_decode($responses->getBody()->getContents());
-            // $transaction = Transaction::where('order_number', $orderNumber);
+            $transaction = Transaction::where('order_number', $orderNumber);
             
             // // if ((int) $datas->code == 0) {
 
@@ -537,9 +537,9 @@ class CotisationController extends Controller
             //     }
             // // }
 
-            $cotisation->update([
-                'status' => 'échuée', 
-                // 'callback_response' => json_encode($datas->transaction),
+            $transaction->update([
+                'status' => 'failed', 
+                'callback_response' => json_encode($reference. '-' . $memberId),
             ]);
                 
             return response()->json([
