@@ -465,10 +465,13 @@ class CotisationController extends Controller
         ], 201);
     }
 
-    public function callbackBySms (Request $request, $month, $memberId) {
+    public function callbackBySms (Request $request, $month, $memberId) 
+    {
+        
+        $dataRq = $request->json()->all();
 
-        $data = json_decode($request->getBody()->getContents());
-        $orderNumber = $data->orderNumber;
+        // Accéder à orderNumber
+        $orderNumber = $dataRq['orderNumber'] ?? null;
         $member = Member::with('category')->find($memberId);
 
         $client = new Client();    
