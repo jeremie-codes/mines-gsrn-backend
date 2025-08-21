@@ -489,52 +489,52 @@ class CotisationController extends Controller
             $data = json_decode($responses->getBody()->getContents());
             $transaction = Transaction::where('order_number', $orderNumber);
             
-            // if ((string) $data->code == "0") {
+            if ((string) $data->code == "0") {
 
-            //     $transaction->update([
-            //         'status' => 'failed', 
-            //         'callback_response' => "condition code lue",
-            //     ]);
+                $transaction->update([
+                    'status' => 'failed', 
+                    'callback_response' => "condition code lue",
+                ]);
                 
-            //     // if (isset($data->transaction) && $data->transaction->status == 0) {
-            //     //     $nombreMois = $month;
+                // if (isset($data->transaction) && $data->transaction->status == 0) {
+                //     $nombreMois = $month;
                     
-            //     //     $baseDate = $member->next_payment
-            //     //         ? Carbon::parse($member->next_payment)
-            //     //         : Carbon::now();
+                //     $baseDate = $member->next_payment
+                //         ? Carbon::parse($member->next_payment)
+                //         : Carbon::now();
         
-            //     //     $member->next_payment = $baseDate->copy()->addMonths($nombreMois);
-            //     //     $member->save();
+                //     $member->next_payment = $baseDate->copy()->addMonths($nombreMois);
+                //     $member->save();
 
-            //     //     $transaction->update([
-            //     //         'status' => 'success', 
-            //     //         'callback_response' => json_encode($data),
-            //     //     ]);
+                //     $transaction->update([
+                //         'status' => 'success', 
+                //         'callback_response' => json_encode($data),
+                //     ]);
 
-            //     //     // $cotisation->update([
-            //     //     //     'status' => 'payée', 
-            //     //     // ]);
+                //     // $cotisation->update([
+                //     //     'status' => 'payée', 
+                //     // ]);
         
-            //     //     return response()->json([
-            //     //         'message' => "Callback réçu",
-            //     //     ], 200);
-            //     // }
-            //     // elseif (isset($data->transaction) && $data->transaction->status == 2) {
-            //     //     return response()->json([
-            //     //         'message' => "Callback réçu",
-            //     //     ], 200);
-            //     // }
-            //     // else {
-            //     //     // $cotisation->update([
-            //     //     //     'status' => 'échouée', 
-            //     //     // ]);
+                //     return response()->json([
+                //         'message' => "Callback réçu",
+                //     ], 200);
+                // }
+                // elseif (isset($data->transaction) && $data->transaction->status == 2) {
+                //     return response()->json([
+                //         'message' => "Callback réçu",
+                //     ], 200);
+                // }
+                // else {
+                //     // $cotisation->update([
+                //     //     'status' => 'échouée', 
+                //     // ]);
 
-            //     //     $transaction->update([
-            //     //         'status' => 'failed', 
-            //     //         'callback_response' => json_encode($data),
-            //     //     ]);
-            //     // }
-            // }
+                //     $transaction->update([
+                //         'status' => 'failed', 
+                //         'callback_response' => json_encode($data),
+                //     ]);
+                // }
+            }
 
             $transaction->update([
                 'status' => 'failed', 
