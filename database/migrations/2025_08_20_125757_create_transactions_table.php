@@ -17,7 +17,6 @@ class CreateTransactionsTable extends Migration
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(Cotisation::class)->constrained()->cascadeOnDelete();
-            $table->string('transaction_id');
             $table->string('phone');
             $table->string('amount');
             $table->string('currency');

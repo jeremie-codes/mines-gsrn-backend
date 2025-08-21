@@ -101,8 +101,13 @@ Route::middleware('api')->group(function () {
         Route::get('chefs/pools', [PoolController::class, 'getChefs'])->name('pools.chefs');
         Route::get('chefs/pools/{id}', [PoolController::class, 'getChefByPoolId']);
 
+        // Route payment by sms
+        
     });
     // Routes Public API pour les utilisateurs
+    Route::get('find/member/{member}', [CotisationController::class, 'findMember']);
+    Route::post('payment/member', [CotisationController::class, 'payBySms']);
+    Route::post('callback/sms/{month}/{member}', [CotisationController::class, 'callbackBySms']);
     // Route pour récupérer les communes par ville (AJAX)
     Route::get('townships/city/{cityId}', [MemberController::class, 'getTownshipsByCity'])->name('townships.by-city');
 
@@ -134,9 +139,6 @@ Route::middleware('api')->group(function () {
     Route::get('app/sites', [SiteController::class, 'index']);
     Route::get('app/pools', [PoolController::class, 'index']);
     Route::get('app/chefs/pools', [PoolController::class, 'getChefsApp']);
-
-    // Route payment by sms
-    Route::post('payment/sms', [CotisationController::class, 'payBySms']);
 
 });
 

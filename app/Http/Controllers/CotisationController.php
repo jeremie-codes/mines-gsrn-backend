@@ -12,6 +12,11 @@ use Carbon\Carbon;
 class CotisationController extends Controller
 {
 
+    protected string $ApipushFlexPaie = "https://backend.flexpay.cd/api/rest/v1/paymentService/"; 
+    protected string $ApiCheckFlexPaie = "https://backend.flexpay.cd/api/rest/v1/check/";
+    protected string $token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJcL2xvZ2luIiwicm9sZXMiOlsiTUVSQ0hBTlQiXSwiZXhwIjoxODAxMjM4NDA3LCJzdWIiOiI5ZDVhYTkwN2ZiOTI2Y2FkYzdkZGU0ZmFhODk0Yzc5ZCJ9._j9WlAfDWZwRciXecND5w2SI_mGBR7x82ad3fXFv_VA";
+    protected int $iterationChecking = 0;
+
     public function index ()
     {
         try {
@@ -216,7 +221,7 @@ class CotisationController extends Controller
 
             $retard = $request->nombre_retard ?? 1;
 
-            $response = $client->request('POST', 'https://backend.flexpay.cd/api/rest/v1/paymentService', [
+            $response = $client->request('POST', $this->ApipushFlexPaie, [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $token,
                     'Accept' => 'application/json',
@@ -293,222 +298,223 @@ class CotisationController extends Controller
         }
     }
 
-    // Route pour le paiement par sms
-    public function payBySms(Request $request)
+    public function findMember($member)
     {
-
-        $request->validate([
-            'transaction_id' => 'required|string|max:255',
-            'member' => 'required|string|max:255',
-            'month' => 'required|numeric|min:1',
-            'currency' => 'required|string|max:10',
-            'phone' => 'required|string|max:255',
-        ]);
-
+    
         try {
-            $member = Member::with('category')->where('membershipNumber', $request->member)->first();
+            $member = Member::where('membershipNumber', $member)->first();
+    
             if (!$member) {
                 return response()->json([
-                    'code' =>"1",
-                    'message' => "NOK",
-                    'member' => ""
+                    'code'    => "1",
+                    'message' => "Membre non trouvé.",
+                    'member'  => ""
                 ], 404);
             }
-
+    
             if ($member->category == null) {
                 return response()->json([
-                    'code' => "1",
-                    'message' => "Pas de categorie",
-                    'member' => ""
+                    'code'    => "1",
+                    'message' => "Membre n'a pas de categorie.",
+                    'member'  => $member
                 ], 404);
             }
-
-            $amount = $member->category->amount;
-
-            // on verifie si la currency est la meme en uppercase
-            if (strtoupper($member->category->currency) != strtoupper($request->currency)) {
-                $amount = $member->category->equivalent;
-            }
     
-            // $response = $client->request('POST', 'https://backend.flexpay.cd/api/rest/v1/paymentService', [
-            //     'headers' => [
-            //         'Authorization' => 'Bearer ' . $token,
-            //         'Accept' => 'application/json',
-            //     ],
-            //     'json' => [
-            //         'phone' => $request->phone,
-            //         'amount' => $amount * $request->month,
-            //         'currency' => $request->currency,
-            //         "callbackUrl" => $urlCallback,
-            //         "merchant" => 'COOPEFEMAC',
-            //         "reference" => $request->transaction_id,
-            //         "type" => "1",
-            //     ],
-            //     'verify' => false
-            // ]);
-
-
-            $client = new Client();
-            $token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJcL2xvZ2luIiwicm9sZXMiOlsiTUVSQ0hBTlQiXSwiZXhwIjoxODAxMjM4NDA3LCJzdWIiOiI5ZDVhYTkwN2ZiOTI2Y2FkYzdkZGU0ZmFhODk0Yzc5ZCJ9._j9WlAfDWZwRciXecND5w2SI_mGBR7x82ad3fXFv_VA";
-
-            $urlCallback = url('/flexpaie_callback');
-
-            $retard = $request->nombre_retard ?? 1;
-
-            $response = $client->request('POST', 'https://backend.flexpay.cd/api/rest/v1/paymentService', [
-                'headers' => [
-                    'Authorization' => 'Bearer ' . $token,
-                    'Accept' => 'application/json',
-                ],
-                'json' => [
-                    'phone' => $request->phone,
-                    'amount' => $request->amount * $retard,
-                    'currency' => $request->currency,
-                    "callbackUrl" => $urlCallback,
-                    "merchant" => 'COOPEFEMAC',
-                    "reference" => $request->transaction_id,
-                    "type" => "1",
-                ]
-            ]);
-
+            return response()->json([
+                'code' => "0",
+                'message' => "Membre trouvé",
+                'member' => $member,
+                'amount' => $member->category->amount,
+                'currency' => $member->category->currency
+            ], 200);
     
-            $data = json_decode($response->getBody()->getContents());
-    
-            if ($data->code == 0) {
-                $nombreMois = (int) $request->month;
-    
-                $cotisations = [];
-                $baseDate = $member->next_payment 
-                    ? Carbon::parse($member->next_payment)
-                    : Carbon::now();
-    
-                for ($i = 0; $i < $nombreMois; $i++) {
-                    $cotisation = Cotisation::create([
-                        'member_id' => $member->id,
-                        'type' => 'flexpaie by sms',
-                        'amount' => $amount,
-                        'currency' => $request->currency,
-                        'status' => 'pending',
-                        'reference' => $data->reference,
-                        'description' => 'Paiement cotisation',
-                    ]);
-                    $cotisations[] = $cotisation;
-    
-                    Transaction::create([
-                        'cotisation_id' => $cotisation->id,
-                        'transaction_id' => $request->transaction_id,
-                        'phone' => $request->phone,
-                        'amount' => $amount,
-                        'currency' => $request->currency,
-                        'month' => $request->month,
-                        'callback_response' => json_encode($data),
-                    ]);
-                }
-    
-                $member->next_payment = $baseDate->copy()->addMonths($nombreMois);
-                $member->save();
-    
-                return response()->json([
-                    'code' => "0",
-                    'message' => "OK",
-                    'member' => $member->firstname . ' ' . $member->lastname . ' ' . $member->middlename,
-                ], 201);
-            }
-
-            return $response;
-
         } catch (\Throwable $th) {
             return response()->json([
                 'success' => false,
-                'message' => "Erreur, " .$th->getMessage()
+                'message' => "Erreur, " . $th->getMessage()
             ], 500);
         }
-    }
-
-    private function pushFlexpaie ($amount, $phone, $currency, $member, $month = 1, $transaction_id) {
+    }     
+    // Route pour le paiement par sms
+    public function payBySms(Request $request)
+    {
+        $validated = $request->validate([
+            'transaction_id' => 'required|string|max:255',
+            'member'         => 'required|string|max:255',
+            'month'          => 'required|numeric|min:1',
+            'currency'       => 'required|string|max:10',
+            'phone'          => 'required|string|max:255',
+        ]);
+    
         try {
+            $member = Member::with('category')->where('membershipNumber', $validated['member'])->first();
+    
+            if (!$member) {
+                return response()->json([
+                    'code'    => "1",
+                    'message' => "NOK",
+                    'member'  => ""
+                ], 404);
+            }
+    
+            if ($member->category == null) {
+                return response()->json([
+                    'code'    => "1",
+                    'message' => "Membre n'a pas de categorie",
+                    'member'  => ""
+                ], 404);
+            }
+    
+            $amount = (int) $member->category->amount;
+            $month = (int) $validated['month'] ?? 1;
+    
+            // Vérification de la devise
+            if (strtoupper($member->category->currency) != strtoupper($validated['currency'])) {
+                $amount = $member->category->equivalent;
+            }
+
+            $totalAmount = (string) ($amount * $month);
+
+    
             $client = new Client();
             $token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJcL2xvZ2luIiwicm9sZXMiOlsiTUVSQ0hBTlQiXSwiZXhwIjoxODAxMjM4NDA3LCJzdWIiOiI5ZDVhYTkwN2ZiOTI2Y2FkYzdkZGU0ZmFhODk0Yzc5ZCJ9._j9WlAfDWZwRciXecND5w2SI_mGBR7x82ad3fXFv_VA";
-            $urlCallback = url('/flexpaie_callback');
+            $urlCallback = url('callback/sms/' . $month, '/' . $member->id);
     
-            $response = $client->request('POST', 'https://backend.flexpay.cd/api/rest/v1/paymentService', [
+            $response = $client->request('POST', $this->ApipushFlexPaie, [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $token,
-                    'Accept' => 'application/json',
+                    'Accept'        => 'application/json',
                 ],
                 'json' => [
-                    'phone' => $phone,
-                    'amount' => $amount * $month,
-                    'currency' => $currency,
-                    "callbackUrl" => $urlCallback,
-                    "merchant" => 'COOPEFEMAC',
-                    "reference" => $transaction_id,
-                    "type" => "1",
-                ]
+                    'phone'      => $validated['phone'],
+                    'amount'     => $totalAmount,
+                    'currency'   => $validated['currency'],
+                    'callbackUrl'=> $urlCallback,
+                    'merchant'   => 'COOPEFEMAC',
+                    'reference'  => $validated['transaction_id'],
+                    'type'       => "1",
+                ],
+                'verify' => false,
             ]);
     
-            // $data = json_decode($response->getBody()->getContents());
+            $data = json_decode($response->getBody()->getContents());
+
+            // return response()->json($data);
     
-            // if ($data->code == 0) {
-            //     $nombreMois = (int) $month;
+            if ($data->code == 0) {
+                $nombreMois = $month;
     
-            //     $cotisations = [];
-            //     $baseDate = $member->next_payment 
-            //         ? Carbon::parse($member->next_payment)
-            //         : Carbon::now();
+                $cotisations = [];
     
-            //     for ($i = 0; $i < $nombreMois; $i++) {
-            //         $cotisation = Cotisation::create([
-            //             'member_id' => $member->id,
-            //             'type' => 'flexpaie by sms',
-            //             'amount' => $amount,
-            //             'currency' => $currency,
-            //             'status' => 'pending',
-            //             'reference' => $data->reference,
-            //             'description' => 'Paiement cotisation',
-            //         ]);
-            //         $cotisations[] = $cotisation;
+                for ($i = 0; $i < $nombreMois; $i++) {
+                    $cotisation = Cotisation::create([
+                        'member_id'  => $member->id,
+                        'type'       => 'flexpaie by sms',
+                        'amount'     => $amount,
+                        'currency'   => $validated['currency'],
+                        'status'     => 'en attente',
+                        'reference'  => $validated['transaction_id'],
+                        'description'=> 'Paiement cotisation',
+                    ]);
+
+                    $cotisations[] = $cotisation;
+                }
+
+                $lastCotisation = end($cotisations);
+                
+                Transaction::create([
+                    'cotisation_id' => $lastCotisation->id,
+                    'reference_sms' => $validated['transaction_id'],
+                    'order_number' => $data->orderNumber,
+                    'status' => "pending",
+                    'phone' => $validated['phone'],
+                    'amount' => $amount,
+                    'currency' => $validated['currency'],
+                    'month' => $validated['month'],
+                    'callback_response' => json_encode($data),
+                ]);
+
+                return response()->json([
+                    'status'    => "0",
+                    'message' => "OK",
+                    'member'  => $member->firstname . ' ' . $member->lastname . ' ' . $member->middlename,
+                ], 201);
+
+            }
     
-            //         Transaction::create([
-            //             'cotisation_id' => $cotisation->id,
-            //             'transaction_id' => $transaction_id,
-            //             'phone' => $phone,
-            //             'amount' => $amount,
-            //             'currency' => $currency,
-            //             'month' => $month,
-            //             'callback_response' => json_encode($data),
-            //         ]);
-            //     }
-    
-            //     $member->next_payment = $baseDate->copy()->addMonths($nombreMois);
-            //     $member->save();
-    
-            //     return response()->json([
-            //         'code' => "0",
-            //         'message' => "OK",
-            //         'member' => $member->firstname . ' ' . $member->lastname . ' ' . $member->middlename,
-            //     ], 201);
-            // }
-    
-            return response()->json([
-                'code' => "1",
-                'message' => "NOK",
-                'member' => ""
-            ], 400);
+            return response()->json($data);
     
         } catch (\Throwable $th) {
             return response()->json([
-                'code' => "1",
-                'message' => 'Erreur : ' . $th->getMessage()
+                'success' => false,
+                'message' => "Erreur, " . $th->getMessage()
             ], 500);
         }
-    }  
+    }     
 
-    public function callback (Request $request) {
+    public function callback (Request $request, ) {
         return response()->json([
             'success' => true,
             'data' => $request->all()
         ], 201);
+    }
+
+    public function callbackBySms (Request $request, $month, $memberId) {
+
+        $data = json_decode($request->getBody()->getContents());
+        $orderNumber = $data->orderNumber;
+        $member = Member::with('category')->find($memberId);
+
+        $client = new Client();    
+        $response = $client->request('GET', $this->ApiCheckFlexPaie . $orderNumber, [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $this->token,
+                'Accept'        => 'application/json',
+            ],
+            'verify' => false,
+        ]);
+
+        $data = json_decode($response->getBody()->getContents());
+        $transaction = Transaction::where('order_number', $orderNumber);
+
+        if (isset($data) && $data->code == 0) {
+            
+            if (isset($data->transaction) && $data->transaction->status == 0) {
+                $nombreMois = $month;
+                
+                $baseDate = $member->next_payment
+                    ? Carbon::parse($member->next_payment)
+                    : Carbon::now();
+    
+                $member->next_payment = $baseDate->copy()->addMonths($nombreMois);
+                $member->save();
+
+                $transaction->update([
+                    'status' => 'success', 
+                    'callback_response' => json_encode($data),
+                ]);
+    
+                return response()->json([
+                    'message' => "Callback réçu",
+                ], 200);
+            }
+            elseif (isset($data->transaction) && $data->transaction->status == 2) {
+                return response()->json([
+                    'message' => "Callback réçu",
+                ], 200);
+            }
+            else {
+                $transaction->update([
+                    'status' => 'failed', 
+                    'callback_response' => json_encode($data),
+                ]);
+            }
+        }
+            
+        return response()->json([
+            'message' => "Callback réçu",
+        ], 200);
+
     }
 
 }

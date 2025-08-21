@@ -13,8 +13,10 @@
         "laravel/framework": "*",
         "laravel/sanctum": "^2.15",
         "laravel/tinker": "*",
+        "nyholm/psr7": "^1.8",
         "simplesoftwareio/simple-qrcode": "^4.2",
-        "spatie/browsershot": "^3.40"
+        "spatie/browsershot": "^3.40",
+        "symfony/psr-http-message-bridge": "^2.3"
     },
     "require-dev": {
         "facade/ignition": "*",
