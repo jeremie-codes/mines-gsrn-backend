@@ -476,7 +476,7 @@ class CotisationController extends Controller
             $orderNumber = $dataRq['orderNumber'] ?? null;
             $reference = $dataRq['reference'] ?? null;
             $member = Member::find($memberId);
-            $cotisation = Cotisation::where('member_id', $memberId)->where('reference', $reference)->first();
+            $cotisations = Cotisation::where('member_id', $memberId)->where('reference', $reference)->get();
 
             $client = new Client();    
             $responses = $client->request('GET', $this->ApiCheckFlexPaie . $orderNumber, [
@@ -507,10 +507,12 @@ class CotisationController extends Controller
                         'callback_response' => json_encode($datas),
                     ]);
 
-                    if ($cotisation) {
-                        $cotisation->status = 'payée';
-                        $cotisation->save();
-                    }
+                    foreach ($cotisations as $cotisation) {
+                        if ($cotisation) { // <- ici ça sera toujours "true" car $cotisation est un objet
+                            $cotisation->status = 'payée';
+                            $cotisation->save();
+                        }
+                    }                    
         
                     return response()->json([
                         'message' => "Callback réçu",
@@ -523,10 +525,12 @@ class CotisationController extends Controller
                 }
                 else {
                     
-                    if ($cotisation) {
-                        $cotisation->status = 'échouée';
-                        $cotisation->save();
-                    }
+                    foreach ($cotisations as $cotisation) {
+                        if ($cotisation) { // <- ici ça sera toujours "true" car $cotisation est un objet
+                            $cotisation->status = 'échouée';
+                            $cotisation->save();
+                        }
+                    } 
 
                     $transaction->update([
                         'status' => 'failed', 
