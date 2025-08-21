@@ -496,7 +496,7 @@ class CotisationController extends Controller
                 //     'callback_response' => "condition code lue",
                 // ]);
                 
-                if (isset($data->transaction) && $data->transaction->status == 0) {
+                if ($datas->transaction->status == 0) {
                     $nombreMois = $month;
                     
                     $baseDate = $member->next_payment
@@ -508,7 +508,7 @@ class CotisationController extends Controller
 
                     $transaction->update([
                         'status' => 'success', 
-                        'callback_response' => json_encode($data),
+                        'callback_response' => json_encode($datas),
                     ]);
 
                     // $cotisation->update([
@@ -519,7 +519,7 @@ class CotisationController extends Controller
                         'message' => "Callback réçu",
                     ], 200);
                 }
-                elseif (isset($data->transaction) && $data->transaction->status == 2) {
+                elseif ($datas->transaction->status == 2) {
                     return response()->json([
                         'message' => "Callback réçu",
                     ], 200);
@@ -531,15 +531,15 @@ class CotisationController extends Controller
 
                     $transaction->update([
                         'status' => 'failed', 
-                        'callback_response' => json_encode($data),
+                        'callback_response' => json_encode($datas),
                     ]);
                 }
             // }
 
-            $transaction->update([
-                'status' => 'failed', 
-                'callback_response' => json_encode($datas->transaction),
-            ]);
+            // $transaction->update([
+            //     'status' => 'failed', 
+            //     'callback_response' => json_encode($datas->transaction),
+            // ]);
                 
             return response()->json([
                 'message' => "Callback réçu",
