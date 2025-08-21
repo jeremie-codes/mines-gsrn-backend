@@ -323,7 +323,7 @@ class CotisationController extends Controller
             return response()->json([
                 'code' => "0",
                 'message' => "Membre trouvé",
-                'member' => $member,
+                'member'  => $member->firstname . ' ' . $member->lastname . ' ' . $member->middlename,
                 'amount' => $member->category->amount,
                 'currency' => $member->category->currency
             ], 200);
@@ -489,41 +489,41 @@ class CotisationController extends Controller
 
         if (isset($data) && $data->code == 0) {
 
-            $transaction->update([
-                'status' => 'success', 
-                'callback_response' => json_encode($data),
-            ]);
+            // $transaction->update([
+            //     'status' => 'failed', 
+            //     'callback_response' => json_encode($data),
+            // ]);
             
-        //     if (isset($data->transaction) && $data->transaction->status == 0) {
-        //         $nombreMois = $month;
+            if (isset($data->transaction) && $data->transaction->status == 0) {
+                $nombreMois = $month;
                 
-        //         $baseDate = $member->next_payment
-        //             ? Carbon::parse($member->next_payment)
-        //             : Carbon::now();
+                $baseDate = $member->next_payment
+                    ? Carbon::parse($member->next_payment)
+                    : Carbon::now();
     
-        //         $member->next_payment = $baseDate->copy()->addMonths($nombreMois);
-        //         $member->save();
+                $member->next_payment = $baseDate->copy()->addMonths($nombreMois);
+                $member->save();
 
-        //         $transaction->update([
-        //             'status' => 'success', 
-        //             'callback_response' => json_encode($data),
-        //         ]);
+                $transaction->update([
+                    'status' => 'success', 
+                    'callback_response' => json_encode($data),
+                ]);
     
-        //         return response()->json([
-        //             'message' => "Callback réçu",
-        //         ], 200);
-        //     }
-        //     elseif (isset($data->transaction) && $data->transaction->status == 2) {
-        //         return response()->json([
-        //             'message' => "Callback réçu",
-        //         ], 200);
-        //     }
-        //     else {
-        //         $transaction->update([
-        //             'status' => 'failed', 
-        //             'callback_response' => json_encode($data),
-        //         ]);
-        //     }
+                return response()->json([
+                    'message' => "Callback réçu",
+                ], 200);
+            }
+            elseif (isset($data->transaction) && $data->transaction->status == 2) {
+                return response()->json([
+                    'message' => "Callback réçu",
+                ], 200);
+            }
+            else {
+                $transaction->update([
+                    'status' => 'failed', 
+                    'callback_response' => json_encode($data),
+                ]);
+            }
         }
             
         return response()->json([
