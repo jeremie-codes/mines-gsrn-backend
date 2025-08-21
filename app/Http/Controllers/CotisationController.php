@@ -524,14 +524,14 @@ class CotisationController extends Controller
                         'message' => "Callback réçu",
                     ], 200);
                 }
-                elseif ($datas->transaction->status == 1){
+                else {
                     $cotisation->update([
                         'status' => 'échouée', 
                     ]);
 
                     $transaction->update([
                         'status' => 'failed', 
-                        'callback_response' => json_encode($datas),
+                        'callback_response' => gettype($datas),
                     ]);
                 }
             // }
