@@ -217,7 +217,7 @@ class CotisationController extends Controller
             $client = new Client();
             $token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJcL2xvZ2luIiwicm9sZXMiOlsiTUVSQ0hBTlQiXSwiZXhwIjoxODAxMjM4NDA3LCJzdWIiOiI5ZDVhYTkwN2ZiOTI2Y2FkYzdkZGU0ZmFhODk0Yzc5ZCJ9._j9WlAfDWZwRciXecND5w2SI_mGBR7x82ad3fXFv_VA";
 
-            $urlCallback = url('/flexpaie_callback');
+            $urlCallback = url('api/flexpaie_callback');
 
             $retard = $request->nombre_retard ?? 1;
 
@@ -334,7 +334,8 @@ class CotisationController extends Controller
                 'message' => "Erreur, " . $th->getMessage()
             ], 500);
         }
-    }     
+    }  
+       
     // Route pour le paiement par sms
     public function payBySms(Request $request)
     {
@@ -378,7 +379,12 @@ class CotisationController extends Controller
     
             $client = new Client();
             $token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJcL2xvZ2luIiwicm9sZXMiOlsiTUVSQ0hBTlQiXSwiZXhwIjoxODAxMjM4NDA3LCJzdWIiOiI5ZDVhYTkwN2ZiOTI2Y2FkYzdkZGU0ZmFhODk0Yzc5ZCJ9._j9WlAfDWZwRciXecND5w2SI_mGBR7x82ad3fXFv_VA";
-            $urlCallback = url('callback/sms/' . $month, '/' . $member->id);
+            $urlCallback = url('api/callback/sms/' . $month . '/' . $member->id);
+
+            // return response()->json([
+            //     $urlCallback,
+            //     $member->id
+            // ]);
     
             $response = $client->request('POST', $this->ApipushFlexPaie, [
                 'headers' => [
