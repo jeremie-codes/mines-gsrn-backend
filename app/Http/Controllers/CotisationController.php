@@ -475,7 +475,7 @@ class CotisationController extends Controller
             // Accéder à orderNumber
             $orderNumber = $dataRq['orderNumber'] ?? null;
             $member = Member::with('category')->find($memberId);
-            // $cotisation = Cotisation::where('member_id ', $memberId)->where('reference', $dataRq['reference'])->first();
+            $cotisation = Cotisation::where('member_id ', $memberId)->where('reference', $dataRq['reference'])->first();
 
             $client = new Client();    
             $responses = $client->request('GET', $this->ApiCheckFlexPaie . $orderNumber, [
@@ -511,9 +511,9 @@ class CotisationController extends Controller
                         'callback_response' => json_encode($datas),
                     ]);
 
-                    // $cotisation->update([
-                    //     'status' => 'payée', 
-                    // ]);
+                    $cotisation->update([
+                        'status' => 'payée', 
+                    ]);
         
                     return response()->json([
                         'message' => "Callback réçu",
@@ -524,10 +524,10 @@ class CotisationController extends Controller
                         'message' => "Callback réçu",
                     ], 200);
                 }
-                else {
-                    // $cotisation->update([
-                    //     'status' => 'échouée', 
-                    // ]);
+                elseif ($datas->transaction->status == 1){
+                    $cotisation->update([
+                        'status' => 'échouée', 
+                    ]);
 
                     $transaction->update([
                         'status' => 'failed', 
