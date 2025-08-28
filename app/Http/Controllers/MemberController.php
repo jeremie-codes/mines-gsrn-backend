@@ -628,7 +628,7 @@ class MemberController extends Controller
             // Extraire les données de l'image base64
             if (preg_match('/^data:image\/(\w+);base64,/', $base64String, $type)) {
                 $data = substr($base64String, strpos($base64String, ',') + 1);
-                $type = strtolower($type[1]); // jpg, png, gif
+                $type = strtolower($type[1]);
 
                 if (!in_array($type, ['jpg', 'jpeg', 'gif', 'png'])) {
                     throw new \Exception('Type d\'image non valide');
@@ -643,19 +643,23 @@ class MemberController extends Controller
                 throw new \Exception('Format base64 non valide');
             }
 
-            // Générer un nom de fichier unique
-            $fileName = 'profile_' . Str::uuid() . '.' . $type;
-            $filePath = 'profiles/' . $fileName;
+            // Nom de fichier unique
+            $fileName = 'profile_' . \Str::uuid() . '.' . $type;
 
-            // Créer le répertoire s'il n'existe pas
-            if (!Storage::disk('public')->exists('profiles')) {
-                Storage::disk('public')->makeDirectory('profiles');
+            // Chemin physique vers public/storage/profiles
+            $folder = public_path('storage/profiles');
+            $filePath = $folder . '/' . $fileName;
+
+            // Créer le dossier s'il n'existe pas
+            if (!file_exists($folder)) {
+                mkdir($folder, 0755, true);
             }
 
-            // Sauvegarder le fichier
-            Storage::disk('public')->put($filePath, $data);
+            // Enregistrer l'image
+            file_put_contents($filePath, $data);
 
-            return $filePath;
+            // Retourner le chemin relatif (URL)
+            return 'storage/profiles/' . $fileName;
 
         } catch (\Exception $e) {
             \Log::error('Erreur lors de la sauvegarde de l\'image base64: ' . $e->getMessage());
@@ -663,25 +667,36 @@ class MemberController extends Controller
         }
     }
 
+
     /**
-     * Sauvegarder un fichier uploadé
+     * Sauvegarder un fichier uploadé dans public/storage/profiles
      */
     private function saveUploadedFile($file)
     {
         try {
             // Générer un nom de fichier unique
-            $fileName = 'profile_' . Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $fileName = 'profile_' . \Str::uuid() . '.' . $file->getClientOriginalExtension();
 
-            // Sauvegarder dans le répertoire profiles
-            $filePath = $file->storeAs('profiles', $fileName, 'public');
+            // Définir le dossier de destination
+            $destinationPath = public_path('storage/profiles');
 
-            return $filePath;
+            // Créer le dossier s'il n'existe pas
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0755, true);
+            }
+
+            // Déplacer le fichier uploadé dans le dossier
+            $file->move($destinationPath, $fileName);
+
+            // Retourner le chemin relatif pour l'affichage (ex: storage/profiles/xxx.jpg)
+            return 'storage/profiles/' . $fileName;
 
         } catch (\Exception $e) {
             \Log::error('Erreur lors de la sauvegarde du fichier: ' . $e->getMessage());
             return null;
         }
     }
+
 
     /**
      * API pour créer/modifier un membre depuis mobile (avec base64)
