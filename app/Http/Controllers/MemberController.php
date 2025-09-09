@@ -200,11 +200,11 @@ class MemberController extends Controller
 
             $base64Image = null;
 
-            if ($member->face_path && Storage::disk('public')->exists($member->face_path)) {
-                $fileContent = Storage::disk('public')->get($member->face_path);
-                $mimeType = Storage::disk('public')->mimeType($member->face_path);
+            if ($member->face_path && file_exists(public_path($member->face_path))) {
+                $fileContent = file_get_contents(public_path($member->face_path));
+                $mimeType = mime_content_type(public_path($member->face_path));
                 $base64Image = 'data:' . $mimeType . ';base64,' . base64_encode($fileContent);
-            }
+            }            
 
             return response()->json([
                 'success' => true,
@@ -326,18 +326,19 @@ class MemberController extends Controller
             $newImagePath = $this->handleImageUpload($request);
             if ($newImagePath) {
                 // Supprimer l'ancienne image si elle existe
-                if ($member->face_path && Storage::disk('public')->exists($member->face_path)) {
-                    Storage::disk('public')->delete($member->face_path);
+                if ($member->face_path && file_exists(public_path($member->face_path))) {
+                    unlink(public_path($member->face_path));
                 }
                 $data['face_path'] = $newImagePath;
             }
+
 
             $member->update($data);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Membre mis à jour avec succès'
-            ], 201);
+            ], 200);
 
         } catch (\Throwable $th) {
             return response()->json([
@@ -351,7 +352,7 @@ class MemberController extends Controller
     {
         try {
 
-            $member = Member::findOrFail($id);
+            $member = Member::find($id);
 
             if(!$member) {
                 return response()->json([
@@ -361,8 +362,8 @@ class MemberController extends Controller
             }
 
             // Supprimer l'image si elle existe
-            if ($member->face_path && Storage::disk('public')->exists($member->face_path)) {
-                Storage::disk('public')->delete($member->face_path);
+            if ($member->face_path && file_exists(public_path($member->face_path))) {
+                unlink(public_path($member->face_path));
             }
 
             $site = $member->site;
@@ -382,7 +383,7 @@ class MemberController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Membre supprimé avec succès',
-            ], 201);
+            ], 200);
 
         } catch (\Throwable $th) {
             return response()->json([
@@ -814,10 +815,11 @@ class MemberController extends Controller
 
             // Gérer l'image base64
             if ($request->has('face_base64') && !empty($request->face_base64)) {
-                // Supprimer l'ancienne image
-                if ($member->face_path && Storage::disk('public')->exists($member->face_path)) {
-                    Storage::disk('public')->delete($member->face_path);
+                // Supprimer l'ancienne image si elle existe
+                if ($member->face_path && file_exists(public_path($member->face_path))) {
+                    unlink(public_path($member->face_path));
                 }
+
                 $data['face_path'] = $this->saveBase64Image($request->face_base64);
             }
 
