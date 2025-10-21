@@ -35,7 +35,7 @@ class MemberController extends Controller
                 'actives' => Site::where('is_active', true)->count(),
                 'inactives' => Site::where('is_active', false)->count()
             ];
-            
+
             $pools = [
                 'total' => Pool::count(),
                 'actives' => Pool::where('is_active', true)->count(),
@@ -68,14 +68,6 @@ class MemberController extends Controller
         try {
 
             $members = Member::orderBy('created_at', 'desc')->paginate(10);
-
-            // foreach ($members as $member) {
-            //     if (!$member->membershipNumber && $member->site_id) {
-            //         $dataMembershipNumber = $this->generateMembershipNumber($member->site_id, $member->city_id);
-            //         $member->membershipNumber = $dataMembershipNumber;
-            //         $member->save();
-            //     }
-            // }
 
             return response()->json([
                 'success' => true,
@@ -204,12 +196,11 @@ class MemberController extends Controller
                 $fileContent = file_get_contents(public_path($member->face_path));
                 $mimeType = mime_content_type(public_path($member->face_path));
                 $base64Image = 'data:' . $mimeType . ';base64,' . base64_encode($fileContent);
-            }            
+            }
 
             return response()->json([
                 'success' => true,
                 'member' => $member,
-                'face_base64' => null,
                 'face_base64' => $base64Image,
             ], 200);
 
@@ -837,6 +828,6 @@ class MemberController extends Controller
                 'message' => "Erreur, " .$th->getMessage()
             ], 500);
         }
-    }  
+    }
 
 }
