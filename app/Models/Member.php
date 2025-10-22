@@ -43,9 +43,14 @@ class Member extends Model
         parent::boot();
 
         static::creating(function ($member) {
-            if (!$member->first_payment) {
-                $member->first_payment = now()->addMonths(3);
-            }
+            $prefix = '6009900705';
+
+            // Récupère le dernier membre enregistré
+            $last = self::orderBy('id', 'desc')->first();
+            $nextId = $last ? $last->id + 1 : 1;
+
+            // Génère le numéro avec padding à 8 chiffres
+            $member->membershipNumber = $prefix . str_pad($nextId, 8, '0', STR_PAD_LEFT);
         });
     }
 

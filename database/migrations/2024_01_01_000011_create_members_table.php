@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('gender')->nullable();
             $table->string('street')->nullable();
             $table->string('phone')->nullable();
-            $table->string('qrcode_url');
+            //$table->string('qrcode_url');
             $table->timestamp('date_adhesion')->useCurrent();
             $table->foreignId('chef_id')->nullable()->constrained('members')->onDelete('set null');
             $table->foreignId('site_id')->nullable()->constrained()->onDelete('set null');

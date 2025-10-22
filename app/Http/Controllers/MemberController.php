@@ -153,7 +153,7 @@ class MemberController extends Controller
 
             $client = new Client();
 
-            $response = $client->request('POST', $this->baseUrlMidleware, [
+            /*$response = $client->request('POST', $this->baseUrlMidleware, [
                 'headers' => [
                     'Accept' => 'application/json',
                 ],
@@ -172,19 +172,19 @@ class MemberController extends Controller
             //return response()->json([
             //    'success' => false,
             //    'message' => $content->data->barcodeValue
-            //], 200);
+            //], 200);*/
 
 
-            if ($content->code != 0) {
+            /*if ($content->code != 0) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Erreur lors de la géneration du numero de membre : ' . $content->message
                 ], 500);
-            }
+            }*/
 
             // Générer automatiquement le numéro de membre
-            $data['membershipNumber'] = $content->data->gsrn;
-            $data['qrcode_url'] = $content->data->barcodeValue;
+            //$data['membershipNumber'] = $content->data->gsrn; // pour le test je génère une clé unique depuis boot dans le model member
+            // $data['qrcode_url'] = $content->data->barcodeValue;
 
             // Gérer l'upload d'image
             $data['face_path'] = $this->handleImageUpload($request);
@@ -731,7 +731,7 @@ class MemberController extends Controller
 
             $validated['category_id'] = $categoryModel->id;
 
-            $client = new Client();
+            /*$client = new Client();
 
             $response = $client->request('POST', $this->baseUrlMidleware, [
                 'headers' => [
@@ -760,7 +760,7 @@ class MemberController extends Controller
 
             // Générer automatiquement le numéro de membre
             $data['membershipNumber'] = $content->data->gsrn;
-            $data['qrcode_url'] = $content->data->barcodeValue;
+            $data['qrcode_url'] = $content->data->barcodeValue;*/
 
             // Traitement de l'image
             $validated['face_path'] = $this->handleImageUpload($request);
