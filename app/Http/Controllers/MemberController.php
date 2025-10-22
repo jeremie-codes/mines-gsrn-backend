@@ -13,13 +13,16 @@ use App\Models\City;
 use App\Models\Township;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
+use GuzzleHttp\Client;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class MemberController extends Controller
 {
+
+    protected $projectExternalId = "1c4214e9-c6e6-4862-9fb3-b0b4af9541ce";
+    protected $baseUrlMidleware = "http://localhost:8001/api/rest/v1/gsrn/generate";
 
     public function stats()
     {
@@ -105,7 +108,6 @@ class MemberController extends Controller
             $fonctions = Fonction::all();
             $cities = City::with('country')->get();
             $townships = Township::with('city')->get();
-            // return view('members.create', compact('sites', 'pools', 'fonctions', 'cities', 'townships'));
 
             return view('members.create', [
                 'success' => true,
@@ -131,7 +133,7 @@ class MemberController extends Controller
                 'lastname' => 'nullable|string|max:255',
                 'middlename' => 'nullable|string|max:255',
                 'phone' => 'nullable|string|max:255',
-                'site_id' => 'required|exists:sites,id',
+                'site_id' => 'nullable|exists:sites,id',
                 'city_id' => 'nullable|exists:cities,id',
                 'township_id' => 'nullable|exists:townships,id',
                 'pool_id' => 'nullable|exists:pools,id',
@@ -149,9 +151,40 @@ class MemberController extends Controller
 
             $data = $request->all();
 
+            $client = new Client();
+
+            $response = $client->request('POST', $this->baseUrlMidleware, [
+                'headers' => [
+                    'Accept' => 'application/json',
+                ],
+                'json' => [
+                    'firstname' => $data['firstname'],
+                    'lastname' => $data['lastname'],
+                    "phone" => $data['phone'],
+                    "gender" => $data['gender'],
+                    "title" => "mineur",
+                    "projectExternalId" => $this->projectExternalId
+                ]
+            ]);
+
+            $content = json_decode($response->getBody()->getContents());
+
+            //return response()->json([
+            //    'success' => false,
+            //    'message' => $content->data->barcodeValue
+            //], 200);
+
+
+            if ($content->code != 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erreur lors de la géneration du numero de membre : ' . $content->message
+                ], 500);
+            }
 
             // Générer automatiquement le numéro de membre
-            $data['membershipNumber'] = $this->generateMembershipNumber($request->site_id, $request->city_id);
+            $data['membershipNumber'] = $content->data->gsrn;
+            $data['qrcode_url'] = $content->data->barcodeValue;
 
             // Gérer l'upload d'image
             $data['face_path'] = $this->handleImageUpload($request);
@@ -286,28 +319,7 @@ class MemberController extends Controller
                 ], 404);
             }
 
-            $oldSiteId = $member->site_id;
-            $newSiteId = $request->site_id;
-
             $data = $request->all();
-
-            // Vérifie si le site a changé
-            if ($newSiteId && $newSiteId != $oldSiteId) {
-                $newSite = Site::find($newSiteId);
-                $oldSite = Site::find($oldSiteId);
-
-                // Génère un nouveau membership_number
-                $data['membershipNumber'] = $this->generateMembershipNumber($request->site_id, $request->city_id);
-
-                // Optionnel : incrémente le compteur du nouveau site
-                if ($newSite) {
-                    $newSite->increment('membership_counter');
-                }
-
-                if ($oldSite) {
-                    $oldSite->decrement('membership_counter');
-                }
-            }
 
             if ($request->has('membershipNumber') && !empty($request->membershipNumber)) {
                 $data['membershipNumber'] = $request->membershipNumber;
@@ -572,28 +584,6 @@ class MemberController extends Controller
     }
 
     /**
-     * Générer automatiquement le numéro de membre
-     */
-    private function generateMembershipNumber($siteId, $cityId = null)
-    {
-        return DB::transaction(function () use ($siteId, $cityId) {
-            $site = Site::lockForUpdate()->find($siteId);
-
-            // Récupérer le code de la province depuis la ville
-            $provinceCode = 'XXX'; // Code par défaut
-            if ($cityId) {
-                $city = City::find($cityId);
-                if ($city && $city->province_code) {
-                    $provinceCode = strtoupper($city->province_code);
-                }
-            }
-
-            // Générer le numéro avec le site
-            return $site->generateMembershipNumber($provinceCode);
-        });
-    }
-
-    /**
      * Gérer l'upload d'image (fichier ou base64)
      */
     private function handleImageUpload(Request $request)
@@ -741,8 +731,36 @@ class MemberController extends Controller
 
             $validated['category_id'] = $categoryModel->id;
 
-            // Génération du numéro d'adhésion
-            $validated['membershipNumber'] = $this->generateMembershipNumber($validated['site_id'], $validated['city_id'] ?? null);
+            $client = new Client();
+
+            $response = $client->request('POST', $this->baseUrlMidleware, [
+                'headers' => [
+                    'Accept' => 'application/json',
+                ],
+                'json' => [
+                    'firstname' => $validator['firstname'],
+                    'lastname' => $validator['lastname'],
+                    "birthdate" => $validator['date_adhesion'],
+                    "phone" => $validator['phone'],
+                    "gender" => $validator['gender'],
+                    "title" => "mineur",
+                    "projectExternalId" => $this->projectExternalId
+                ],
+                true
+            ]);
+
+            $content = json_decode($response->getBody()->getContents());
+
+            if ($content->code != 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erreur lors de la géneration du numero de membre : ' . $content->message
+                ], 500);
+            }
+
+            // Générer automatiquement le numéro de membre
+            $data['membershipNumber'] = $content->data->gsrn;
+            $data['qrcode_url'] = $content->data->barcodeValue;
 
             // Traitement de l'image
             $validated['face_path'] = $this->handleImageUpload($request);
@@ -798,11 +816,6 @@ class MemberController extends Controller
             }
 
             $data = $request->all();
-
-            // Régénérer le numéro de membre si le site ou la ville a changé
-            if ($request->site_id != $member->site_id || $request->city_id != $member->city_id) {
-                $data['membershipNumber'] = $this->generateMembershipNumber($request->site_id, $request->city_id);
-            }
 
             // Gérer l'image base64
             if ($request->has('face_base64') && !empty($request->face_base64)) {

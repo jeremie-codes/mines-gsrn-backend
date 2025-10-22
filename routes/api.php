@@ -102,8 +102,11 @@ Route::middleware('api')->group(function () {
         Route::get('chefs/pools/{id}', [PoolController::class, 'getChefByPoolId']);
 
         // Route payment by sms
-        
+
     });
+
+    Route::post('data/members/create', [MemberController::class, 'store']); // Route pour le teste
+
     // Routes Public API pour les utilisateurs
     Route::get('find/member/{member}', [CotisationController::class, 'findMember']);
     Route::post('payment/member', [CotisationController::class, 'payBySms']);
