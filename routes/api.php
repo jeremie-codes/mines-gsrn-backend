@@ -24,7 +24,7 @@ Route::middleware('api')->group(function () {
 
     Route::get('stats', [MemberController::class, 'stats']);
 
-    //Route::middleware('auth:sanctum')->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
         // Routes API pour les membres (application mobile)
         Route::get('members', [MemberController::class, 'index']);
         Route::get('members/{member}', [MemberController::class, 'show']);
@@ -40,16 +40,16 @@ Route::middleware('api')->group(function () {
         Route::post('sites/update/{id}', [SiteController::class, 'update'])->name('sites.update');
         Route::post('sites/{id}', [SiteController::class, 'destroy'])->name('sites.delete');
 
-        // Routes pour les org
-        Route::get('org', [OrganizationController::class, 'index'])->name('org.index');
-        Route::get('org/{id}', [OrganizationController::class, 'show'])->name('org.show');
-        Route::post('org/create', [OrganizationController::class, 'store'])->name('org.create');
-        Route::post('org/update/{id}', [OrganizationController::class, 'update'])->name('org.update');
-        Route::post('org/{id}', [OrganizationController::class, 'destroy'])->name('org.delete');
+        // Routes pour les organization
+        Route::get('organizations', [OrganizationController::class, 'index'])->name('organizations.index');
+        Route::get('organization/{id}', [OrganizationController::class, 'show'])->name('organizations.show');
+        Route::post('organization/create', [OrganizationController::class, 'store'])->name('organizations.create');
+        Route::post('organization/update/{id}', [OrganizationController::class, 'update'])->name('organizations.update');
+        Route::post('organization/{id}', [OrganizationController::class, 'destroy'])->name('organizations.delete');
 
         Route::post('logout', [UserController::class, 'logout'])->name('logout');
         Route::resource('users', UserController::class);
-//    });
+    });
 
     // Route pour récupérer les communes par ville (AJAX)
     Route::get('townships/city/{cityId}', [MemberController::class, 'getTownshipsByCity'])->name('townships.by-city');
@@ -74,7 +74,7 @@ Route::middleware('api')->group(function () {
     // Mobile Route Apis
     Route::post('app/members/create', [MemberController::class, 'apiStore']);
     Route::get('app/sites', [SiteController::class, 'appIndex']);
-    Route::get('app/org', [OrganizationController::class, 'indexApi']);
+    Route::get('app/organizations', [OrganizationController::class, 'indexApi']);
 
 });
 
