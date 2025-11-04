@@ -34,35 +34,6 @@ class UserController extends Controller
         }
     }
 
-    public function register(Request $request)
-    {
-        try {
-
-            $request->validate([
-                "username" => "required|string|unique:users,username"
-            ]);
-
-            $motDePasseTemporaire = Str::random(8);
-
-            $userData = [
-                'username' => $request->username,
-                'password' => Hash::make($motDePasseTemporaire),
-                'plain_password' => $motDePasseTemporaire,
-            ];
-
-            // Création de l'utilisateur
-            $user = User::create($userData);
-
-            return response()->json([
-                'message' => 'Utilisateur créé avec succès !',
-                'username' => $user->username,
-                'plain_password' => $motDePasseTemporaire,
-            ], 201);
-        } catch (\Throwable $th) {
-            //throw $th;
-        }
-    }
-
     public function login(Request $request)
     {
         $request->validate([
@@ -104,48 +75,17 @@ class UserController extends Controller
         ], 401);
     }
 
-    public function create()
-    {
-
-        try {
-            $members = Member::doesntHave('user')->get();
-            $roles = Role::active()->get();
-
-            return response()->json([
-                'success' => true,
-                'members' => $members,
-                'roles' => $roles
-            ], 200);
-
-        } catch (\Throwable $th) {
-            return response()->json([
-                'success' => false,
-                'message' => "Erreur, " .$th->getMessage()
-            ], 500);
-        }
-    }
-
     public function store(Request $request)
     {
 
         try {
             $request->validate([
-                'member_id' => 'required|exists:members,id|unique:users,member_id',
-                'email' => 'required|email|unique:users,email',
+                'email' => 'nullable|email|unique:users,email',
                 'username' => 'required|string|unique:users,username',
                 'password' => 'required|string|min:8',
-                'role_id' => 'required|exists:roles,id',
-                'is_active' => 'nullable|boolean'
             ]);
 
-            $user = User::create([
-                'member_id' => $request->member_id,
-                'email' => $request->email,
-                'username' => $request->username,
-                'password' => Hash::make($request->password),
-                'role_id' => $request->role_id,
-                'is_active' => $request->is_active ?? true
-            ]);
+            $user = User::create($request->all());
 
             return response()->json([
                 'success' => true,
