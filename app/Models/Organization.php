@@ -5,37 +5,40 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Pool extends Model
+class Organization extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'site_id',
         'name',
         'description',
         'is_active',
-        'membership_counter'
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
     ];
 
-    public function site()
+    protected $appends = ['members_count', 'sites_count'];
+
+    public function getSitesCountAttribute()
     {
-        return $this->belongsTo(Site::class);
+        return $this->sites()->count() ?? 0;
+    }
+
+    public function getMembersCountAttribute()
+    {
+        return $this->members()->count() ?? 0;
+    }
+
+    public function sites()
+    {
+        return $this->hasMany(Site::class);
     }
 
     public function members()
     {
         return $this->hasMany(Member::class);
-    }
-
-        public function chefDePool()
-    {
-        return $this->hasMany(Member::class)->whereHas('fonction', function ($query) {
-            $query->where('name', 'Chef de Pool');
-        });
     }
 
     public function scopeActive($query)

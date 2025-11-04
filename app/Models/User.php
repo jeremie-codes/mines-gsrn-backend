@@ -12,9 +12,7 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     protected $fillable = [
-        'member_id',
         'plain_password',
-        'phone',
         'username',
         'password',
         'role_id',
@@ -31,11 +29,6 @@ class User extends Authenticatable
         // 'password' => 'hidden',
         'is_active' => 'boolean',
     ];
-
-    public function member()
-    {
-        return $this->belongsTo(Member::class);
-    }
 
     public function role()
     {

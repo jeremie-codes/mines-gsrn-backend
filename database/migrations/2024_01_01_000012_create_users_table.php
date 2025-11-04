@@ -10,10 +10,8 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('member_id')->nullable()->constrained()->onDelete('set null');
             $table->string('username')->nullable()->unique();
             $table->string('password');
-            $table->foreignId('role_id')->nullable()->constrained()->onDelete('set null');
             $table->boolean('is_active')->default(true);
             $table->rememberToken();
             $table->timestamps();

@@ -16,22 +16,14 @@ class Member extends Model
         'membershipNumber',
         'phone',
         'gender',
-        'street',
-        'chef_id',
+        'birth_date',
+        'address',
+        'organization_id',
         'site_id',
         'city_id',
-        'township_id',
-        'pool_id',
-        'libelle_pool',
         'is_active',
         'face_path',
-        'fonction_id',
-        'qrcode_url',
         'date_adhesion',
-        'category_id',
-        'cotisation_id',
-        'first_payment',
-        'next_payment',
     ];
 
     protected $casts = [
@@ -54,24 +46,9 @@ class Member extends Model
         });
     }
 
-    public function cotisations()
-    {
-        return $this->hasMany(Cotisation::class);
-    }
-
-    public function category()
-    {
-        return $this->belongsTo(Category::class);
-    }
-
     public function site()
     {
         return $this->belongsTo(Site::class);
-    }
-
-    public function chef()
-    {
-        return $this->belongsTo($this::class, 'chef_id');
     }
 
     public function city()
@@ -79,48 +56,14 @@ class Member extends Model
         return $this->belongsTo(City::class);
     }
 
-    public function township()
+    public function organization()
     {
-        return $this->belongsTo(Township::class);
-    }
-
-    public function pool()
-    {
-        return $this->belongsTo(Pool::class);
-    }
-
-    public function fonction()
-    {
-        return $this->belongsTo(Fonction::class);
-    }
-
-    public function user()
-    {
-        return $this->hasOne(User::class);
+        return $this->belongsTo(organization::class);
     }
 
     public function getFullNameAttribute()
     {
         return trim($this->firstname . ' ' . $this->middlename . ' ' . $this->lastname);
-    }
-
-    public function getFullAddressAttribute()
-    {
-        $address = [];
-
-        if ($this->township) {
-            $address[] = $this->township->name;
-        }
-
-        if ($this->city) {
-            $address[] = $this->city->name;
-        }
-
-        if ($this->site) {
-            $address[] = $this->site->name;
-        }
-
-        return implode(', ', $address);
     }
 
     public function scopeActive($query)

@@ -2,21 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Member;
+use App\Models\Organization;
 use App\Models\Site;
 use Illuminate\Http\Request;
 
-class SiteController extends Controller
+class OrganizationController extends Controller
 {
     public function index()
     {
-        try {
 
-            $sites = Site::with('city', 'organization')->orderBy('created_at', 'desc')->paginate(10);
+        try {
+            $organizations = Organization::orderBy('created_at', 'desc')->paginate(10);
 
             return response()->json([
                 'success' => true,
-                'sites' => $sites,
-            ], 201);
+                'organizations' => $organizations
+            ], 200);
 
         } catch (\Throwable $th) {
             return response()->json([
@@ -25,16 +27,17 @@ class SiteController extends Controller
             ], 500);
         }
     }
-    public function appIndex()
-    {
-        try {
 
-            $sites = Site::with('city', 'organization')->orderBy('created_at', 'desc')->get();
+    public function indexApi()
+    {
+
+        try {
+            $organizations = Organization::orderBy('created_at', 'desc')->get();
 
             return response()->json([
                 'success' => true,
-                'sites' => $sites,
-            ], 201);
+                'organizations' => $organizations
+            ], 200);
 
         } catch (\Throwable $th) {
             return response()->json([
@@ -46,25 +49,21 @@ class SiteController extends Controller
 
     public function store(Request $request)
     {
-
         try {
 
             $request->validate([
                 'name' => 'required|string|max:255',
-                'location' => 'nullable|string|max:255',
-                'organization_id' => 'nullable|exists:organizations,id',
-                'city_id' => 'nullable|exists:cities,id',
+                'description' => 'nullable|string',
                 'is_active' => 'nullable|boolean'
             ]);
 
-            $data = $request->all();
-            $site = Site::create($data);
+            $organization = Organization::create($request->all());
 
             return response()->json([
                 'success' => true,
-                'site' => $site,
-                'message' => 'Site créé avec succès.'
-            ], 201);
+                'organization' => $organization,
+                'message' => 'organisation créé avec succès.'
+            ], 200);
 
         } catch (\Throwable $th) {
             return response()->json([
@@ -76,23 +75,21 @@ class SiteController extends Controller
 
     public function show($id)
     {
-         try {
 
-            $site = Site::with('city', 'organization')->findOrFail($id);
+        try {
+            $organization = Organization::findOrFail($id);
 
-            if (!$site) {
+            if (!$organization) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Site non trouvé.'
+                    'message' => 'organisation non trouvé.'
                 ], 404);
             }
 
             return response()->json([
                 'success' => true,
-                'site' => $site,
-                'message' => 'Site récupéré avec succès.'
-            ], 201);
-
+                'organization' => $organization
+            ], 200);
         } catch (\Throwable $th) {
             return response()->json([
                 'success' => false,
@@ -103,34 +100,30 @@ class SiteController extends Controller
 
     public function update(Request $request, $id)
     {
-
         try {
-
             $request->validate([
-                'city_id' => 'nullable|exists:cities,id',
-                'organization_id' => 'nullable|exists:organizations,id',
                 'name' => 'nullable|string|max:255',
-                'location' => 'nullable|string|max:255',
-                'is_active' => 'nullable|boolean',
+                'description' => 'nullable|string',
+                'is_active' => 'nullable|boolean'
             ]);
 
-            $data = $request->all();
-            $site = Site::findOrFail($id);
+            $organization = Organization::findOrFail($id);
 
-            if (!$site) {
+            if (!$organization) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Erreur de mise à jour, Site non trouvé.'
+                    'message' => 'organisation non trouvé.'
                 ], 404);
             }
 
-            $site->update($data);
+            $organization->update($request->all());
 
             return response()->json([
                 'success' => true,
-                'message' => 'Site mise à jour avec succès.',
-                'site' => $site
-            ], 201);
+                'message' => 'organisation mis à jour avec succès.',
+                'organization' => $organization
+            ], 200);
+
         } catch (\Throwable $th) {
             return response()->json([
                 'success' => false,
@@ -143,35 +136,36 @@ class SiteController extends Controller
     {
 
         try {
+            $organization = Organization::findOrFail($id);
 
-            $site = Site::findOrFail($id);
-
-            if (!$site) {
+            if (!$organization) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Site non trouvé.'
+                    'message' => 'organisation non trouvé.'
                 ], 404);
             }
 
-            if ($site->members()->count() > 0) {
+            // Vérifier si le organisation a des membres associés
+            if ($organization->members()->count() > 0) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Impossible de supprimer le site, il est associé à des membres.'
+                    'message' => 'Impossible de supprimer le organisation car il a des membres associés.'
                 ], 400);
             }
 
-            $site->delete();
+            $organization->delete();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Site supprimé avec succès.'
+                'message' => 'organisation supprimé avec succès.'
             ], 200);
-
         } catch (\Throwable $th) {
+            //throw $th;
             return response()->json([
                 'success' => false,
                 'message' => "Erreur, " .$th->getMessage()
             ], 500);
         }
+
     }
 }

@@ -8,11 +8,12 @@ return new class extends Migration
 {
     public function up()
     {
-        Schema::create('pools', function (Blueprint $table) {
+        Schema::create('sites', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('site_id')->constrained()->onDelete('cascade');
+            $table->foreignId('organization_id')->constrained()->onDelete('cascade');
+            $table->foreignId('city_id')->nullable()->constrained()->onDelete('set null');
             $table->string('name');
-            $table->text('description')->nullable();
+            $table->string('location')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
@@ -20,6 +21,6 @@ return new class extends Migration
 
     public function down()
     {
-        Schema::dropIfExists('pools');
+        Schema::dropIfExists('sites');
     }
 };
