@@ -50,7 +50,9 @@ Route::middleware('api')->group(function () {
         Route::post('logout', [UserController::class, 'logout'])->name('logout');
     });
 
-    Route::resource('users', UserController::class);
+    Route::get('users', [UserController::class, 'index']);
+    Route::get('users/{id}', [UserController::class, 'show']);
+    Route::post('users/create', [UserController::class, 'store']);
 
     // Route pour récupérer les communes par ville (AJAX)
     Route::get('townships/city/{cityId}', [MemberController::class, 'getTownshipsByCity'])->name('townships.by-city');
