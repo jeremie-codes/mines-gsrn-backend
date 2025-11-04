@@ -42,10 +42,10 @@ Route::middleware('api')->group(function () {
 
         // Routes pour les organization
         Route::get('organizations', [OrganizationController::class, 'index'])->name('organizations.index');
-        Route::get('organization/{id}', [OrganizationController::class, 'show'])->name('organizations.show');
-        Route::post('organization/create', [OrganizationController::class, 'store'])->name('organizations.create');
-        Route::post('organization/update/{id}', [OrganizationController::class, 'update'])->name('organizations.update');
-        Route::post('organization/{id}', [OrganizationController::class, 'destroy'])->name('organizations.delete');
+        Route::get('organizations/{id}', [OrganizationController::class, 'show'])->name('organizations.show');
+        Route::post('organizations/create', [OrganizationController::class, 'store'])->name('organizations.create');
+        Route::post('organizations/update/{id}', [OrganizationController::class, 'update'])->name('organizations.update');
+        Route::post('organizations/{id}', [OrganizationController::class, 'destroy'])->name('organizations.delete');
 
         Route::post('logout', [UserController::class, 'logout'])->name('logout');
     });
