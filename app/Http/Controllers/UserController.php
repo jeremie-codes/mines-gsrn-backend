@@ -130,22 +130,13 @@ class UserController extends Controller
 
         try {
             $request->validate([
-                'member_id' => 'required|exists:members,id|unique:users,member_id',
-                'email' => 'required|email|unique:users,email',
+                'email' => 'nullable|email|unique:users,email',
                 'username' => 'required|string|unique:users,username',
                 'password' => 'required|string|min:8',
                 'role_id' => 'required|exists:roles,id',
-                'is_active' => 'nullable|boolean'
             ]);
 
-            $user = User::create([
-                'member_id' => $request->member_id,
-                'email' => $request->email,
-                'username' => $request->username,
-                'password' => Hash::make($request->password),
-                'role_id' => $request->role_id,
-                'is_active' => $request->is_active ?? true
-            ]);
+            $user = User::create($request->all());
 
             return response()->json([
                 'success' => true,
