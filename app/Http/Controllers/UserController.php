@@ -85,6 +85,10 @@ class UserController extends Controller
                 'password' => 'required|string|min:8',
             ]);
 
+            $request->merge([
+                'password' => Hash::make($request->password)
+            ]);
+
             $user = User::create($request->all());
 
             return response()->json([
@@ -118,34 +122,6 @@ class UserController extends Controller
             return response()->json([
                 'success' => true,
                 'user' => $user
-            ], 200);
-
-        } catch (\Throwable $th) {
-            return response()->json([
-                'success' => false,
-                'message' => "Erreur, " .$th->getMessage()
-            ], 500);
-        }
-    }
-
-    public function edit($id)
-    {
-
-        try {
-            $user = User::with('member', 'role')->findOrFail($id);
-            $roles = Role::active()->get();
-
-            if (!$user) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Utilisateur non trouvé.'
-                ], 404);
-            }
-
-            return response()->json([
-                'success' => true,
-                'user' => $user,
-                'roles' => $roles
             ], 200);
 
         } catch (\Throwable $th) {
@@ -227,138 +203,6 @@ class UserController extends Controller
         }
     }
 
-    public function getFunction()
-    {
-
-        try {
-            $functions = Fonction::orderBy('created_at', 'desc')->get();
-
-            return response()->json([
-                'success' => true,
-                'functions' => $functions
-            ], 200);
-
-        } catch (\Throwable $th) {
-            return response()->json([
-                'success' => false,
-                'message' => "Erreur, " .$th->getMessage()
-            ], 500);
-        }
-    }
-
-    public function getFunctionById($id)
-    {
-
-        try {
-            $function = Fonction::findOrFail($id);
-
-            if (!$function) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Fonction non trouvée.'
-                ], 404);
-            }
-
-            return response()->json([
-                'success' => true,
-                'function' => $function
-            ], 200);
-
-        } catch (\Throwable $th) {
-            return response()->json([
-                'success' => false,
-                'message' => "Erreur, " .$th->getMessage()
-            ], 500);
-        }
-    }
-
-    public function createFunction(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string'
-        ]);
-
-        // Vérifie si une fonction avec le même nom existe déjà
-        $existing = Fonction::where('name', $request->name)->first();
-        if ($existing) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Cette fonction existe déjà.',
-                'function' => $existing
-            ], 409); // 409 Conflict
-        }
-
-        try {
-            $function = Fonction::create([
-                'name' => $request->name
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Fonction créée avec succès.',
-                'function' => $function
-            ], 201);
-
-        } catch (\Throwable $th) {
-            return response()->json([
-                'success' => false,
-                'message' => "Erreur : " . $th->getMessage()
-            ], 500);
-        }
-    }
-
-
-    public function updateFunction(Request $request, $id)
-    {
-
-        try {
-            $request->validate([
-                'name' => 'required|string|unique:fonctions,name,' . $id
-            ]);
-
-            $function = Fonction::findOrFail($id);
-
-            if (!$function) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Fonction non trouvée.'
-                ], 404);
-            }
-
-            $function->update($request->all());
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Fonction mise à jour avec succès.',
-                'function' => $function
-            ], 200);
-
-        } catch (\Throwable $th) {
-            return response()->json([
-                'success' => false,
-                'message' => "Erreur, " .$th->getMessage()
-            ], 500);
-        }
-    }
-
-    public function deleteFunction($id)
-    {
-        try {
-            $function = Fonction::findOrFail($id);
-            $function->delete();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Fonction supprimée avec succès.'
-            ], 200);
-
-        } catch (\Throwable $th) {
-            return response()->json([
-                'success' => false,
-                'message' => "Erreur, " .$th->getMessage()
-            ], 500);
-        }
-    }
 
     public function getTownship()
     {

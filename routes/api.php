@@ -53,6 +53,7 @@ Route::middleware('api')->group(function () {
     Route::get('users', [UserController::class, 'index']);
     Route::get('users/{id}', [UserController::class, 'show']);
     Route::post('users/create', [UserController::class, 'store']);
+    Route::post('users/update/{id}', [UserController::class, 'update']);
 
     // Route pour récupérer les communes par ville (AJAX)
     Route::get('townships/city/{cityId}', [MemberController::class, 'getTownshipsByCity'])->name('townships.by-city');
