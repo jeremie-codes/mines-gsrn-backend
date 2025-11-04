@@ -109,7 +109,7 @@ class UserController extends Controller
     {
 
         try {
-            $user = User::with('member', 'role', 'profiles')->findOrFail($id);
+            $user = User::findOrFail($id);
             // $user->load('member', 'role.permissions');
 
             if (!$user) {
