@@ -50,7 +50,7 @@ class MemberController extends Controller
                 'success' => true,
                 'members' => $members,
                 'sites' => $sites,
-                'organisations' => $organisations,
+                'organizations' => $organisations,
                 'users' => $users
             ], 201);
         } catch (\Throwable $th) {
@@ -87,7 +87,7 @@ class MemberController extends Controller
                 'lastname' => 'nullable|string|max:255',
                 'middlename' => 'nullable|string|max:255',
                 'phone' => 'nullable|string|max:255',
-                'organization_id' => 'nullable|exists:organisations,id',
+                'organization_id' => 'nullable|exists:organizations,id',
                 'site_id' => 'nullable|exists:sites,id',
                 'city_id' => 'nullable|exists:cities,id',
                 'address' => 'nullable|string|max:255',
@@ -192,7 +192,7 @@ class MemberController extends Controller
                 'lastname' => 'nullable|string|max:255',
                 'middlename' => 'nullable|string|max:255',
                 'phone' => 'nullable|string|max:255',
-                'organization_id' => 'nullable|exists:organisations,id',
+                'organization_id' => 'nullable|exists:organizations,id',
                 'site_id' => 'nullable|exists:sites,id',
                 'city_id' => 'nullable|exists:cities,id',
                 'address' => 'nullable|string|max:255',
@@ -434,7 +434,7 @@ class MemberController extends Controller
                 'lastname' => 'nullable|string|max:255',
                 'middlename' => 'nullable|string|max:255',
                 'phone' => 'nullable|string|max:255',
-                'organization_id' => 'nullable|exists:organisations,id',
+                'organization_id' => 'nullable|exists:organizations,id',
                 'site_id' => 'nullable|exists:sites,id',
                 'city_id' => 'nullable|exists:cities,id',
                 'address' => 'nullable|string|max:255',
@@ -534,7 +534,7 @@ class MemberController extends Controller
                 'site_id' => 'required|exists:sites,id',
                 'city_id' => 'nullable|exists:cities,id',
                 'township_id' => 'nullable|exists:townships,id',
-                'organization_id' => 'nullable|exists:organisations,id',
+                'organization_id' => 'nullable|exists:organizations,id',
                 'face_base64' => 'nullable|string',
                 'is_active' => 'nullable|boolean',
                 'member_id' => 'required|exists:members,id'
