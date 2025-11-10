@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Category;
 use App\Models\Member;
 use App\Models\Site;
 use App\Models\Organization;
@@ -159,7 +158,7 @@ class MemberController extends Controller
     public function show($id)
     {
         try {
-            $member = Member::with('category','site', 'city', 'township', 'organisation', 'fonction', 'chef', 'user', 'cotisations')->findOrFail($id);
+            $member = Member::with('site', 'city', 'organization')->findOrFail($id);
 
             $base64Image = null;
 
@@ -456,20 +455,6 @@ class MemberController extends Controller
 
             $validated = $validator->validated();
 
-            // Vérification de la catégorie
-            $categoryModel = Category::where('name', $request->category)->first() ?? Category::find(1);
-
-            // Si la catégorie n'est pas trouvée, choisir la catégorie par défaut (ID = 1)
-            if (!$categoryModel) {
-                // Si la catégorie n'existe pas, affecte la catégorie par défaut
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Catégorie par défaut introuvable'
-                ], 404);
-            }
-
-            $validated['category_id'] = $categoryModel->id;
-
             /*$client = new Client();
 
             $response = $client->request('POST', $this->baseUrlMidleware, [
@@ -533,7 +518,6 @@ class MemberController extends Controller
                 'phone' => 'nullable|string|max:255',
                 'site_id' => 'required|exists:sites,id',
                 'city_id' => 'nullable|exists:cities,id',
-                'township_id' => 'nullable|exists:townships,id',
                 'organization_id' => 'nullable|exists:organizations,id',
                 'face_base64' => 'nullable|string',
                 'is_active' => 'nullable|boolean',
@@ -566,7 +550,7 @@ class MemberController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Membre mis à jour avec succès',
-                'data' => $member->load('site', 'city', 'township', 'organisation', 'fonction')
+                'data' => $member->load('site', 'city', 'organization')
             ]);
 
         } catch (\Throwable $th) {
