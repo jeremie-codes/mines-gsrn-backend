@@ -58,7 +58,7 @@ class Member extends Model
 
     public function organization()
     {
-        return $this->belongsTo(organization::class);
+        return $this->belongsTo(Organization::class);
     }
 
     public function getFullNameAttribute()
