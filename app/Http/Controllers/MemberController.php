@@ -249,7 +249,7 @@ class MemberController extends Controller
     public function export()
     {
         try {
-            $members = Member::with('user')->orderBy('created_at', 'desc')->get();
+            $members = Member::with('site', 'city', 'organization')->orderBy('created_at', 'desc')->get();
             return response()->json([
                 'success' => true,
                 'members' => $members
