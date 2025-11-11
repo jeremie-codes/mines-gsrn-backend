@@ -27,9 +27,9 @@ Route::middleware('api')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         // Routes API pour les membres (application mobile)
         Route::get('members', [MemberController::class, 'index']);
+        Route::get('members/export', [MemberController::class, 'export']);
         Route::get('members/{member}', [MemberController::class, 'show']);
         Route::post('members/create', [MemberController::class, 'store']);
-        Route::get('members/export', [MemberController::class, 'export']);
         Route::post('members/update', [MemberController::class, 'update']);
         Route::post('members/{id}', [MemberController::class, 'destroy']);
 
