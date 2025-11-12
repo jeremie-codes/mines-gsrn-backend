@@ -24,8 +24,6 @@ Route::middleware('api')->group(function () {
 
     Route::get('stats', [MemberController::class, 'stats']);
 
-    Route::get('organizations', [OrganizationController::class, 'index'])->name('organizations.index');
-
     Route::middleware('auth:sanctum')->group(function () {
         // Routes API pour les membres (application mobile)
         Route::get('members', [MemberController::class, 'index']);
@@ -43,6 +41,7 @@ Route::middleware('api')->group(function () {
         Route::post('sites/{id}', [SiteController::class, 'destroy'])->name('sites.delete');
 
         // Routes pour les organization
+        Route::get('organizations', [OrganizationController::class, 'index'])->name('organizations.index');
         Route::get('organizations/{id}', [OrganizationController::class, 'show'])->name('organizations.show');
         Route::post('organizations/create', [OrganizationController::class, 'store'])->name('organizations.create');
         Route::post('organizations/update/{id}', [OrganizationController::class, 'update'])->name('organizations.update');

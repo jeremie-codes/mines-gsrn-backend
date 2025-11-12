@@ -13,7 +13,6 @@ return new class extends Migration
             $table->foreignId('organization_id')->constrained()->onDelete('cascade');
             $table->foreignId('city_id')->nullable()->constrained()->onDelete('set null');
             $table->string('name');
-            $table->string('location')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });

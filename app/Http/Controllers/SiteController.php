@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Organization;
 use App\Models\Site;
 use Illuminate\Http\Request;
+use GuzzleHttp\Client;
 
 class SiteController extends Controller
 {
@@ -48,23 +50,53 @@ class SiteController extends Controller
     {
 
         try {
-
             $request->validate([
                 'name' => 'required|string|max:255',
-                'gln' => 'nullable|string|max:255',
-                'location' => 'nullable|string|max:255',
-                'organization_id' => 'nullable|exists:organizations,id',
+                'organization_id' => 'requried|exists:organizations,id',
                 'city_id' => 'nullable|exists:cities,id',
-                'is_active' => 'nullable|boolean'
             ]);
 
+            $client = new Client([
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                    'Accept' => 'application/json'
+                ],
+            ]);
+
+            $gcp = Organization::find($request->organization_id)->gcp;
+
+            if (!$gcp) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'GCP non trouvé'
+                ], 404);
+            }
+
+            $response = $client->request('POST', env('API_GLN_GENERATE'), [
+                'json' => [
+                    'locationName' => $request->name,
+                    'projectExternalId' => $gcp,
+                ],
+            ]);
+
+            $content = json_decode($response->getBody()->getContents());
+
+            if ($content->code != "0") {
+                return response()->json([
+                    'success' => false,
+                    'message' => $content->error
+                ], 400);
+            }
+
             $data = $request->all();
+            $data['gln'] = $content->gln;
+
             $site = Site::create($data);
 
             return response()->json([
                 'success' => true,
-                'site' => $site,
-                'message' => 'Site créé avec succès.'
+                'message' => 'Site créé avec succès.',
+                'site' => $site
             ], 201);
 
         } catch (\Throwable $th) {
