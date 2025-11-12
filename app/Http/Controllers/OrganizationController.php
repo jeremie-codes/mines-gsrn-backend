@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Member;
 use App\Models\Organization;
-use App\Models\Site;
+use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 
 class OrganizationController extends Controller
@@ -61,10 +61,36 @@ class OrganizationController extends Controller
 
             $organization = Organization::create($request->all());
 
+            $client = new Client([
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                    'Accept' => 'application/json'
+                ],
+            ]);
+
+            $response = $client->request('POST', env('API_GLN_GENERATE'), [
+                'json' => [
+                    "name" => $request->name,
+                    "customer" => $request->name,
+                    "description" => $request->description,
+                    "companyPrefix" => $request->description
+                ],
+                'verify' => false,
+            ]);
+
+            $content = json_decode($response->getBody()->getContents());
+
+            if ($content->code != "0") {
+                return response()->json([
+                    'success' => false,
+                    'message' => $content->error
+                ], 400);
+            }
+
             return response()->json([
                 'success' => true,
-                'organization' => $organization,
-                'message' => 'organisation créé avec succès.'
+                'message' => 'organisation créé avec succès.',
+                'organization' => $organization
             ], 200);
 
         } catch (\Throwable $th) {
