@@ -73,7 +73,7 @@ class OrganizationController extends Controller
                     "name" => $request->name,
                     "customer" => $request->name,
                     "description" => $request->description,
-                    "companyPrefix" => $request->description
+                    "companyPrefix" => $request->gcp
                 ],
                 'verify' => false,
             ]);
