@@ -51,7 +51,7 @@ class SiteController extends Controller
 
             $request->validate([
                 'name' => 'required|string|max:255',
-                'GLN' => 'nullable|string|max:255',
+                'gln' => 'nullable|string|max:255',
                 'location' => 'nullable|string|max:255',
                 'organization_id' => 'nullable|exists:organizations,id',
                 'city_id' => 'nullable|exists:cities,id',
@@ -110,7 +110,7 @@ class SiteController extends Controller
             $request->validate([
                 'city_id' => 'nullable|exists:cities,id',
                 'organization_id' => 'nullable|exists:organizations,id',
-                'GLN' => 'nullable|string|max:255',
+                'gln' => 'nullable|string|max:255',
                 'name' => 'nullable|string|max:255',
                 'location' => 'nullable|string|max:255',
                 'is_active' => 'nullable|boolean',

@@ -54,7 +54,7 @@ class OrganizationController extends Controller
 
             $request->validate([
                 'name' => 'required|string|max:255',
-                'GCP' => 'nullable|string|max:255',
+                'gcp' => 'nullable|string|max:255',
                 'description' => 'nullable|string',
                 'is_active' => 'nullable|boolean'
             ]);
@@ -105,7 +105,7 @@ class OrganizationController extends Controller
         try {
             $request->validate([
                 'name' => 'nullable|string|max:255',
-                'GCP' => 'nullable|string|max:255',
+                'gcp' => 'nullable|string|max:255',
                 'description' => 'nullable|string',
                 'is_active' => 'nullable|boolean'
             ]);
