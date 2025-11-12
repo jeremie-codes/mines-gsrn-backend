@@ -68,7 +68,7 @@ class OrganizationController extends Controller
                 ],
             ]);
 
-            $response = $client->request('POST', env('API_GLN_GENERATE'), [
+            $response = $client->request('POST', env('API_PROJECT_CREATE'), [
                 'json' => [
                     "name" => $request->name,
                     "customer" => $request->name,
