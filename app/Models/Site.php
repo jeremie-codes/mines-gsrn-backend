@@ -12,6 +12,7 @@ class Site extends Model
     protected $fillable = [
         'name',
         'organization_id',
+        'GLN',
         'city_id',
         'location',
         'is_active',

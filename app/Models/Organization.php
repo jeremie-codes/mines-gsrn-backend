@@ -11,6 +11,7 @@ class Organization extends Model
 
     protected $fillable = [
         'name',
+        'GCP',
         'description',
         'is_active',
     ];
