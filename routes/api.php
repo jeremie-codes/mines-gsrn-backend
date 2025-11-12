@@ -18,7 +18,7 @@ use App\Http\Controllers\UserController;
 Route::middleware('api')->group(function () {
 
     Route::middleware('guest')->group(function () {
-        Route::post('register/{id}', [UserController::class, 'register'])->name('register');
+        Route::post('register', [UserController::class, 'store'])->name('register');
         Route::post('login', [UserController::class, 'login'])->name('login');
     });
 

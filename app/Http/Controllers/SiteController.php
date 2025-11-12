@@ -52,8 +52,7 @@ class SiteController extends Controller
         try {
             $request->validate([
                 'name' => 'required|string|max:255',
-                'organization_id' => 'requried|exists:organizations,id',
-                'city_id' => 'nullable|exists:cities,id',
+                'organization_id' => 'required|exists:organizations,id',
             ]);
 
             $client = new Client([
@@ -77,6 +76,7 @@ class SiteController extends Controller
                     'locationName' => $request->name,
                     'projectExternalId' => $gcp,
                 ],
+                'verify' => false,
             ]);
 
             $content = json_decode($response->getBody()->getContents());
@@ -89,7 +89,7 @@ class SiteController extends Controller
             }
 
             $data = $request->all();
-            $data['gln'] = $content->gln;
+            $data['gln'] = $content->data->gln;
 
             $site = Site::create($data);
 
@@ -140,12 +140,9 @@ class SiteController extends Controller
         try {
 
             $request->validate([
-                'city_id' => 'nullable|exists:cities,id',
                 'organization_id' => 'nullable|exists:organizations,id',
                 'gln' => 'nullable|string|max:255',
                 'name' => 'nullable|string|max:255',
-                'location' => 'nullable|string|max:255',
-                'is_active' => 'nullable|boolean',
             ]);
 
             $data = $request->all();

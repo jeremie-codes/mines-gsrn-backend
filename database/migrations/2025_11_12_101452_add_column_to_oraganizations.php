@@ -14,7 +14,7 @@ class AddColumnToOraganizations extends Migration
     public function up()
     {
         Schema::table('organizations', function (Blueprint $table) {
-            $table->string('gcp')->nullable()->after("is_active");
+            $table->string('gcp')->after("is_active");
         });
     }
 

@@ -14,7 +14,7 @@ class AddColumnToSites extends Migration
     public function up()
     {
         Schema::table('sites', function (Blueprint $table) {
-            $table->string('gln')->nullable()->after("is_active");
+            $table->string('gln')->after("is_active");
         });
     }
 

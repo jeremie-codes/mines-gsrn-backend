@@ -8,15 +8,13 @@ use App\Models\Organization;
 use App\Models\User;
 use App\Models\Township;
 use Illuminate\Http\Request;
-use GuzzleHttp\Client;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
+use GuzzleHttp\Client;
 
 class MemberController extends Controller
 {
 
-    protected $projectExternalId = "1c4214e9-c6e6-4862-9fb3-b0b4af9541ce";
-    protected $baseUrlMidleware = "http://localhost:8001/api/rest/v1/gsrn/generate";
 
     public function stats()
     {
@@ -88,55 +86,60 @@ class MemberController extends Controller
                 'phone' => 'nullable|string|max:255',
                 'organization_id' => 'nullable|exists:organizations,id',
                 'site_id' => 'nullable|exists:sites,id',
-                'city_id' => 'nullable|exists:cities,id',
                 'address' => 'nullable|string|max:255',
                 'gender' => 'nullable|string',
+                'birth_date' => 'nullable|string',
                 'face_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
                 'face_base64' => 'nullable|string',
-                'date_adhesion' => 'nullable|date',
-                'birth_date' => 'nullable|date',
                 'is_active' => 'nullable|boolean'
             ]);
 
             $data = $request->all();
+            $data['date_adhesion'] = now(); // équivalent propre à date('Y-m-d H:i:s')
 
-            $client = new Client();
-
-            /*$response = $client->request('POST', $this->baseUrlMidleware, [
+            $client = new Client([
                 'headers' => [
-                    'Accept' => 'application/json',
+                    'Content-Type' => 'application/json',
+                    'Accept' => 'application/json'
                 ],
+            ]);
+
+            $gcp = Organization::find($request->organization_id)->gcp;
+
+            if (!$gcp) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'GCP non trouvé'
+                ], 404);
+            }
+
+            $response = $client->request('POST', env('API_GSRN_GENERATE'), [
                 'json' => [
-                    'firstname' => $data['firstname'],
-                    'lastname' => $data['lastname'],
-                    "phone" => $data['phone'],
-                    "gender" => $data['gender'],
-                    "title" => "mineur",
-                    "projectExternalId" => $this->projectExternalId
-                ]
+                    "firstname" => $request->firstname,
+                    "middlename" => $request->middlename,
+                    "lastname" => $request->lastname,
+                    "birthdate" => $request->date_adhesion,
+                    "phone" => $request->phone,
+                    "gender" => $request->gender,
+                    "title" => "agent",
+                    'projectExternalId' => $gcp,
+                ],
+                'verify' => false,
             ]);
 
             $content = json_decode($response->getBody()->getContents());
 
-            //return response()->json([
-            //    'success' => false,
-            //    'message' => $content->data->barcodeValue
-            //], 200);*/
-
-
-            /*if ($content->code != 0) {
+            if ($content->code != "0") {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Erreur lors de la géneration du numero de membre : ' . $content->message
-                ], 500);
-            }*/
+                    'message' => $content->error
+                ], 400);
+            }
 
-            // Générer automatiquement le numéro de membre
-            //$data['membershipNumber'] = $content->data->gsrn; // pour le test je génère une clé unique depuis boot dans le model member
-            // $data['qrcode_url'] = $content->data->barcodeValue;
 
             // Gérer l'upload d'image
             $data['face_path'] = $this->handleImageUpload($request);
+            $data['membershipNumber'] = $content->data->gsrn;
 
 
             // Créer le membre
@@ -193,7 +196,6 @@ class MemberController extends Controller
                 'phone' => 'nullable|string|max:255',
                 'organization_id' => 'nullable|exists:organizations,id',
                 'site_id' => 'nullable|exists:sites,id',
-                'city_id' => 'nullable|exists:cities,id',
                 'address' => 'nullable|string|max:255',
                 'gender' => 'nullable|string',
                 'face_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
