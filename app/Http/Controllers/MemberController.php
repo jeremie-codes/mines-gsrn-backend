@@ -147,7 +147,8 @@ class MemberController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Membre créé avec succès'
+                'message' => 'Membre créé avec succès',
+                "member" => $member
             ], 201);
         } catch (\Throwable $th) {
             return response()->json([
