@@ -17,6 +17,7 @@ class Member extends Model
         'phone',
         'gender',
         'birth_date',
+        'agent_type',
         'address',
         'organization_id',
         'site_id',
