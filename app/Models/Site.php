@@ -49,4 +49,10 @@ class Site extends Model
         return $query->where('is_active', true);
     }
 
+    public function stocks()
+    {
+        return $this->hasMany(Stock::class);
+    }
+
+
 }

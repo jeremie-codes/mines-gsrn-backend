@@ -1,10 +1,11 @@
+
 <?php
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddColumnToSites extends Migration
+class AddColumnRapportStockTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +14,8 @@ class AddColumnToSites extends Migration
      */
     public function up()
     {
-        Schema::table('sites', function (Blueprint $table) {
-            $table->string('gln')->after("is_active");
+        Schema::table('rapport_stocks', function (Blueprint $table) {
+            $table->decimal('qte', 10, 2)->default(0);
         });
     }
 
@@ -25,8 +26,8 @@ class AddColumnToSites extends Migration
      */
     public function down()
     {
-        Schema::table('sites', function (Blueprint $table) {
-            // 
+        Schema::table('rapport_stocks', function (Blueprint $table) {
+            //
         });
     }
 }

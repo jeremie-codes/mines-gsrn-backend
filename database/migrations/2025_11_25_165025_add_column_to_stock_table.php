@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddColumnToSites extends Migration
+class AddColumnToStockTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,10 @@ class AddColumnToSites extends Migration
      */
     public function up()
     {
-        Schema::table('sites', function (Blueprint $table) {
-            $table->string('gln')->after("is_active");
+        Schema::table('stocks', function (Blueprint $table) {
+             $table->foreignId('site_id')
+                ->constrained('sites')
+                ->cascadeOnDelete()->after('id');
         });
     }
 
@@ -25,8 +27,8 @@ class AddColumnToSites extends Migration
      */
     public function down()
     {
-        Schema::table('sites', function (Blueprint $table) {
-            // 
+        Schema::table('stocks', function (Blueprint $table) {
+            //
         });
     }
 }

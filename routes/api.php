@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\RapportController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CotisationController;
 use Illuminate\Support\Facades\Route;
@@ -8,6 +9,7 @@ use App\Http\Controllers\PdfController;
 use App\Http\Controllers\SiteController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\StockController;
 use App\Http\Controllers\UserController;
 /*
 |--------------------------------------------------------------------------
@@ -46,6 +48,18 @@ Route::middleware('api')->group(function () {
         Route::post('organizations/create', [OrganizationController::class, 'store'])->name('organizations.create');
         Route::post('organizations/update/{id}', [OrganizationController::class, 'update'])->name('organizations.update');
         Route::post('organizations/{id}', [OrganizationController::class, 'destroy'])->name('organizations.delete');
+    
+        Route::get('stocks', [StockController::class, 'index']);
+        Route::get('stocks/{id}', [StockController::class, 'show']);
+        Route::post('stocks/create', [StockController::class, 'store']);
+        Route::post('stocks/update/{id}', [StockController::class, 'update']);
+        Route::post('stocks/{id}', [StockController::class, 'destroy']);
+
+        Route::get('rapports', [RapportController::class, 'index']);
+        Route::get('rapports/{id}', [RapportController::class, 'show']);
+        Route::post('rapports/create', [RapportController::class, 'store']);
+        Route::post('rapports/update/{id}', [RapportController::class, 'update']);
+        Route::post('rapports/{id}', [RapportController::class, 'destroy']);
 
         Route::post('logout', [UserController::class, 'logout'])->name('logout');
     });
