@@ -15,7 +15,7 @@ class RapportController extends Controller
     public function index()
     {
         try {
-            $rapports = Rapport::with('stocks')->where('site_id', auth()->user()->site_id)->orderBy('created_at', 'desc')->get();
+            $rapports = Rapport::with('stocks')->where('organization_id', auth()->user()->organization_id)->orderBy('created_at', 'desc')->get();
 
             return response()->json([
                 'success' => true,
@@ -198,7 +198,6 @@ class RapportController extends Controller
             ], 500);
         }
     }
-
 
     // 🔹 DELETE /rapports/{id}
     public function destroy($id)

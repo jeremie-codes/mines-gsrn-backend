@@ -10,11 +10,17 @@ class Rapport extends Model
     use HasFactory;
 
     protected $fillable = [
+        "organization_id",
         "substance",
         "date_debut",
         "date_fin",
         "mesure"
     ];
+
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class);
+    }
 
     public function stocks()
     {
