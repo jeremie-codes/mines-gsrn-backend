@@ -38,7 +38,7 @@ class StockController extends Controller
                 'collecteur' => 'required|string|max:255',
                 'qte' => 'required|numeric',
                 'mesure' => 'required|string',
-                'date_collecte' => 'nullable|date|datetime',
+                'date_collecte' => 'nullable|date',
             ]);
 
             $validated['site_id'] = auth()->user()->site_id;
