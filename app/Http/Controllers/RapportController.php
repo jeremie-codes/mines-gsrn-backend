@@ -35,6 +35,7 @@ class RapportController extends Controller
     public function store(Request $request)
     {
         try {
+            // Validation des champs
             $validated = $request->validate([
                 'substance' => 'required|string|max:255',
                 'date_debut' => 'required|date',
@@ -43,7 +44,8 @@ class RapportController extends Controller
             ]);
 
             // Récupérer le membre et son site
-            $site = auth()->user()->site;
+            $user = auth()->user();
+            $site = $user->site;
 
             if (!$site) {
                 return response()->json([
@@ -52,18 +54,20 @@ class RapportController extends Controller
                 ], 400);
             }
 
+            // Convertir les dates en début et fin de journée
             $dateDebut = \Carbon\Carbon::parse($validated['date_debut'])->startOfDay();
             $dateFin = \Carbon\Carbon::parse($validated['date_fin'])->endOfDay();
 
+            // Récupérer les stocks du site pour cette période
             $stocks = Stock::where('site_id', $site->id)
-                    ->whereBetween('created_at', [$dateDebut, $dateFin])
-                    ->get();
+                ->whereBetween('created_at', [$dateDebut, $dateFin])
+                ->get();
 
             if ($stocks->isEmpty()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Aucun stock trouvé pour cette période.',
-                ]);
+                ], 404);
             }
 
             // Création du rapport
@@ -74,11 +78,10 @@ class RapportController extends Controller
                 'mesure' => $validated['mesure'] ?? null,
             ]);
 
-            // Préparer pivot avec qte = stock->qte
-            $pivotData = [];
-            foreach ($stocks as $stock) {
-                $pivotData[$stock->id] = ['qte' => $stock->qte];
-            }
+            // Préparer le pivot avec qte = stock->qte
+            $pivotData = $stocks->mapWithKeys(fn($stock) => [
+                $stock->id => ['qte' => $stock->qte]
+            ])->toArray();
 
             $rapport->stocks()->sync($pivotData);
 
