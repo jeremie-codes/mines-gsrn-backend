@@ -13,7 +13,7 @@ class StockController extends Controller
     public function index()
     {
         try {
-            $stocks = Stock::where('site_id', auth()->user()->site_id)->orderBy('created_at', 'desc')->paginated(10);
+            $stocks = Stock::where('site_id', auth()->user()->site_id)->orderBy('created_at', 'desc')->paginate(10);
 
             return response()->json([
                 'success' => true,

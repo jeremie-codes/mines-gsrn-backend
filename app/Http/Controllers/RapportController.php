@@ -15,7 +15,7 @@ class RapportController extends Controller
     public function index()
     {
         try {
-            $rapports = Rapport::with('stocks')->where('organization_id', auth()->user()->organization_id)->orderBy('created_at', 'desc')->get();
+            $rapports = Rapport::with('stocks')->where('organization_id', auth()->user()->organization_id)->orderBy('created_at', 'desc')->paginate(10);
 
             return response()->json([
                 'success' => true,
