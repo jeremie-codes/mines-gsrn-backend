@@ -4,14 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\City;
 use App\Models\Country;
-use App\Models\Fonction;
 use App\Models\User;
-use App\Models\Member;
-use App\Models\Role;
 use App\Models\Township;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
@@ -37,12 +33,23 @@ class UserController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'username' => 'nullable|string',
+            'username' => 'required|string',
             'password' => 'required',
         ]);
 
+        // 1) Chercher utilisateur par username
         $user = User::where('username', $request->username)->first();
 
+        // 2) Si pas trouvé, chercher dans Member.membershipNumber
+        if (! $user) {
+            $member = Member::where('membershipNumber', $request->username)->first();
+
+            if ($member) {
+                $user = User::where('member_id', $member->id)->first();
+            }
+        }
+
+        // 3) Vérifier si user existe + password ok
         if (! $user || ! Hash::check($request->password, $user->password)) {
             return response()->json([
                 'success' => false,
@@ -51,10 +58,12 @@ class UserController extends Controller
         }
 
         return response()->json([
+            'success' => true,
             'token' => $user->createToken('api-token')->plainTextToken,
             'user' => $user,
         ]);
     }
+
 
     public function logout(Request $request)
     {
@@ -157,6 +166,7 @@ class UserController extends Controller
 
             if ($request->password) {
                 $data['password'] = Hash::make($request->password);
+                $data['isFirstconnexion'] = false;
             } else {
                 unset($data['password']);
             }

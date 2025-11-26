@@ -10,16 +10,25 @@ use Exception;
 class StockController extends Controller
 {
     // 🔹 GET /stocks
-    public function index()
+   public function index()
     {
         try {
-            $stocks = Stock::where('site_id', auth()->user()->site_id)->orderBy('created_at', 'desc')->paginate(10);
+            $user = auth()->user();
+
+            // Récupérer l'organisation via le member
+            $organizationId = $user->member->organization_id;
+
+            // Récupérer les stocks des sites liés à cette organisation
+            $stocks = Stock::whereHas('site', function ($query) use ($organizationId) {
+                    $query->where('organization_id', $organizationId);
+                })
+                ->orderBy('created_at', 'desc')
+                ->paginate(10);
 
             return response()->json([
                 'success' => true,
                 'data' => $stocks,
-            ], 200);
-
+            ]);
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
@@ -28,6 +37,7 @@ class StockController extends Controller
             ], 500);
         }
     }
+
 
     // 🔹 POST /stocks
     public function store(Request $request)
@@ -68,7 +78,6 @@ class StockController extends Controller
             ], 500);
         }
     }
-
 
     // 🔹 GET /stocks/{id}
     public function show($id)

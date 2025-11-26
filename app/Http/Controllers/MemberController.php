@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Hash;
 
 class MemberController extends Controller
 {
@@ -142,9 +143,16 @@ class MemberController extends Controller
             $data['face_path'] = $this->handleImageUpload($request);
             $data['membershipNumber'] = $content->data->gsrn;
 
-
             // Créer le membre
             $member = Member::create($data);
+            //$user = null;
+
+            if ($member->agent_type == "chief_cooperative") {
+                User::create([
+                    'member_id' => $member->id,
+                    'password' => Hash::make('@mines123'),
+                ]);
+            }
 
             return response()->json([
                 'success' => true,
