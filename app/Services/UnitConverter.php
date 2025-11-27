@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use Exception;
-use GuzzleHttp\Client;
 
 class UnitConverter
 {
@@ -51,6 +50,28 @@ class UnitConverter
     {
         $from = strtolower($from);
 
+        // Vérifier si la matière existe
+        if (!isset(self::$referenceUnits[$substanceCode])) {
+            throw new Exception("Substance inconnue : $substanceCode");
+        }
+
+        // Vérifier si l'unité de référence est correcte
+        $to = self::$referenceUnits[$substanceCode];
+
+        // Vérifier si la conversion interne existe
+        if (!isset(self::$conversions[$from][$to])) {
+            throw new Exception("Impossible de convertir $from vers $to pour $substanceCode");
+        }
+
+        // Appliquer le multiplicateur
+        $multiplier = self::$conversions[$from][$to];
+        return $qty * $multiplier;
+    }
+
+    /*public static function convert(string $substanceCode, float $qty, string $from)
+    {
+        $from = strtolower($from);
+
         // ---- 1. Récupérer l’unité de référence depuis ton API ----
         $client = new Client();
         $response = $client->get('http://localhost:8000/api/api/rest/substances/' . $substanceCode);
@@ -71,8 +92,7 @@ class UnitConverter
         $multiplier = self::$conversions[$from][$to];
 
         return $qty * $multiplier;
-    }
-
+    }*/
 
     /**
      * Normalisation automatique :
