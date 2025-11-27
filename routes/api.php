@@ -52,7 +52,7 @@ Route::middleware('api')->group(function () {
         Route::post('stocks/{id}', [StockController::class, 'destroy']);
 
         Route::get('rapports', [RapportController::class, 'index']);
-        Route::get('rapports/{id}', [RapportController::class, 'show']);
+        Route::get('rapports/{ref}', [RapportController::class, 'show']);
         Route::post('rapports/create', [RapportController::class, 'store']);
         Route::post('rapports/update/{id}', [RapportController::class, 'update']);
         Route::post('rapports/{id}', [RapportController::class, 'destroy']);

@@ -64,75 +64,6 @@ class RapportController extends Controller
         }
     }
 
-    // 🔹 POST /rapports
-    /*public function store(Request $request)
-    {
-        try {
-            // Validation des champs
-            $validated = $request->validate([
-                'substance' => 'required|string|max:255',
-                'date_debut' => 'required|date',
-                'date_fin' => 'required|date',
-                'mesure' => 'nullable|string|max:50',
-            ]);
-
-            // Récupérer le membre et son site
-            $user = auth()->user();
-            $site = $user->member->site;
-
-            if (!$site) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Le membre n\'a pas de site associé.',
-                ], 400);
-            }
-
-            // Convertir les dates en début et fin de journée
-            $dateDebut = \Carbon\Carbon::parse($validated['date_debut'])->startOfDay();
-            $dateFin = \Carbon\Carbon::parse($validated['date_fin'])->endOfDay();
-
-            // Récupérer les stocks du site pour cette période
-            $stocks = Stock::where('site_id', $site->id)
-                ->whereBetween('created_at', [$dateDebut, $dateFin])
-                ->get();
-
-            if ($stocks->isEmpty()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Aucun stock trouvé pour cette période.',
-                ], 404);
-            }
-
-            // Création du rapport
-            $rapport = Rapport::create([
-                'substance' => $validated['substance'],
-                'date_debut' => $validated['date_debut'],
-                'date_fin' => $validated['date_fin'],
-                'mesure' => $validated['mesure'] ?? null,
-            ]);
-
-            // Préparer le pivot avec qte = stock->qte
-            $pivotData = $stocks->mapWithKeys(fn($stock) => [
-                $stock->id => ['qte' => $stock->qte]
-            ])->toArray();
-
-            $rapport->stocks()->sync($pivotData);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Rapport généré avec succès',
-                'data' => $rapport->load('stocks'),
-            ], 201);
-
-        } catch (Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Erreur lors de la génération du rapport',
-                'error' => $e->getMessage(),
-            ], 500);
-        }
-    } */
-
     public function store(Request $request)
     {
         try {
@@ -210,10 +141,10 @@ class RapportController extends Controller
 
 
     // 🔹 GET /rapports/{id}
-    public function show($id)
+    public function show($ref)
     {
         try {
-            $rapport = Rapport::with('stocks')->findOrFail($id);
+            $rapport = Rapport::with('stocks')->where('reference', $ref)->firstOrFail();
 
             return response()->json([
                 'success' => true,
