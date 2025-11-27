@@ -12,6 +12,7 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     protected $fillable = [
+        'member_id',
         'plain_password',
         'username',
         'password',
@@ -43,5 +44,10 @@ class User extends Authenticatable
     public function profiles()
     {
         return $this->hasMany(Profile::class);
+    }
+
+    public function member()
+    {
+        return $this->belongsTo(Member::class);
     }
 }
