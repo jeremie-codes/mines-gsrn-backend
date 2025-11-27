@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Rapport;
 use App\Models\Stock;
+use App\Services\UnitConverter;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Exception;
@@ -32,7 +33,7 @@ class RapportController extends Controller
     }
 
     // 🔹 POST /rapports
-    public function store(Request $request)
+    /*public function store(Request $request)
     {
         try {
             // Validation des champs
@@ -98,7 +99,78 @@ class RapportController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
+    } */
+
+    public function store(Request $request)
+    {
+        try {
+            // Validation
+            $validated = $request->validate([
+                'date_debut' => 'required|date',
+                'date_fin' => 'required|date',
+            ]);
+
+            $user = auth()->user();
+            $organizationId = $user->member->organization_id;
+
+            $dateDebut = \Carbon\Carbon::parse($validated['date_debut'])->startOfDay();
+            $dateFin = \Carbon\Carbon::parse($validated['date_fin'])->endOfDay();
+
+            // Récupérer les stocks des sites liés à cette organisation
+            $stocks = Stock::whereHas('site', function ($query) use ($organizationId) {
+                    $query->where('organization_id', $organizationId);
+                })
+                ->whereBetween('created_at', [$dateDebut, $dateFin])
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            if ($stocks->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Aucun stock trouvé pour cette période.',
+                ], 404);
+            }
+
+            // 1️⃣ Créer le rapport
+            $rapport = Rapport::create([
+                'date_debut' => $validated['date_debut'],
+                'date_fin' => $validated['date_fin'],
+                "organization_id " => $organizationId
+            ]);
+
+            // 2️⃣ Préparer le pivot avec conversion
+            $pivotData = [];
+
+            foreach ($stocks as $stock) {
+
+                // Convertir la qte de l’unité du stock → unité finale
+                $convertedQty = UnitConverter::convert(
+                    substanceCode: $validated['substance'],
+                    qty: $stock->qte,
+                    from: $stock->mesure,
+                );
+
+                $pivotData[$stock->id] = ['qte' => $convertedQty];
+            }
+
+            // 3️⃣ Synchroniser le pivot
+            $rapport->stocks()->sync($pivotData);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Rapport généré avec succès',
+                'data' => $rapport->load('stocks'),
+            ], 201);
+
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la génération du rapport',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
+
 
     // 🔹 GET /rapports/{id}
     public function show($id)

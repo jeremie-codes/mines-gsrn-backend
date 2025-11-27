@@ -44,23 +44,25 @@ class StockController extends Controller
     {
         try {
             $validated = $request->validate([
-                'substance' => 'required|string|max:255',
+                'site_id' => 'required|exists:sites,id',
+                'substance_code' => 'required|string|max:255',
                 'collecteur' => 'required|string|max:255',
                 'qte' => 'required|numeric',
                 'mesure' => 'required|string',
-                'date_collecte' => 'nullable|date',
             ]);
 
-            $user = auth()->user();
+            $validated['date_collecte'] = now();
 
-            if (!$user->member->site_id) {
+            //$user = auth()->user();
+
+            /*if (!$user->member->site_id) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Impossible de créer un stock : l\'utilisateur n\'a pas de site associé.',
                 ], 400);
-            }
+            }*/
 
-            $validated['site_id'] = $user->member->site_id;
+            //$validated['site_id'] = $user->member->site_id;
 
             $stock = Stock::create($validated);
 
@@ -123,7 +125,8 @@ class StockController extends Controller
             }
 
             $validated = $request->validate([
-                'substance' => 'nullable|string|max:255',
+                'site_id' => 'nullable|exists:sites,id',
+                'substance_code' => 'nullable|string|max:255',
                 'collecteur' => 'nullable|string|max:255',
                 'qte' => 'nullable|numeric',
                 'mesure' => 'nullable|string',

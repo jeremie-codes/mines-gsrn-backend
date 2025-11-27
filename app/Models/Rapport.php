@@ -11,10 +11,8 @@ class Rapport extends Model
 
     protected $fillable = [
         "organization_id",
-        "substance",
         "date_debut",
         "date_fin",
-        "mesure"
     ];
 
     public function organization()
