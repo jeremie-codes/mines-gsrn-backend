@@ -131,19 +131,12 @@ class RapportController extends Controller
                 ], 404);
             }
 
-            return response()->json([
-                'reference' => Rapport::generateReference(),
-                'date_debut' => $validated['date_debut'],
-                'date_fin' => $validated['date_fin'],
-                "organization_id " => $organizationId
-            ]);
-
             // 1️⃣ Créer le rapport
             $rapport = Rapport::create([
                 'reference' => Rapport::generateReference(),
                 'date_debut' => $validated['date_debut'],
                 'date_fin' => $validated['date_fin'],
-                "organization_id " => $organizationId
+                'organization_id' => $organizationId
             ]);
 
             // 2️⃣ Préparer le pivot avec conversion
