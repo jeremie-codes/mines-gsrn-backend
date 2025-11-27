@@ -30,15 +30,9 @@ class Rapport extends Model
     public function stocks()
     {
         return $this->belongsToMany(Stock::class, 'rapport_stocks')
-                ->withPivot('qte')
-                ->withTimestamps();
-    }
-
-    public function getQteTotalAttribute()
-    {
-        return $this->stocks->sum(function ($stock) {
-            return $stock->pivot->qte;
-        });
+                    ->as('converted')              // 👈 renomme 'pivot'
+                    ->withPivot(['qte', 'metric']) // 👈 champs du pivot
+                    ->withTimestamps();
     }
 
 }

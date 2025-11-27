@@ -18,13 +18,6 @@ class Stock extends Model
         'mesure',
     ];
 
-    public function rapports()
-    {
-        return $this->belongsToMany(Rapport::class, 'rapport_stocks')
-                ->withPivot('qte')
-                ->withTimestamps();
-    }
-
     public function site()
     {
         return $this->belongsTo(Site::class);
