@@ -16,43 +16,14 @@ class RapportController extends Controller
     public function index()
     {
         try {
-            $rapports = Rapport::with('stocks')
-                ->where('organization_id', auth()->user()->organization_id)
-                ->orderBy('created_at', 'desc')
-                ->paginate(10);
-
-            // 🔥 Pour chaque rapport, créer "stocks_totaux"
-            $rapports->getCollection()->transform(function ($rapport) {
-
-                $grouped = $rapport->stocks
-                    ->groupBy('substance_code')
-                    ->map(function ($items) {
-
-                        // Toutes les lignes ont déjà été converties → même unité (pivot.metric)
-                        $unit = $items->first()->pivot->metric;
-
-                        return [
-            // Pour chaque rapport, créer "stocks_totaux" qui contient la somme des quantités de chaque substance
-                            'substance_code' => $items->first()->substance_code,
-                            'qte' => $items->sum(fn($s) => $s->pivot->qte),
-                            'metric' => $unit
-                // Les quantités sont toutes converties dans la même unité (pivot.metric)
-                        ];
-                    })
-                    ->values(); // évite les clés string
-
-                // Remplacer l'ancien champ stocks
-                $rapport->stocks = $grouped;
-
-                return $rapport;
-            });
+            $rapports = Rapport::with('stocks')->where('organization_id', auth()->user()->organization_id)->orderBy('created_at', 'desc')->paginate(10);
 
             return response()->json([
                 'success' => true,
                 'data' => $rapports,
             ]);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Erreur lors du chargement des rapports',
@@ -60,7 +31,6 @@ class RapportController extends Controller
             ], 500);
         }
     }
-
 
     // 🔹 POST /rapports
     /*public function store(Request $request)
