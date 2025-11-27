@@ -124,7 +124,7 @@ class StockController extends Controller
 
             $validated = $request->validate([
                 'substance' => 'nullable|string|max:255',
-                'collecteur' => 'nullable|string|max:255',
+                'collecteur' => 'required|string|max:255',
                 'qte' => 'nullable|numeric',
                 'mesure' => 'nullable|string',
                 'date_collecte' => 'nullable|date',
