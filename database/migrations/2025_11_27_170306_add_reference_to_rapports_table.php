@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateRapportsTable extends Migration
+class AddReferenceToRapportsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,8 @@ class CreateRapportsTable extends Migration
      */
     public function up()
     {
-        Schema::create('rapports', function (Blueprint $table) {
-            $table->id();
-            $table->dateTime('date_debut');
-            $table->dateTime('date_fin');
-            $table->timestamps();
+        Schema::table('rapports', function (Blueprint $table) {
+            $table->string('reference')->uniqid()->after("id");
         });
     }
 
@@ -28,6 +25,8 @@ class CreateRapportsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('rapports');
+        Schema::table('rapports', function (Blueprint $table) {
+            $table->dropColumn('reference');
+        });
     }
 }

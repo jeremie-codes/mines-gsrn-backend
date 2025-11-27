@@ -15,7 +15,7 @@ class CreateStocksTable extends Migration
     {
         Schema::create('stocks', function (Blueprint $table) {
             $table->id();
-            $table->string('substance');
+            $table->string('substance_code');
             $table->string('collecteur');
             $table->decimal('qte', 10, 2)->default(0);
             $table->string('mesure')->nullable();

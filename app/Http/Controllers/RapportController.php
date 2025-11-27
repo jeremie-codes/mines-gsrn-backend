@@ -133,6 +133,7 @@ class RapportController extends Controller
 
             // 1️⃣ Créer le rapport
             $rapport = Rapport::create([
+                'reference' => Rapport::generateReference(),
                 'date_debut' => $validated['date_debut'],
                 'date_fin' => $validated['date_fin'],
                 "organization_id " => $organizationId
@@ -145,7 +146,7 @@ class RapportController extends Controller
 
                 // Convertir la qte de l’unité du stock → unité finale
                 $convertedQty = UnitConverter::convert(
-                    substanceCode: $validated['substance'],
+                    substanceCode: $stock->substance_code,
                     qty: $stock->qte,
                     from: $stock->mesure,
                 );
@@ -205,10 +206,8 @@ class RapportController extends Controller
             $rapport = Rapport::findOrFail($id);
 
             $validated = $request->validate([
-                'substance' => 'nullable|string|max:255',
                 'date_debut' => 'nullable|date',
                 'date_fin' => 'nullable|date',
-                'mesure' => 'nullable|string|max:50',
             ]);
 
             // Récupérer le site du membre connecté

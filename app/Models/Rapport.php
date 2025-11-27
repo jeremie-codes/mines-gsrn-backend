@@ -10,10 +10,17 @@ class Rapport extends Model
     use HasFactory;
 
     protected $fillable = [
+        "reference",
         "organization_id",
         "date_debut",
         "date_fin",
     ];
+
+    public static function generateReference()
+    {
+        return 'RPT-' . strtoupper(uniqid());
+    }
+
 
     public function organization()
     {
