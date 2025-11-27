@@ -46,7 +46,7 @@ class RapportController extends Controller
                     ->values(); // évite les clés string
 
                 // Remplacer l'ancien champ stocks
-                $rapport->stocks = $grouped;
+                $rapport->stocks = "";
 
                 return $rapport;
             });
