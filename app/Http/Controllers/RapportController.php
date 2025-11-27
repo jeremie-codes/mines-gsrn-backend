@@ -133,9 +133,9 @@ class RapportController extends Controller
             $rapport = Rapport::findOrFail($id);
 
             $validated = $request->validate([
-                'substance' => 'required|string|max:255',
-                'date_debut' => 'required|date',
-                'date_fin' => 'required|date',
+                'substance' => 'nullable|string|max:255',
+                'date_debut' => 'nullable|date',
+                'date_fin' => 'nullable|date',
                 'mesure' => 'nullable|string|max:50',
             ]);
 
