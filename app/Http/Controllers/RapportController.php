@@ -41,11 +41,11 @@ class RapportController extends Controller
                     })
                     ->values(); // reset des clés
 
-                // Ajouter la propriété totaux
-                $rapport->totaux = $totaux;
-
                 // Supprimer la propriété stocks pour la réponse
                 unset($rapport->stocks);
+
+                // Ajouter la propriété totaux
+                $rapport->stocks = $totaux;
 
                 return $rapport;
             });
