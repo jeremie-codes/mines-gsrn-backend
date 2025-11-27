@@ -19,27 +19,33 @@ class RapportController extends Controller
             $user = auth()->user();
             $organizationId = $user->member->organization_id;
 
-            $rapports = Rapport::with('stocks') // on récupère tous les stocks liés
+            $rapports = Rapport::with('stocks') // Charger les stocks pour chaque rapport
                 ->where('organization_id', $organizationId)
                 ->orderBy('created_at', 'desc')
                 ->paginate(10);
 
-            // Transformer chaque rapport pour générer le tableau 'stocks_totaux'
+            // Transformer chaque rapport pour calculer les totaux
             $rapports->getCollection()->transform(function ($rapport) {
-                $totals = $rapport->stocks
+
+                // Grouper par substance_code et sommer les qtes du pivot
+                $totaux = $rapport->stocks
                     ->groupBy('substance_code')
                     ->map(function ($items) {
-                        $unit = $items->first()->converted->metric; // unité convertie
+                        $unit = $items->first()->converted->metric; // unité commune
+                        $qtySum = $items->sum(fn($s) => floatval($s->converted->qte));
                         return [
                             'substance_code' => $items->first()->substance_code,
-                            'qte' => $items->sum(fn($s) => $s->converted->qte),
-                            'metric' => $unit,
+                            'qte' => $qtySum,
+                            'metric' => $unit
                         ];
                     })
-                    ->values(); // reset keys
+                    ->values(); // reset des clés
 
-                // Remplacer l'ancien champ 'stocks' par le tableau simplifié
-                $rapport->stocks = $totals;
+                // Ajouter la propriété totaux
+                $rapport->totaux = $totaux;
+
+                // Supprimer la propriété stocks pour la réponse
+                unset($rapport->stocks);
 
                 return $rapport;
             });
@@ -57,7 +63,6 @@ class RapportController extends Controller
             ], 500);
         }
     }
-
 
     // 🔹 POST /rapports
     /*public function store(Request $request)
