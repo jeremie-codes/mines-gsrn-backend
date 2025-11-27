@@ -11,8 +11,8 @@ class UnitConverter
      */
     protected static $referenceUnits = [
         'gold' => 'g',          // Or
-        'diamond' => 'ct',      // Carat
-        'coltan' => 'kg',
+        'Diamant' => 'ct',      // Carat
+        'OR-123-Min' => 'kg',
         'cassiterite' => 'kg',
         'cobalt' => 'kg',
         'copper' => 'kg',
