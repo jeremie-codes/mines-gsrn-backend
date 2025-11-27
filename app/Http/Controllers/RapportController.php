@@ -32,7 +32,7 @@ class RapportController extends Controller
                     ->map(function ($items) {
 
                         // Toutes les lignes ont déjà été converties → même unité (pivot.metric)
-                        $unit = $items->converted->metric;
+                        $unit = $items->first()->converted->metric; // 👈 utilise 'converted'
 
                         return [
                             // Pour chaque rapport, créer "stocks_totaux" qui contient la somme des quantités de chaque substance
