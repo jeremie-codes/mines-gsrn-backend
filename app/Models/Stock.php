@@ -12,7 +12,7 @@ class Stock extends Model
     protected $fillable = [
         'site_id',
         'date_collecte',
-        'substance',
+        'substance_code',
         'collecteur',
         'qte',
         'mesure',
