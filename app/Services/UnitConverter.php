@@ -88,7 +88,10 @@ class UnitConverter
 
         // Appliquer le multiplicateur
         $multiplier = self::$conversions[$from][$to];
-        return $qty * $multiplier;
+        return [
+            'qty' => $qty * $multiplier,
+            'unit' => $to
+        ];
     }
 
     /*public static function convert(string $substanceCode, float $qty, string $from)
