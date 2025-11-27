@@ -45,7 +45,7 @@ class RapportController extends Controller
 
             // Récupérer le membre et son site
             $user = auth()->user();
-            $site = $user->site;
+            $site = $user->member->site;
 
             if (!$site) {
                 return response()->json([

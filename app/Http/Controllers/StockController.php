@@ -53,14 +53,14 @@ class StockController extends Controller
 
             $user = auth()->user();
 
-            if (!$user->site_id) {
+            if (!$user->member->site_id) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Impossible de créer un stock : l\'utilisateur n\'a pas de site associé.',
                 ], 400);
             }
 
-            $validated['site_id'] = $user->site_id;
+            $validated['site_id'] = $user->member->site_id;
 
             $stock = Stock::create($validated);
 
