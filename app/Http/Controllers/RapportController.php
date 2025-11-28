@@ -94,20 +94,10 @@ class RapportController extends Controller
                 ], 404);
             }
 
-
-            // 1️⃣ Créer le rapport
-            $rapport = Rapport::create([
-                'reference' => Rapport::generateReference(),
-                'date_debut' => $validated['date_debut'],
-                'date_fin' => $validated['date_fin'],
-                'organization_id' => $organizationId
-            ]);
-
             // 2️⃣ Préparer le pivot avec conversion
             $pivotData = [];
 
             foreach ($stocks as $stock) {
-
                 // Convertir la qte de l’unité du stock → unité finale
                 $convertedQty = UnitConverter::convert(
                     substanceCode: $stock->substance_code,
@@ -120,6 +110,14 @@ class RapportController extends Controller
                     'metric' => $convertedQty['unit']
                 ];
             }
+
+            // 1️⃣ Créer le rapport
+            $rapport = Rapport::create([
+                'reference' => Rapport::generateReference(),
+                'date_debut' => $validated['date_debut'],
+                'date_fin' => $validated['date_fin'],
+                'organization_id' => $organizationId
+            ]);
 
             // 3️⃣ Synchroniser le pivot
             $rapport->stocks()->sync($pivotData);
