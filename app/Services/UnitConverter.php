@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Exception;
+use GuzzleHttp\Client;
 
 class UnitConverter
 {
@@ -69,7 +70,7 @@ class UnitConverter
     /**
      * Convertir une quantité pour une substance donnée
      */
-    public static function convert(string $substanceCode, float $qty, string $from)
+    /*public static function convert(string $substanceCode, float $qty, string $from)
     {
         $from = strtolower($from);
 
@@ -92,9 +93,9 @@ class UnitConverter
             'qty' => $qty * $multiplier,
             'unit' => $to
         ];
-    }
+    }*/
 
-    /*public static function convert(string $substanceCode, float $qty, string $from)
+    public static function convert(string $substanceCode, float $qty, string $from)
     {
         $from = strtolower($from);
 
@@ -115,10 +116,13 @@ class UnitConverter
         }
 
         // ---- 3. Appliquer la conversion ----
+        // Appliquer le multiplicateur
         $multiplier = self::$conversions[$from][$to];
-
-        return $qty * $multiplier;
-    }*/
+        return [
+            'qty' => $qty * $multiplier,
+            'unit' => $to
+        ];
+    }
 
     /**
      * Normalisation automatique :
