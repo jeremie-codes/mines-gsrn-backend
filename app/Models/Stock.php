@@ -23,4 +23,10 @@ class Stock extends Model
         return $this->belongsTo(Site::class);
     }
 
+    // Relation entre collecteur et membre
+    public function membre()
+    {
+        return $this->belongsTo(Member::class, 'collecteur', 'membershipNumber');
+    }
+
 }
