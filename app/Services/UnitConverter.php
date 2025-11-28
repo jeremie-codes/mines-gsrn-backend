@@ -101,7 +101,7 @@ class UnitConverter
 
         // ---- 1. Récupérer l’unité de référence depuis ton API ----
         $client = new Client();
-        $response = $client->get('https://plain-falcons-see.loca.lt/api/api/rest/substances/' . $substanceCode);
+        $response = $client->get('https://plain-falcons-see.loca.lt/api/rest/substances/' . $substanceCode);
         $data = json_decode($response->getBody()->getContents());
 
         if (!$data || !isset($data->metric->code)) {
