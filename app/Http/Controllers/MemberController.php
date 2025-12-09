@@ -440,78 +440,89 @@ class MemberController extends Controller
     public function apiStore(Request $request)
     {
         try {
-            $validator = Validator::make($request->all(), [
+            $validated = $request->validate([
                 'firstname' => 'nullable|string|max:255',
                 'lastname' => 'nullable|string|max:255',
                 'middlename' => 'nullable|string|max:255',
                 'phone' => 'nullable|string|max:255',
                 'organization_id' => 'nullable|exists:organizations,id',
                 'site_id' => 'nullable|exists:sites,id',
-                'city_id' => 'nullable|exists:cities,id',
                 'address' => 'nullable|string|max:255',
                 'gender' => 'nullable|string',
+                'agent_type' => 'nullable|string',
+                'birth_date' => 'nullable|string',
                 'face_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
                 'face_base64' => 'nullable|string',
-                'date_adhesion' => 'nullable|date',
-                'birth_date' => 'nullable|date',
                 'is_active' => 'nullable|boolean'
             ]);
 
-            if ($validator->fails()) {
+            $data = $request->all();
+            $data['date_adhesion'] = now(); // équivalent propre à date('Y-m-d H:i:s')
+
+            $client = new Client([
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                    'Accept' => 'application/json'
+                ],
+            ]);
+
+            $gcp = Organization::find($request->organization_id)->gcp;
+
+            if (!$gcp) {
                 return response()->json([
                     'success' => false,
-                    'errors' => $validator->errors(),
-                    'message' => 'Les données envoyées ne sont pas valides.'
-                ], 422);
+                    'message' => 'GCP non trouvé'
+                ], 404);
             }
 
-            $validated = $validator->validated();
-
-            /*$client = new Client();
-
-            $response = $client->request('POST', $this->baseUrlMidleware, [
-                'headers' => [
-                    'Accept' => 'application/json',
-                ],
+            $response = $client->request('POST', env('API_GSRN_GENERATE'), [
                 'json' => [
-                    'firstname' => $validator['firstname'],
-                    'lastname' => $validator['lastname'],
-                    "birthdate" => $validator['date_adhesion'],
-                    "phone" => $validator['phone'],
-                    "gender" => $validator['gender'],
-                    "title" => "mineur",
-                    "projectExternalId" => $this->projectExternalId
+                    "firstname" => $request->firstname,
+                    "middlename" => $request->middlename,
+                    "lastname" => $request->lastname,
+                    "birthdate" => $request->date_adhesion,
+                    "phone" => $request->phone,
+                    "gender" => $request->gender,
+                    "title" => $request->agent_type,
+                    'projectExternalId' => $gcp,
                 ],
-                true
+                'verify' => false,
             ]);
 
             $content = json_decode($response->getBody()->getContents());
 
-            if ($content->code != 0) {
+            if ($content->code != "0") {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Erreur lors de la géneration du numero de membre : ' . $content->message
-                ], 500);
+                    'message' => $content->error
+                ], 400);
             }
 
-            // Générer automatiquement le numéro de membre
+
+            // Gérer l'upload d'image
+            $data['face_path'] = $this->handleImageUpload($request);
             $data['membershipNumber'] = $content->data->gsrn;
-            $data['qrcode_url'] = $content->data->barcodeValue;*/
 
-            // Traitement de l'image
-            $validated['face_path'] = $this->handleImageUpload($request);
+            // Créer le membre
+            $member = Member::create($data);
+            //$user = null;
 
-            $member = Member::create($validated);
+            if ($member->agent_type == "chief_cooperative") {
+                User::create([
+                    'member_id' => $member->id,
+                    'password' => Hash::make('@mines123'),
+                ]);
+            }
 
             return response()->json([
                 'success' => true,
-                'message' => 'Membre créé avec succès'
+                'message' => 'Membre créé avec succès',
+                "member" => $member
             ], 201);
-
         } catch (\Throwable $th) {
             return response()->json([
                 'success' => false,
-                'message' => 'Erreur interne : ' . $th->getMessage()
+                'message' => "Erreur, " . $th->getMessage()
             ], 500);
         }
     }
