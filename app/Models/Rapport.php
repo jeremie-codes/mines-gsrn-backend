@@ -30,8 +30,8 @@ class Rapport extends Model
     public function stocks()
     {
         return $this->belongsToMany(Stock::class, 'rapport_stocks')
-                    ->as('converted')              // 👈 renomme 'pivot'
-                    ->withPivot(['qte', 'metric']) // 👈 champs du pivot
+                    ->as('converted')
+                    ->withPivot(['qte', 'metric'])
                     ->withTimestamps();
     }
 

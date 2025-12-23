@@ -7,18 +7,6 @@ use GuzzleHttp\Client;
 
 class UnitConverter
 {
-    /**
-     * Unité de référence par substance
-     */
-    protected static $referenceUnits = [
-        'gold' => 'g',          // Or
-        'Diamant' => 'ct',      // Carat
-        'OR-123-Min' => 'kg',
-        'cassiterite' => 'kg',
-        'cobalt' => 'kg',
-        'copper' => 'kg',
-        'silver' => 'g',
-    ];
 
     /**
      * Tableau standard de conversions — multipliers vers l'unité inférieure.
@@ -67,41 +55,13 @@ class UnitConverter
 ];
 
 
-    /**
-     * Convertir une quantité pour une substance donnée
-     */
-    /*public static function convert(string $substanceCode, float $qty, string $from)
-    {
-        $from = strtolower($from);
-
-        // Vérifier si la matière existe
-        if (!isset(self::$referenceUnits[$substanceCode])) {
-            throw new Exception("Substance inconnue : $substanceCode");
-        }
-
-        // Vérifier si l'unité de référence est correcte
-        $to = self::$referenceUnits[$substanceCode];
-
-        // Vérifier si la conversion interne existe
-        if (!isset(self::$conversions[$from][$to])) {
-            throw new Exception("Impossible de convertir $from vers $to pour $substanceCode");
-        }
-
-        // Appliquer le multiplicateur
-        $multiplier = self::$conversions[$from][$to];
-        return [
-            'qty' => $qty * $multiplier,
-            'unit' => $to
-        ];
-    }*/
-
     public static function convert(string $substanceCode, float $qty, string $from)
     {
         $from = strtolower($from);
 
         // ---- 1. Récupérer l’unité de référence depuis ton API ----
         $client = new Client();
-        $response = $client->get('https://tidy-bottles-obey.loca.lt/api/rest/substances/' . $substanceCode);
+        $response = $client->get('https://mines-doc.devi7.in/api/rest/substances/' . $substanceCode);
         $data = json_decode($response->getBody()->getContents());
 
         if (!$data || !isset($data->metric->code)) {
