@@ -30,6 +30,7 @@ Route::middleware('api')->group(function () {
         Route::post('members/create', [MemberController::class, 'store']);
         Route::post('members/update', [MemberController::class, 'update']);
         Route::post('members/{id}', [MemberController::class, 'destroy']);
+        Route::get('search/members', [MemberController::class, 'search']);
 
         // Routes pour les Sites
         Route::get('sites', [SiteController::class, 'index'])->name('sites.index');
@@ -59,6 +60,7 @@ Route::middleware('api')->group(function () {
 
         Route::post('logout', [UserController::class, 'logout'])->name('logout');
     });
+
 
     Route::get('users', [UserController::class, 'index']);
     Route::get('users/{id}', [UserController::class, 'show']);

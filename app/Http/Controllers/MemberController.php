@@ -77,6 +77,47 @@ class MemberController extends Controller
         }
     }
 
+    public function search(Request $request) {
+        try {
+
+            $request->validate([
+                'searchByName' => 'nullable|string|max:255',
+                'searchByFirstName' => 'nullable|string|max:255',
+                'searchByLastName' => 'nullable|string|max:255',
+                'searchBySite' => 'nullable|numeric',
+                'searchByOrganization' => 'nullable|numeric',
+                'per_page' => 'nullable|numeric'
+            ]);
+
+            $searchByName = $request->searchByName ?? $request->searchByFirstName ?? $request->searchByLastName ?? null;
+            $members =  Member::paginate($request->per_page ?? 10);
+
+            if (!empty($searchByName)) {
+                $members = Member::where('firstname', 'like', $searchByName . '%')
+                    ->orWhere('lastname', 'like', $searchByName . '%')
+                    ->orWhere('middlename', 'like', $searchByName . '%')
+                    ->paginate($request->per_page ?? 10);
+            }
+
+            $searchBySite = $request->searchBySite ?? $request->searchByOrganization;
+
+            if (!empty($searchBySite)) {
+                $members = Member::where('site_id', $searchBySite)
+                    ->orWhere('organization_id', $searchBySite)->paginate($request->per_page ?? 10) ?? [];
+            }
+
+            return response()->json([
+                'success' => true,
+                'members' => $members,
+            ], 201);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => "Erreur, " .$th->getMessage()
+            ], 500);
+        }
+    }
+
     public function store(Request $request)
     {
         try {
