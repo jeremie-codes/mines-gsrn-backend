@@ -16,7 +16,7 @@ class StockController extends Controller
             $user = auth()->user();
 
             // Récupérer l'organisation via le member
-            $organizationId = $user->member->organization_id;
+            $organizationId = $user->assigned_organization_id;
 
             // Récupérer les stocks des sites liés à cette organisation
             $stocks = Stock::whereHas('site', function ($query) use ($organizationId) {

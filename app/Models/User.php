@@ -13,6 +13,7 @@ class User extends Authenticatable
 
     protected $fillable = [
         'member_id',
+        'assigned_organization_id',
         'plain_password',
         'username',
         'password',
@@ -34,6 +35,11 @@ class User extends Authenticatable
     public function role()
     {
         return $this->belongsTo(Role::class);
+    }
+
+    public function assignedOrganization()
+    {
+        return $this->belongsTo(Organization::class, 'assigned_organization_id');
     }
 
     public function scopeActive($query)

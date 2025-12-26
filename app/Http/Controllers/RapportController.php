@@ -17,7 +17,7 @@ class RapportController extends Controller
     {
         try {
             $user = auth()->user();
-            $organizationId = $user->member->organization_id;
+            $organizationId = $user->assigned_organization_id;
 
             $rapports = Rapport::with('stocks') // Charger les stocks pour chaque rapport
                 ->where('organization_id', $organizationId)
@@ -74,7 +74,7 @@ class RapportController extends Controller
             ]);
 
             $user = auth()->user();
-            $organizationId = $user->member->organization_id;
+            $organizationId = $user->assigned_organization_id;
 
             $dateDebut = \Carbon\Carbon::parse($validated['date_debut'])->startOfDay();
             $dateFin = \Carbon\Carbon::parse($validated['date_fin'])->endOfDay();
