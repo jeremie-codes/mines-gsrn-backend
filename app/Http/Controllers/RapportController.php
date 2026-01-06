@@ -71,6 +71,7 @@ class RapportController extends Controller
             $validated = $request->validate([
                 'date_debut' => 'required|date',
                 'date_fin' => 'required|date',
+                'substance_code' => 'required|string',
             ]);
 
             $user = auth()->user();
@@ -83,6 +84,7 @@ class RapportController extends Controller
             $stocks = Stock::whereHas('site', function ($query) use ($organizationId) {
                     $query->where('organization_id', $organizationId);
                 })
+                ->where('substance_code', $validated['substance_code'])
                 ->whereBetween('created_at', [$dateDebut, $dateFin])
                 ->orderBy('created_at', 'desc')
                 ->get();
