@@ -43,6 +43,8 @@ Route::middleware('api')->group(function () {
         Route::post('sites/update/{id}', [SiteController::class, 'update'])->name('sites.update');
         Route::post('sites/{id}', [SiteController::class, 'destroy'])->name('sites.delete');
 
+        Route::get('stock/sites', [SiteController::class, 'stockIndex']);
+
         // Routes pour les organization
         Route::get('organizations', [OrganizationController::class, 'index'])->name('organizations.index');
         Route::get('organizations/{id}', [OrganizationController::class, 'show'])->name('organizations.show');

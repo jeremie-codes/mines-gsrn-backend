@@ -10,7 +10,26 @@ use GuzzleHttp\Client;
 
 class SiteController extends Controller
 {
-    public function index(Request $request)
+    public function index()
+    {
+        try {
+
+            $sites = Site::with('city', 'organization')->orderBy('created_at', 'desc')->paginate(10);
+
+            return response()->json([
+                'success' => true,
+                'sites' => $sites,
+            ], 201);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => "Erreur, " .$th->getMessage()
+            ], 500);
+        }
+    }
+
+    public function stockIndex(Request $request)
     {
         try {
 
@@ -43,6 +62,7 @@ class SiteController extends Controller
             ], 500);
         }
     }
+
     public function appIndex()
     {
         try {
