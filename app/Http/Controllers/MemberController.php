@@ -5,8 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Member;
 use App\Models\Site;
 use App\Models\Organization;
+use App\Models\Rapport;
 use App\Models\User;
 use App\Models\Township;
+use Carbon\Carbon;
+use App\Models\Stock;
+use App\Services\UnitConverter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
@@ -16,94 +20,94 @@ use Illuminate\Support\Facades\Hash;
 class MemberController extends Controller
 {
 
-
-    public function stats()
+    // GET /dashboard/stocks-chart
+    public function stats(Request $request)
     {
-        try {
-            $members = [
-                'total' => Member::count(),
-                'actives' => Member::where('is_active', true)->count(),
-                'inactives' => Member::where('is_active', false)->count()
-            ];
+        $user = auth()->user();
+        $organizationId = $user->assigned_organization_id;
 
-            $sites = [
-                'total' => Site::count(),
-                'actives' => Site::where('is_active', true)->count(),
-                'inactives' => Site::where('is_active', false)->count()
-            ];
+        //date_debut
+        //date_fin
+        //site_id
 
-            $organisations = [
-                'total' => Organization::count(),
-                'actives' => Organization::where('is_active', true)->count(),
-                'inactives' => Organization::where('is_active', false)->count()
-            ];
+        // Dates par défaut : dernier mois
+        $dateDebut = $request->date_debut
+            ? Carbon::parse($request->date_debut)->startOfDay()
+            : now()->subMonth()->startOfDay();
 
-            $users = [
-                'total' => User::count(),
-                'actives' => User::where('is_active', true)->count(),
-                'inactives' => User::where('is_active', false)->count()
-            ];
+        $dateFin = $request->date_fin
+            ? Carbon::parse($request->date_fin)->endOfDay()
+            : now()->endOfDay();
 
-            return response()->json([
-                'success' => true,
-                'members' => $members,
-                'sites' => $sites,
-                'organizations' => $organisations,
-                'users' => $users
-            ], 201);
-        } catch (\Throwable $th) {
-            return response()->json([
-                'success' => false,
-                'message' => "Erreur, " .$th->getMessage()
-            ], 500);
+        $stocks = Stock::whereHas('site', function ($q) use ($organizationId) {
+                $q->where('organization_id', $organizationId);
+            })
+            ->whereBetween('created_at', [$dateDebut, $dateFin])
+            ->get();
+
+        if ($request->site_id) {
+            $stocks = $stocks->where('site_id', $request->site_id);
         }
+
+        // Agrégation par substance
+        $grouped = [];
+
+        foreach ($stocks as $stock) {
+            $converted = UnitConverter::convert(
+                substanceCode: $stock->substance_code,
+                qty: $stock->qte,
+                from: $stock->mesure,
+            );
+
+            $grouped[$stock->substance_code] ??= [
+                'substance' => $converted['substance'],
+                'qte' => 0,
+                'unit' => $converted['unit'],
+            ];
+
+            $grouped[$stock->substance_code]['qte'] += $converted['qty'];
+        }
+
+        return response()->json([
+            'labels' => array_column($grouped, 'substance'),
+            'data'   => array_column($grouped, 'qte'),
+            'unit'   => $grouped ? reset($grouped)['unit'] : null,
+            'date' => [
+                'debut' => $dateDebut->toDateString(),
+                'fin' => $dateFin->toDateString(),
+            ]
+        ]);
     }
 
-    public function index()
+    public function index(Request $request)
     {
         try {
-
-            $members = Member::orderBy('created_at', 'desc')->paginate(10);
-
-            return response()->json([
-                'success' => true,
-                'members' => $members,
-            ], 201);
-        } catch (\Throwable $th) {
-            return response()->json([
-                'success' => false,
-                'message' => "Erreur, " .$th->getMessage()
-            ], 500);
-        }
-    }
-
-    public function search(Request $request) {
-        try {
-
             $request->validate([
                 'searchByName' => 'nullable|string|max:255',
                 'searchByFirstName' => 'nullable|string|max:255',
                 'searchByLastName' => 'nullable|string|max:255',
                 'searchBySite' => 'nullable|numeric',
-                'searchByOrganization' => 'nullable|numeric',
                 'per_page' => 'nullable|numeric'
             ]);
 
+            $user = auth()->user();
+            $organisationId = $user->assigned_organization_id;
+
             $searchByName = $request->searchByName ?? $request->searchByFirstName ?? $request->searchByLastName ?? null;
-            $members =  Member::paginate($request->per_page ?? 10);
+            $members =  Member::Where('organization_id', $organisationId)->orderBy('created_at', 'desc')->paginate($request->per_page ?? 10);
 
             if (!empty($searchByName)) {
                 $members = Member::where('firstname', 'like', $searchByName . '%')
+                    ->Where('organization_id', $organisationId)
                     ->orWhere('lastname', 'like', $searchByName . '%')
                     ->orWhere('middlename', 'like', $searchByName . '%')
                     ->paginate($request->per_page ?? 10);
             }
 
-            $searchBySite = $request->searchBySite ?? $request->searchByOrganization;
+            $searchBySite = $request->searchBySite;
 
             if (!empty($searchBySite)) {
-                $members = Member::where('site_id', $searchBySite)
-                    ->orWhere('organization_id', $searchBySite)->paginate($request->per_page ?? 10) ?? [];
+                $members = Member::where('site_id', $searchBySite)->Where('organization_id', $organisationId)->paginate($request->per_page ?? 10) ?? [];
             }
 
             return response()->json([
@@ -179,7 +183,6 @@ class MemberController extends Controller
                 ], 400);
             }
 
-
             // Gérer l'upload d'image
             $data['face_path'] = $this->handleImageUpload($request);
             $data['membershipNumber'] = $content->data->gsrn;
@@ -207,7 +210,6 @@ class MemberController extends Controller
             ], 500);
         }
     }
-
 
     public function show($id)
     {
@@ -314,7 +316,6 @@ class MemberController extends Controller
             ], 500);
         }
     }
-
 
     public function destroy($id)
     {
@@ -445,7 +446,6 @@ class MemberController extends Controller
         }
     }
 
-
     /**
      * Sauvegarder un fichier uploadé dans public/storage/profiles
      */
@@ -475,147 +475,28 @@ class MemberController extends Controller
         }
     }
 
-    /**
-     * API pour créer/modifier un membre depuis mobile (avec base64)
-     */
-    public function apiStore(Request $request)
-    {
-        try {
-            $validated = $request->validate([
-                'firstname' => 'nullable|string|max:255',
-                'lastname' => 'nullable|string|max:255',
-                'middlename' => 'nullable|string|max:255',
-                'phone' => 'nullable|string|max:255',
-                'organization_id' => 'nullable|exists:organizations,id',
-                'site_id' => 'nullable|exists:sites,id',
-                'address' => 'nullable|string|max:255',
-                'gender' => 'nullable|string',
-                'agent_type' => 'nullable|string',
-                'birth_date' => 'nullable|string',
-                'face_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-                'face_base64' => 'nullable|string',
-                'is_active' => 'nullable|boolean'
-            ]);
+    /*public function getMembersByOrg(Request $request, $id) {
 
-            $data = $request->all();
-            $data['date_adhesion'] = now(); // équivalent propre à date('Y-m-d H:i:s')
-
-            $client = new Client([
-                'headers' => [
-                    'Content-Type' => 'application/json',
-                    'Accept' => 'application/json'
-                ],
-            ]);
-
-            $gcp = Organization::find($request->organization_id)->gcp;
-
-            if (!$gcp) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'GCP non trouvé'
-                ], 404);
-            }
-
-            $response = $client->request('POST', env('API_GSRN_GENERATE'), [
-                'json' => [
-                    "firstname" => $request->firstname,
-                    "middlename" => $request->middlename,
-                    "lastname" => $request->lastname,
-                    "birthdate" => $request->date_adhesion,
-                    "phone" => $request->phone,
-                    "gender" => $request->gender,
-                    "title" => $request->agent_type,
-                    'projectExternalId' => $gcp,
-                ],
-                'verify' => false,
-            ]);
-
-            $content = json_decode($response->getBody()->getContents());
-
-            if ($content->code != "0") {
-                return response()->json([
-                    'success' => false,
-                    'message' => $content->error
-                ], 400);
-            }
-
-
-            // Gérer l'upload d'image
-            $data['face_path'] = $this->handleImageUpload($request);
-            $data['membershipNumber'] = $content->data->gsrn;
-
-            // Créer le membre
-            $member = Member::create($data);
-            //$user = null;
-
-            if ($member->agent_type == "chief_cooperative") {
-                User::create([
-                    'member_id' => $member->id,
-                    'password' => Hash::make('@mines123'),
-                ]);
-            }
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Membre créé avec succès',
-                "member" => $member
-            ], 201);
-        } catch (\Throwable $th) {
-            return response()->json([
-                'success' => false,
-                'message' => "Erreur, " . $th->getMessage()
-            ], 500);
-        }
-    }
-
-    /**
-     * API pour modifier un membre depuis mobile
-     */
-    public function apiUpdate(Request $request)
-    {
         try {
 
             $request->validate([
-                'firstname' => 'nullable|string|max:255',
-                'lastname' => 'nullable|string|max:255',
-                'middlename' => 'nullable|string|max:255',
-                'phone' => 'nullable|string|max:255',
-                'site_id' => 'required|exists:sites,id',
-                'city_id' => 'nullable|exists:cities,id',
-                'organization_id' => 'nullable|exists:organizations,id',
-                'face_base64' => 'nullable|string',
-                'is_active' => 'nullable|boolean',
-                'member_id' => 'required|exists:members,id'
+                'searchByName' => 'nullable|string|max:255',
+                'per_page' => 'nullable|numeric'
             ]);
 
-            $member = Member::findOrFail($request->member_id);
+            $searchByName = $request->searchByName ?? null;
+            $sites =  Site::Where('organization_id', $id)->paginate($request->per_page ?? 10);
 
-            if(!$member) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Membre non trouvé'
-                ], 404);
+            if (!empty($searchByName)) {
+                $sites = Site::where('name', 'like', $searchByName . '%')
+                    ->Where('organization_id', $id)
+                    ->paginate($request->per_page ?? 10);
             }
 
-            $data = $request->all();
-
-            // Gérer l'image base64
-            if ($request->has('face_base64') && !empty($request->face_base64)) {
-                // Supprimer l'ancienne image si elle existe
-                if ($member->face_path && file_exists(public_path('storage/' . $member->face_path))) {
-                    unlink(public_path('storage/' . $member->face_path));
-                }
-
-                $data['face_path'] = $this->saveBase64Image($request->face_base64);
-            }
-
-            $member->update($data);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Membre mis à jour avec succès',
-                'data' => $member->load('site', 'city', 'organization')
-            ]);
+            return [
+                "success" => true,
+                'sites' => $sites,
+            ];
 
         } catch (\Throwable $th) {
             return response()->json([
@@ -623,6 +504,6 @@ class MemberController extends Controller
                 'message' => "Erreur, " .$th->getMessage()
             ], 500);
         }
-    }
+    }*/
 
 }

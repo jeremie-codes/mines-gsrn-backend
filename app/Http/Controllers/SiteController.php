@@ -4,16 +4,32 @@ namespace App\Http\Controllers;
 
 use App\Models\Organization;
 use App\Models\Site;
+use GrahamCampbell\ResultType\Success;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
 
 class SiteController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         try {
 
-            $sites = Site::with('city', 'organization')->orderBy('created_at', 'desc')->paginate(10);
+            $request->validate([
+                'searchByName' => 'nullable|string|max:255',
+                'per_page' => 'nullable|numeric'
+            ]);
+
+            $user = auth()->user();
+            $organizationId = $user->assigned_organization_id;
+
+            $searchByName = $request->searchByName ?? null;
+            $sites = Site::with('city', 'organization')->where('organization_id', $organizationId)->orderBy('created_at', 'desc')->paginate($request->per_page ?? 10);
+
+            if (!empty($searchByName)) {
+                $sites = Site::with('city', 'organization')->where('name', 'like', $searchByName . '%')
+                    ->Where('organization_id', $organizationId)
+                    ->paginate($request->per_page ?? 10);
+            }
 
             return response()->json([
                 'success' => true,
@@ -205,4 +221,5 @@ class SiteController extends Controller
             ], 500);
         }
     }
+
 }

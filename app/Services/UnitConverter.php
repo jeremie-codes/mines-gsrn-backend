@@ -79,6 +79,7 @@ class UnitConverter
         // Appliquer le multiplicateur
         $multiplier = self::$conversions[$from][$to];
         return [
+            'substance' => $data->name,
             'qty' => $qty * $multiplier,
             'unit' => $to
         ];

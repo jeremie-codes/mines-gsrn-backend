@@ -20,9 +20,9 @@ Route::middleware('api')->group(function () {
         Route::post('login', [UserController::class, 'login'])->name('login');
     });
 
-    Route::get('stats', [MemberController::class, 'stats']);
-
     Route::middleware('auth:sanctum')->group(function () {
+        Route::get('stats', [MemberController::class, 'stats']);
+
         // Routes API pour les membres (application mobile)
         Route::get('members', [MemberController::class, 'index']);
         Route::get('members/export', [MemberController::class, 'export']);
@@ -30,7 +30,6 @@ Route::middleware('api')->group(function () {
         Route::post('members/create', [MemberController::class, 'store']);
         Route::post('members/update', [MemberController::class, 'update']);
         Route::post('members/{id}', [MemberController::class, 'destroy']);
-        Route::get('search/members', [MemberController::class, 'search']);
 
         // Routes pour les Sites
         Route::get('sites', [SiteController::class, 'index'])->name('sites.index');
