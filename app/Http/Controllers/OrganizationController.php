@@ -28,7 +28,7 @@ class OrganizationController extends Controller
         }
     }
 
-    public function indexApi()
+        public function indexApi()
     {
 
         try {
