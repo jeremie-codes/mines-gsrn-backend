@@ -45,6 +45,7 @@ class StockController extends Controller
         try {
             $validated = $request->validate([
                 'site_id' => 'required|exists:sites,id',
+                'substance_name' => 'required|string|max:255',
                 'substance_code' => 'required|string|max:255',
                 'collecteur' => 'required|string|max:255',
                 'qte' => 'required|numeric',
@@ -115,6 +116,7 @@ class StockController extends Controller
 
             $validated = $request->validate([
                 'site_id' => 'nullable|exists:sites,id',
+                'substance_name' => 'nullable|string|max:255',
                 'substance_code' => 'nullable|string|max:255',
                 'collecteur' => 'nullable|string|max:255',
                 'qte' => 'nullable|numeric',

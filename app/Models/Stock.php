@@ -13,6 +13,7 @@ class Stock extends Model
         'site_id',
         'date_collecte',
         'substance_code',
+        'substance_name',
         'collecteur',
         'qte',
         'mesure',
