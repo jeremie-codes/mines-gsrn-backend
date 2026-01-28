@@ -14,8 +14,10 @@ use App\Services\UnitConverter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Pagination\LengthAwarePaginator;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 class MemberController extends Controller
 {
@@ -87,10 +89,6 @@ class MemberController extends Controller
         $user = auth()->user();
         $organizationId = $user->assigned_organization_id;
 
-        //date_debut
-        //date_fin
-        //site_id
-
         // Dates par défaut : dernier mois
         $dateDebut = $request->date_debut
             ? Carbon::parse($request->date_debut)->startOfDay()
@@ -100,15 +98,21 @@ class MemberController extends Controller
             ? Carbon::parse($request->date_fin)->endOfDay()
             : now()->endOfDay();
 
-        $stocks = Stock::whereHas('site', function ($q) use ($organizationId) {
+        // Pagination
+        $page = (int) $request->get('page', 1);
+        $perPage = (int) $request->get('per_page', 10);
+
+        // Requête stocks
+        $query = Stock::whereHas('site', function ($q) use ($organizationId) {
                 $q->where('organization_id', $organizationId);
             })
-            ->whereBetween('created_at', [$dateDebut, $dateFin])
-            ->get();
+            ->whereBetween('created_at', [$dateDebut, $dateFin]);
 
         if ($request->site_id) {
-            $stocks = $stocks->where('site_id', $request->site_id);
+            $query->where('site_id', $request->site_id);
         }
+
+        $stocks = $query->get();
 
         // Agrégation par substance
         $grouped = [];
@@ -129,14 +133,43 @@ class MemberController extends Controller
             $grouped[$stock->substance_code]['qte'] += $converted['qty'];
         }
 
+        // Collection des substances agrégées
+        $collection = collect($grouped)->values();
+
+        // Pagination manuelle
+        $paginator = new LengthAwarePaginator(
+            $collection->forPage($page, $perPage)->values(),
+            $collection->count(),
+            $perPage,
+            $page,
+            [
+                'path' => $request->url(),
+                'query' => $request->query(),
+            ]
+        );
+
+        // Données de la page courante
+        $currentItems = collect($paginator->items());
+
         return response()->json([
-            'labels' => array_column($grouped, 'substance'),
-            'data'   => array_column($grouped, 'qte'),
-            'unit'   => $grouped ? reset($grouped)['unit'] : null,
+            // FORMAT CHART (comme demandé)
+            'labels' => $currentItems->pluck('substance')->values(),
+            'data'   => $currentItems->pluck('qte')->values(),
+            'unit'   => $currentItems->first()['unit'] ?? null,
+
+            // Pagination
+            'meta' => [
+                'current_page' => $paginator->currentPage(),
+                'per_page'     => $paginator->perPage(),
+                'total'        => $paginator->total(),
+                'last_page'    => $paginator->lastPage(),
+            ],
+
+            // Dates
             'date' => [
                 'debut' => $dateDebut->toDateString(),
-                'fin' => $dateFin->toDateString(),
-            ]
+                'fin'   => $dateFin->toDateString(),
+            ],
         ]);
     }
 
@@ -484,7 +517,7 @@ class MemberController extends Controller
             }
 
             // Nom de fichier unique
-            $fileName = 'profile_' . \Str::uuid() . '.' . $type;
+            $fileName = 'profile_' . Str::uuid() . '.' . $type;
 
             // Chemin physique vers public/storage/profiles
             $folder = public_path('storage/profiles');
@@ -502,7 +535,7 @@ class MemberController extends Controller
             return 'profiles/' . $fileName;
 
         } catch (\Exception $e) {
-            \Log::error('Erreur lors de la sauvegarde de l\'image base64: ' . $e->getMessage());
+            Log::error('Erreur lors de la sauvegarde de l\'image base64: ' . $e->getMessage());
             return null;
         }
     }
@@ -514,7 +547,7 @@ class MemberController extends Controller
     {
         try {
             // Générer un nom de fichier unique
-            $fileName = 'profile_' . \Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $fileName = 'profile_' . Str::uuid() . '.' . $file->getClientOriginalExtension();
 
             // Définir le dossier de destination
             $destinationPath = public_path('storage/profiles');
@@ -531,7 +564,7 @@ class MemberController extends Controller
             return 'profiles/' . $fileName;
 
         } catch (\Exception $e) {
-            \Log::error('Erreur lors de la sauvegarde du fichier: ' . $e->getMessage());
+            Log::error('Erreur lors de la sauvegarde du fichier: ' . $e->getMessage());
             return null;
         }
     }

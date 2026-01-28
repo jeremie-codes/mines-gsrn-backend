@@ -96,7 +96,7 @@ class RapportController extends Controller
                 ], 404);
             }
 
-            // 2️⃣ Préparer le pivot avec conversion
+            // Préparer le pivot avec conversion
             $pivotData = [];
 
             foreach ($stocks as $stock) {
@@ -113,7 +113,7 @@ class RapportController extends Controller
                 ];
             }
 
-            // 1️⃣ Créer le rapport
+            // Créer le rapport
             $rapport = Rapport::create([
                 'reference' => Rapport::generateReference(),
                 'date_debut' => $validated['date_debut'],
@@ -121,14 +121,36 @@ class RapportController extends Controller
                 'organization_id' => $organizationId
             ]);
 
-            // 3️⃣ Synchroniser le pivot
+            // Synchroniser le pivot
             $rapport->stocks()->sync($pivotData);
+
+            /*return response()->json([
+                'success' => true,
+                'message' => 'Rapport généré avec succès',
+                'data' => $rapport->load('stocks'),
+            ], 201);*/
 
             return response()->json([
                 'success' => true,
                 'message' => 'Rapport généré avec succès',
-                'data' => $rapport->load('stocks'),
+                'data' => [
+                    'id' => $rapport->id,
+                    'reference' => $rapport->reference,
+                    'date_debut' => $rapport->date_debut,
+                    'date_fin' => $rapport->date_fin,
+
+                    'stocks' => $rapport->stocks->map(function ($stock) {
+                        return [
+                            'stock_id' => $stock->id,
+                            'substance_code' => $stock->substance_code,
+                            'substance_name' => $stock->substance_name, // ✅ ICI
+                            'qte' => $stock->converted->qte,
+                            'unit' => $stock->converted->metric,
+                        ];
+                    }),
+                ]
             ], 201);
+
 
         } catch (Exception $e) {
             return response()->json([
