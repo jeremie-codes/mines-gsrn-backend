@@ -68,20 +68,25 @@ class RapportController extends Controller
     public function store(Request $request)
     {
         try {
-            // Validation
+            // ✅ Validation (YYYY-MM)
             $validated = $request->validate([
-                'date_debut' => 'required|date',
-                'date_fin' => 'required|date',
+                'month' => ['required', 'regex:/^\d{4}-(0[1-9]|1[0-2])$/'],
                 'substance_code' => 'required|string',
             ]);
 
             $user = auth()->user();
             $organizationId = $user->assigned_organization_id;
 
-            $dateDebut = \Carbon\Carbon::parse($validated['date_debut'])->startOfDay();
-            $dateFin = \Carbon\Carbon::parse($validated['date_fin'])->endOfDay();
+            // ✅ Début et fin du mois
+            $dateDebut = \Carbon\Carbon::createFromFormat('Y-m', $validated['month'])
+                ->startOfMonth()
+                ->startOfDay();
 
-            // Récupérer les stocks des sites liés à cette organisation
+            $dateFin = \Carbon\Carbon::createFromFormat('Y-m', $validated['month'])
+                ->endOfMonth()
+                ->endOfDay();
+
+            // 🔎 Récupérer les stocks
             $stocks = Stock::whereHas('site', function ($query) use ($organizationId) {
                     $query->where('organization_id', $organizationId);
                 })
@@ -93,15 +98,14 @@ class RapportController extends Controller
             if ($stocks->isEmpty()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Aucun stock trouvé pour cette période.',
+                    'message' => 'Aucun stock trouvé pour ce mois.',
                 ], 404);
             }
 
-            // Préparer le pivot avec conversion
+            // Préparer le pivot
             $pivotData = [];
 
             foreach ($stocks as $stock) {
-                // Convertir la qte de l’unité du stock → unité finale
                 $convertedQty = UnitConverter::convert(
                     $stock->substance_code,
                     $stock->qte,
@@ -110,50 +114,43 @@ class RapportController extends Controller
 
                 $pivotData[$stock->id] = [
                     'qte' => $convertedQty['qty'],
-                    'metric' => $convertedQty['unit']
+                    'metric' => $convertedQty['unit'],
                 ];
             }
 
             // Créer le rapport
             $rapport = Rapport::create([
                 'reference' => Rapport::generateReference(),
-                'date_debut' => $validated['date_debut'],
-                'date_fin' => $validated['date_fin'],
-                'organization_id' => $organizationId
+                'date_debut' => $dateDebut->toDateString(),
+                'date_fin' => $dateFin->toDateString(),
+                'organization_id' => $organizationId,
             ]);
 
-            // Synchroniser le pivot
+            //  Sync pivot
             $rapport->stocks()->sync($pivotData);
-
-            /*return response()->json([
-                'success' => true,
-                'message' => 'Rapport généré avec succès',
-                'data' => $rapport->load('stocks'),
-            ], 201);*/
 
             return response()->json([
                 'success' => true,
-                'message' => 'Rapport généré avec succès',
+                'message' => 'Rapport mensuel généré avec succès',
                 'data' => [
                     'id' => $rapport->id,
                     'reference' => $rapport->reference,
+                    'month' => $validated['month'],
                     'date_debut' => $rapport->date_debut,
                     'date_fin' => $rapport->date_fin,
-
                     'stocks' => $rapport->stocks->map(function ($stock) {
                         return [
                             'stock_id' => $stock->id,
                             'substance_code' => $stock->substance_code,
-                            'substance_name' => $stock->substance_name, // ✅ ICI
+                            'substance_name' => $stock->substance_name,
                             'qte' => $stock->converted->qte,
                             'unit' => $stock->converted->metric,
                         ];
                     }),
-                ]
+                ],
             ], 201);
 
-
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Erreur lors de la génération du rapport',
