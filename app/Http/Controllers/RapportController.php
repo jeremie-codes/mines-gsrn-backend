@@ -34,6 +34,7 @@ class RapportController extends Controller
                         $unit = $items->first()->converted->metric; // unité commune
                         $qtySum = $items->sum(fn($s) => floatval($s->converted->qte));
                         return [
+                            'substance_name' => $items->first()->substance_name,
                             'substance_code' => $items->first()->substance_code,
                             'qte' => $qtySum,
                             'metric' => $unit
@@ -102,9 +103,9 @@ class RapportController extends Controller
             foreach ($stocks as $stock) {
                 // Convertir la qte de l’unité du stock → unité finale
                 $convertedQty = UnitConverter::convert(
-                    substanceCode: $stock->substance_code,
-                    qty: $stock->qte,
-                    from: $stock->mesure,
+                    $stock->substance_code,
+                    $stock->qte,
+                    $stock->mesure
                 );
 
                 $pivotData[$stock->id] = [
@@ -160,7 +161,6 @@ class RapportController extends Controller
             ], 500);
         }
     }
-
 
     // 🔹 GET /rapports/{id}
     public function show($ref)
@@ -289,4 +289,5 @@ class RapportController extends Controller
             ], 500);
         }
     }
+
 }
