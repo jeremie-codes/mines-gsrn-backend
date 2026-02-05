@@ -9,6 +9,7 @@ use App\Services\UnitConverter;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Exception;
+use Illuminate\Validation\ValidationException;
 
 class RapportController extends Controller
 {
@@ -149,7 +150,12 @@ class RapportController extends Controller
                     }),
                 ],
             ], 201);
-
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Les données fournies sont invalides.',
+                'errors' => $e->errors() // <- ça te donne le champ et le message exact
+            ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -244,6 +250,12 @@ class RapportController extends Controller
                 'data' => $rapport->load('stocks'),
             ]);
 
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Les données fournies sont invalides.',
+                'errors' => $e->errors() // <- ça te donne le champ et le message exact
+            ], 422);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,

@@ -6,6 +6,7 @@ use App\Models\Member;
 use App\Models\Organization;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class OrganizationController extends Controller
 {
@@ -92,7 +93,12 @@ class OrganizationController extends Controller
                 'message' => 'organisation créé avec succès.',
                 'organization' => $organization
             ], 200);
-
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Les données fournies sont invalides.',
+                'errors' => $e->errors() // <- ça te donne le champ et le message exact
+            ], 422);
         } catch (\Throwable $th) {
             return response()->json([
                 'success' => false,
@@ -152,7 +158,12 @@ class OrganizationController extends Controller
                 'message' => 'organisation mis à jour avec succès.',
                 'organization' => $organization
             ], 200);
-
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Les données fournies sont invalides.',
+                'errors' => $e->errors() // <- ça te donne le champ et le message exact
+            ], 422);
         } catch (\Throwable $th) {
             return response()->json([
                 'success' => false,

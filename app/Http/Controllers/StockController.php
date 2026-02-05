@@ -6,6 +6,7 @@ use App\Models\Stock;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Exception;
+use Illuminate\Validation\ValidationException;
 
 class StockController extends Controller
 {
@@ -62,6 +63,12 @@ class StockController extends Controller
                 'data' => $stock,
             ], 201);
 
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Les données fournies sont invalides.',
+                'errors' => $e->errors() // <- ça te donne le champ et le message exact
+            ], 422);
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
@@ -136,7 +143,12 @@ class StockController extends Controller
                 'success' => false,
                 'message' => 'Stock introuvable',
             ], 404);
-
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Les données fournies sont invalides.',
+                'errors' => $e->errors() // <- ça te donne le champ et le message exact
+            ], 422);
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,

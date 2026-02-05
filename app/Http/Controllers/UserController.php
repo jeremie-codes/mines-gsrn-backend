@@ -9,6 +9,7 @@ use App\Models\Member;
 use App\Models\Township;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
 {
@@ -106,7 +107,12 @@ class UserController extends Controller
                 'message' => 'Utilisateur créé avec succès.',
                 'user' => $user
             ], 201);
-
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Les données fournies sont invalides.',
+                'errors' => $e->errors() // <- ça te donne le champ et le message exact
+            ], 422);
         } catch (\Throwable $th) {
             return response()->json([
                 'success' => false,
@@ -179,7 +185,12 @@ class UserController extends Controller
                 'message' => 'Utilisateur mis à jour avec succès.',
                 'user' => $user
             ], 200);
-
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Les données fournies sont invalides.',
+                'errors' => $e->errors() // <- ça te donne le champ et le message exact
+            ], 422);
         } catch (\Throwable $th) {
             //throw $th;
             return response()->json([

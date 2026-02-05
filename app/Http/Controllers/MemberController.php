@@ -18,6 +18,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 class MemberController extends Controller
 {
@@ -297,6 +298,12 @@ class MemberController extends Controller
                 'message' => 'Membre créé avec succès',
                 "member" => $member
             ], 201);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Les données fournies sont invalides.',
+                'errors' => $e->errors() // <- ça te donne le champ et le message exact
+            ], 422);
         } catch (\Throwable $th) {
             return response()->json([
                 'success' => false,
@@ -386,7 +393,12 @@ class MemberController extends Controller
                 'success' => true,
                 'message' => 'Membre mis à jour avec succès'
             ], 200);
-
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Les données fournies sont invalides.',
+                'errors' => $e->errors() // <- ça te donne le champ et le message exact
+            ], 422);
         } catch (\Throwable $th) {
             return response()->json([
                 'success' => false,

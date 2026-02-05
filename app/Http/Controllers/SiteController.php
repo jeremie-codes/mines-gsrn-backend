@@ -7,6 +7,7 @@ use App\Models\Site;
 use GrahamCampbell\ResultType\Success;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
+use Illuminate\Validation\ValidationException;
 
 class SiteController extends Controller
 {
@@ -134,7 +135,12 @@ class SiteController extends Controller
                 'message' => 'Site créé avec succès.',
                 'site' => $site
             ], 201);
-
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Les données fournies sont invalides.',
+                'errors' => $e->errors() // <- ça te donne le champ et le message exact
+            ], 422);
         } catch (\Throwable $th) {
             return response()->json([
                 'success' => false,
