@@ -165,11 +165,15 @@ class RapportController extends Controller
         }
     }
 
-    // 🔹 GET /rapports/{id}
+    // GET /rapports/{id}
     public function show($ref)
     {
         try {
-            $rapport = Rapport::with('stocks')->where('reference', $ref)->firstOrFail();
+            $rapport = Rapport::with([
+                'stocks.membre'   // charge aussi le membre de chaque stock
+            ])
+            ->where('reference', $ref)
+            ->firstOrFail();
 
             return response()->json([
                 'success' => true,
@@ -190,6 +194,7 @@ class RapportController extends Controller
             ], 500);
         }
     }
+
 
     // 🔹 PUT /rapports/{id}
     public function update(Request $request, $id)
